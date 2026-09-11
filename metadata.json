@@ -1,0 +1,6 @@
+{
+  "name": "ClipA - Studio Video AI",
+  "description": "Studio Video AI Terpadu untuk Kreator Konten. Ubah video YouTube panjang Anda menjadi puluhan klip 9:16 viral (TikTok/Reels) atau edit manual dengan timeline editor canggih.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
