@@ -68,7 +68,11 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({ onClose, isV
           <div className="h-5 w-px bg-zinc-800" />
           
           <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse shadow-sm shadow-sky-400" />
+            <img 
+              src="/assets/aistudio/clipA_dae34944.png" 
+              alt="ClipA Logo" 
+              className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(14,165,233,0.5)]" 
+            />
             <h1 className="text-sm font-black text-white tracking-tight">ClipA Pro Manual Studio</h1>
             <span className="text-xs text-zinc-500 hidden md:inline font-mono">• Proyek Vertikal 9:16</span>
           </div>

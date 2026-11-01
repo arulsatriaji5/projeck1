@@ -1,0 +1,6 @@
+{
+  "summary":  "Rencana implementasi peningkatan antarmuka ClipA Studio:\n1. Penambahan input \"Instruksi & Batasan Edit Spesifik\" dengan placeholder teknis dan tombol preset cepat di bawah tab URL & Local Upload.\n2. Peningkatan \"Gudang Referensi Editan\" menjadi Multi-Modal (Video .mp4, Gambar .png/.jpg, Dokumen .pdf/.txt, Link URL) dengan modal popup interaktif, drag-and-drop file, kartu referensi ber-thumbnail/ikon tipe media, serta teks panduan kapabilitas AI di header.",
+  "updatedAt":  "2026-11-01T08:59:38.855075363Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

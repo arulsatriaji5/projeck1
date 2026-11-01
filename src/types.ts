@@ -43,3 +43,23 @@ export interface TimelineTrack {
   muted?: boolean;
   locked?: boolean;
 }
+
+export type MediaType = 'video' | 'image' | 'document' | 'url';
+
+export interface ReferenceItem {
+  id: string;
+  title: string;
+  mediaType: MediaType;
+  url?: string;
+  fileData?: {
+    name: string;
+    size: string;
+    type: string;
+    previewUrl?: string;
+  };
+  platform?: 'tiktok' | 'instagram' | 'youtube' | 'lainnya';
+  category: string;
+  notes: string;
+  createdAt: string;
+}
+

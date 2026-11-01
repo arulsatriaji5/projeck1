@@ -9,16 +9,49 @@ import { ManualEditorView } from './components/ManualEditorView';
 import { CaptionEditorModal } from './components/CaptionEditorModal';
 import { ExportModal } from './components/ExportModal';
 import { ViralAnalysisDrawer } from './components/ViralAnalysisDrawer';
+import { ReferenceVaultModal } from './components/ReferenceVaultModal';
+import { ApiSettingsModal } from './components/ApiSettingsModal';
 import { Footer } from './components/Footer';
 import { SAMPLE_VIDEOS } from './data/sampleData';
-import { VideoData, ClipItem, AspectRatioType, CaptionStyleType, CaptionItem } from './types';
-import { Sparkles, Youtube, Flame } from 'lucide-react';
+import { VideoData, ClipItem, AspectRatioType, CaptionStyleType, CaptionItem, ReferenceItem } from './types';
+import { getStoredReferences, saveStoredReferences } from './data/defaultReferences';
+import { Sparkles, Youtube, Flame, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [currentView, setCurrentView] = useState<'home' | 'autoClipInput' | 'manualEditor' | 'editor'>('home');
   const [credits, setCredits] = useState(250);
   const maxCredits = 300;
+
+  // Gudang Referensi State (Persisted in localStorage)
+  const [references, setReferences] = useState<ReferenceItem[]>(getStoredReferences);
+  const [isReferenceVaultOpen, setIsReferenceVaultOpen] = useState(false);
+  const [isApiSettingsOpen, setIsApiSettingsOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleAddReference = (newRef: ReferenceItem) => {
+    const updated = [newRef, ...references];
+    setReferences(updated);
+    saveStoredReferences(updated);
+    showToast(`Referensi "${newRef.title}" berhasil disimpan ke Gudang.`);
+  };
+
+  const handleDeleteReference = (id: string) => {
+    const updated = references.filter(r => r.id !== id);
+    setReferences(updated);
+    saveStoredReferences(updated);
+    showToast('Referensi berhasil dihapus dari Gudang.');
+  };
+
+  const handleLogout = () => {
+    showToast('Berhasil keluar dari akun kreator ClipA.');
+  };
+
 
   // Video History State
   const [videoHistory, setVideoHistory] = useState<HistoryItem[]>([
@@ -80,7 +113,7 @@ export default function App() {
   };
 
   // Analyze YouTube URL via API or local preset
-  const handleAnalyzeUrl = async (url: string, language: string = 'id') => {
+  const handleAnalyzeUrl = async (url: string, language: string = 'id', constraints?: string) => {
     setIsLoading(true);
     setIsPlaying(false);
     setCurrentTime(0);
@@ -90,7 +123,7 @@ export default function App() {
       id: `hist-${Date.now()}`,
       url,
       title: url.includes('review') ? 'Tech Review Gadget 2026' : 'Podcast AI & Konten Viral',
-      channelName: 'ClipA Auto Generator',
+      channelName: constraints ? `AI Constraints: ${constraints.slice(0, 30)}...` : 'ClipA Auto Generator',
       duration: '15:30',
       processedAt: 'Baru saja',
       thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400'
@@ -104,7 +137,7 @@ export default function App() {
       const response = await fetch('/api/analyze-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, targetLanguage: language }),
+        body: JSON.stringify({ url, targetLanguage: language, constraints }),
       });
 
       if (response.ok) {
@@ -128,6 +161,40 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleProcessLocalFile = (file: File, constraints?: string) => {
+    setIsLoading(true);
+    setIsPlaying(false);
+    setCurrentTime(0);
+
+    const fileNameClean = file.name.replace(/\.[^/.]+$/, "");
+    const newHistItem: HistoryItem = {
+      id: `hist-${Date.now()}`,
+      url: `local://${file.name}`,
+      title: fileNameClean,
+      channelName: constraints ? `AI: ${constraints.slice(0, 25)}...` : 'Unggahan Video Lokal (MP4)',
+      duration: '04:12',
+      processedAt: 'Baru saja',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=400'
+    };
+
+    setVideoHistory((prev) => [newHistItem, ...prev]);
+
+    const baseData = SAMPLE_VIDEOS['podcast-ai'];
+    setCurrentVideoData({
+      ...baseData,
+      videoTitle: fileNameClean,
+      channelName: constraints ? `AI Constraints: ${constraints}` : 'File Video Lokal (.MP4)',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=400',
+      totalDuration: '04:12'
+    });
+    setSelectedClip(baseData.clips[0]);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      openEditorView();
+    }, 1000);
   };
 
   const handleClearHistory = () => {
@@ -169,6 +236,9 @@ export default function App() {
           openHomeView();
         }}
         onOpenWorkspace={openEditorView}
+        onOpenReferenceVault={() => setIsReferenceVaultOpen(true)}
+        onOpenApiSettings={() => setIsApiSettingsOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -188,15 +258,19 @@ export default function App() {
           }} />
         </div>
 
-        {/* Tampilan 2 (id="autoClipInputView"): Halaman khusus input link YouTube yang muncul ketika tombol "Mulai Klip Otomatis" diklik */}
+        {/* Tampilan 2 (id="autoClipInputView"): Halaman khusus input link YouTube & File Lokal (.mp4) */}
         <AutoClipInputView 
           isVisible={currentView === 'autoClipInput'}
           onBack={openHomeView}
-          onProcess={(url) => handleAnalyzeUrl(url, 'id')}
+          onProcess={(url, constraints) => handleAnalyzeUrl(url, 'id', constraints)}
+          onProcessLocalFile={handleProcessLocalFile}
           isLoading={isLoading}
           history={videoHistory}
           onClearHistory={handleClearHistory}
+          references={references}
+          onOpenReferenceVault={() => setIsReferenceVaultOpen(true)}
         />
+
 
         {/* Tampilan 3 (id="manualEditorView"): Halaman editor manual responsif */}
         <ManualEditorView 
@@ -376,6 +450,30 @@ export default function App() {
         onClose={() => setAnalysisClip(null)}
       />
 
+      {/* Gudang Referensi Editan Multi-Modal Modal */}
+      <ReferenceVaultModal
+        isOpen={isReferenceVaultOpen}
+        onClose={() => setIsReferenceVaultOpen(false)}
+        references={references}
+        onAddReference={handleAddReference}
+        onDeleteReference={handleDeleteReference}
+      />
+
+      {/* Pengaturan API Modal */}
+      <ApiSettingsModal
+        isOpen={isApiSettingsOpen}
+        onClose={() => setIsApiSettingsOpen(false)}
+      />
+
+      {/* Notification Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 border border-sky-400/40 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-5 h-5 text-sky-400 shrink-0" />
+          <p className="text-xs sm:text-sm font-semibold">{toastMessage}</p>
+        </div>
+      )}
+
     </div>
   );
 }
+

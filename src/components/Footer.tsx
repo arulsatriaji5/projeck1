@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, Instagram, MessageSquare, Film } from 'lucide-react';
+import { Facebook, Instagram, MessageSquare } from 'lucide-react';
 
 interface FooterProps {
   setActiveTab?: (tab: string) => void;
@@ -10,41 +10,14 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
     <footer className="bg-black border-t border-zinc-800 text-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         
-        {/* Kiri: Logo + Menu navigasi teks (putih) */}
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded bg-sky-500 flex items-center justify-center text-black font-extrabold">
-              <Film className="w-4 h-4 text-black fill-current" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-sky-400">ClipA</span>
-          </div>
-
-          <nav className="flex items-center gap-6 text-sm font-medium text-white">
-            <button 
-              onClick={() => setActiveTab?.('features')} 
-              className="hover:text-sky-400 transition-colors"
-            >
-              Features
-            </button>
-            <button 
-              onClick={() => setActiveTab?.('pricing')} 
-              className="hover:text-sky-400 transition-colors"
-            >
-              Pricing
-            </button>
-            <button 
-              onClick={() => setActiveTab?.('api')} 
-              className="hover:text-sky-400 transition-colors"
-            >
-              API Docs
-            </button>
-            <button 
-              onClick={() => setActiveTab?.('community')} 
-              className="hover:text-sky-400 transition-colors"
-            >
-              Community
-            </button>
-          </nav>
+        {/* Kiri: Logo ClipA */}
+        <div className="flex items-center gap-3">
+          <img 
+            src="/assets/aistudio/clipA_dae34944.png" 
+            alt="ClipA Logo" 
+            className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(14,165,233,0.35)]" 
+          />
+          <span className="text-xl font-bold tracking-tight text-sky-400">ClipA</span>
         </div>
 
         {/* Kanan: Ikon Sosial (Putih) */}
