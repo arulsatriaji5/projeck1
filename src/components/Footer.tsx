@@ -7,48 +7,72 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
   return (
-    <footer className="bg-black border-t border-zinc-800 text-white py-8 px-4 sm:px-6 lg:px-8">
+    /* Footer Section */
+    <footer className="bg-[#0B1F3A] text-white py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         
-        {/* Kiri: Logo ClipA */}
-        <div className="flex items-center gap-3">
-          <img 
-            src="/assets/aistudio/clipA_dae34944.png" 
-            alt="ClipA Logo" 
-            className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(14,165,233,0.35)]" 
-          />
-          <span className="text-xl font-bold tracking-tight text-sky-400">ClipA</span>
+        {/* Brand Footer */}
+        <button
+          type="button"
+          onClick={() => setActiveTab && setActiveTab('home')}
+          className="flex items-center gap-3 cursor-pointer focus:outline-none"
+        >
+          <span className="w-8 h-8 rounded-lg bg-white p-1 shadow-sm flex items-center justify-center">
+            <img 
+              src="/assets/aistudio/clipA_dae34944.png" 
+              alt="Logo ClipA" 
+              className="w-full h-full object-contain" 
+            />
+          </span>
+          <span className="text-xl font-extrabold tracking-tight text-white">ClipA</span>
+        </button>
+
+        {/* Link Navigasi Ringkas */}
+        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-300">
+          <button
+            type="button"
+            onClick={() => setActiveTab && setActiveTab('home')}
+            className="hover:text-white transition-colors cursor-pointer"
+          >
+            Beranda
+          </button>
+          <a href="#fitur" className="hover:text-white transition-colors">
+            Fitur AI
+          </a>
+          <a href="#panduan" className="hover:text-white transition-colors">
+            Panduan Kreator
+          </a>
         </div>
 
-        {/* Kanan: Ikon Sosial (Putih) */}
-        <div className="flex items-center gap-4 text-white">
+        {/* Ikon Media Sosial */}
+        <div className="flex items-center gap-3">
           <a 
             href="#facebook" 
             aria-label="Facebook"
-            className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white hover:border-sky-400 hover:text-sky-400 transition-all"
+            className="w-10 h-10 rounded-full bg-[#122E56] hover:bg-[#1B4278] flex items-center justify-center text-white transition-colors shadow-sm"
           >
-            <Facebook className="w-4 h-4 text-white fill-current" />
+            <Facebook className="w-4 h-4" />
           </a>
           <a 
             href="#instagram" 
             aria-label="Instagram"
-            className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white hover:border-sky-400 hover:text-sky-400 transition-all"
+            className="w-10 h-10 rounded-full bg-[#122E56] hover:bg-[#1B4278] flex items-center justify-center text-white transition-colors shadow-sm"
           >
-            <Instagram className="w-4 h-4 text-white" />
+            <Instagram className="w-4 h-4" />
           </a>
           <a 
             href="#discord" 
             aria-label="Discord"
-            className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white hover:border-sky-400 hover:text-sky-400 transition-all"
+            className="w-10 h-10 rounded-full bg-[#122E56] hover:bg-[#1B4278] flex items-center justify-center text-white transition-colors shadow-sm"
           >
-            <MessageSquare className="w-4 h-4 text-white fill-current" />
+            <MessageSquare className="w-4 h-4" />
           </a>
         </div>
 
       </div>
 
-      <div className="max-w-7xl mx-auto mt-6 pt-4 border-t border-zinc-900 text-center md:text-left text-xs text-zinc-500">
-        &copy; {new Date().getFullYear()} ClipA Inc. Studio Video AI Terpadu untuk Kreator Konten.
+      <div className="max-w-7xl mx-auto mt-8 pt-6 border-t border-white/10 text-center md:text-left text-xs text-slate-300">
+        &copy; {new Date().getFullYear()} ClipA Studio. Platform Pembuat Klip Video Vertikal untuk Kreator dan UMKM.
       </div>
     </footer>
   );

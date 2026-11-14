@@ -3,7 +3,8 @@ import {
   User, 
   LogOut, 
   Settings,
-  FolderArchive
+  FolderArchive,
+  ChevronDown
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -12,6 +13,8 @@ interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onOpenWorkspace?: () => void;
+  onOpenAutoClipInput?: () => void;
+  onOpenManualEdit?: () => void;
   onOpenReferenceVault: () => void;
   onOpenApiSettings: () => void;
   onLogout: () => void;
@@ -20,6 +23,8 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
+  onOpenAutoClipInput,
+  onOpenManualEdit,
   onOpenReferenceVault,
   onOpenApiSettings,
   onLogout
@@ -27,7 +32,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // Close dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -43,82 +47,140 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [showUserMenu]);
 
   return (
-    <header className="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800/80 px-4 lg:px-8 py-3.5">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    /* Header Navigation Section */
+    <header className="sticky top-0 z-40 bg-[#0B1F3A] text-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
         
-        {/* Kiri: Logo "ClipA" (gambar logo + teks bold biru langit) */}
-        <div 
-          className="flex items-center gap-3 cursor-pointer group select-none"
+        {/* Zone 1: Brand Logo & Wordmark */}
+        <button
+          type="button"
           onClick={() => setActiveTab('home')}
+          className="flex items-center gap-3 cursor-pointer group select-none whitespace-nowrap shrink-0 focus:outline-none"
         >
-          <img 
-            src="/assets/aistudio/clipA_dae34944.png" 
-            alt="ClipA Logo" 
-            className="w-9 h-9 object-contain drop-shadow-[0_0_14px_rgba(14,165,233,0.45)] group-hover:scale-105 transition-transform" 
-          />
-          <span className="text-2xl font-black tracking-tight text-sky-400">
+          <span className="w-9 h-9 rounded-xl bg-white p-1 shadow-sm flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+            <img 
+              src="/assets/aistudio/clipA_dae34944.png" 
+              alt="Logo ClipA" 
+              className="w-full h-full object-contain" 
+            />
+          </span>
+          <span className="text-xl font-extrabold tracking-tight text-white">
             ClipA
           </span>
-        </div>
+        </button>
 
-        {/* Kanan: Ikon profil pengguna */}
-        <div className="flex items-center gap-3">
-          
-          {/* Ikon Profil Pengguna (Putih, dilingkari) */}
-          <div className="relative" ref={menuRef}>
+        {/* Zone 2: Primary Navigation Links (Single-line text links) */}
+        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-200">
+          <button
+            type="button"
+            onClick={() => setActiveTab('home')}
+            className={`py-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer border-b-2 ${
+              activeTab === 'home'
+                ? 'text-white border-sky-400 font-semibold'
+                : 'text-slate-300 border-transparent hover:text-white hover:border-slate-400'
+            }`}
+          >
+            Beranda
+          </button>
+
+          {onOpenAutoClipInput && (
             <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="w-10 h-10 rounded-full border border-zinc-700 hover:border-sky-400 flex items-center justify-center text-white bg-zinc-900 hover:bg-zinc-800 transition-all cursor-pointer shadow-sm group"
-              title="Profil Pengguna"
+              type="button"
+              onClick={onOpenAutoClipInput}
+              className={`py-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer border-b-2 ${
+                activeTab === 'autoClip'
+                  ? 'text-white border-sky-400 font-semibold'
+                  : 'text-slate-300 border-transparent hover:text-white hover:border-slate-400'
+              }`}
             >
-              <User className="w-5 h-5 text-zinc-300 group-hover:text-sky-400 transition-colors" />
+              Klip Otomatis
+            </button>
+          )}
+
+          {onOpenManualEdit && (
+            <button
+              type="button"
+              onClick={onOpenManualEdit}
+              className={`py-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer border-b-2 ${
+                activeTab === 'manualEditor'
+                  ? 'text-white border-sky-400 font-semibold'
+                  : 'text-slate-300 border-transparent hover:text-white hover:border-slate-400'
+              }`}
+            >
+              Edit Manual
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onOpenReferenceVault}
+            className="py-1 text-slate-300 hover:text-white border-b-2 border-transparent hover:border-slate-400 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+          >
+            Gudang Referensi
+          </button>
+        </nav>
+
+        {/* Zone 3: User Profile Action & Dropdown */}
+        <div className="flex items-center shrink-0" ref={menuRef}>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[#122E56] hover:bg-[#1B4278] text-white text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-sm"
+              aria-label="Menu Profil Pengguna"
+            >
+              <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+                <User className="w-4 h-4 text-sky-300" />
+              </span>
+              <span className="hidden sm:inline">Akun Kreator</span>
+              <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform duration-150 ${showUserMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {/* User Dropdown Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="px-3.5 py-2.5 border-b border-zinc-800 mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <p className="text-sm font-bold text-white">Akun Kreator</p>
-                  </div>
-                  <p className="text-xs text-zinc-400 mt-0.5 font-mono">user@clipa.ai</p>
+              <div className="absolute right-0 mt-2.5 w-60 rounded-2xl bg-white text-[#0B1F3A] shadow-xl ring-1 ring-slate-900/5 p-2 z-50">
+                <div className="px-3.5 py-2.5 border-b border-slate-100 mb-1">
+                  <p className="text-sm font-bold text-[#0B1F3A]">Akun Kreator</p>
+                  <p className="text-xs text-slate-500 mt-0.5 font-mono">user@clipa.ai</p>
                 </div>
 
-                <div className="py-1 space-y-1 text-xs">
+                <div className="py-1 space-y-1 text-sm">
                   {/* Item 1: Gudang Referensi */}
                   <button 
+                    type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       onOpenReferenceVault();
                     }} 
-                    className="w-full text-left px-3.5 py-2.5 hover:bg-zinc-800 rounded-xl text-sky-400 font-bold flex items-center gap-2.5 cursor-pointer transition-colors"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-slate-100 rounded-xl text-[#0B1F3A] font-semibold flex items-center gap-2.5 cursor-pointer transition-colors"
                   >
-                    <FolderArchive className="w-4 h-4 text-sky-400" />
+                    <FolderArchive className="w-4 h-4 text-[#1B4278]" />
                     <span>Gudang Referensi</span>
                   </button>
 
                   {/* Item 2: Pengaturan API */}
                   <button 
+                    type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       onOpenApiSettings();
                     }}
-                    className="w-full text-left px-3.5 py-2.5 hover:bg-zinc-800 rounded-xl text-zinc-200 hover:text-white font-medium flex items-center gap-2.5 cursor-pointer transition-colors"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-slate-100 rounded-xl text-slate-700 hover:text-[#0B1F3A] font-medium flex items-center gap-2.5 cursor-pointer transition-colors"
                   >
-                    <Settings className="w-4 h-4 text-zinc-400" />
+                    <Settings className="w-4 h-4 text-slate-500" />
                     <span>Pengaturan API</span>
                   </button>
                 </div>
 
                 {/* Item 3: Keluar */}
-                <div className="pt-1.5 mt-1 border-t border-zinc-800">
+                <div className="pt-1.5 mt-1 border-t border-slate-100">
                   <button 
+                    type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       onLogout();
                     }}
-                    className="w-full text-left px-3.5 py-2 hover:bg-rose-950/40 rounded-xl text-rose-400 hover:text-rose-300 font-medium flex items-center gap-2.5 cursor-pointer transition-colors"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-rose-50 rounded-xl text-rose-600 font-semibold flex items-center gap-2.5 cursor-pointer transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Keluar</span>
@@ -127,11 +189,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
           </div>
-
         </div>
 
       </div>
     </header>
   );
 };
-

@@ -1,26 +1,519 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
+import { createServer as createViteServer } from "vite";
+import { GoogleGenAI, Type } from "@google/genai";
+import { getAllReferences, insertReference, deleteReference, initDatabase } from "./src/lib/turso";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 
 // Lazy Google GenAI Client
 function getGenAI() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
-  return new GoogleGenAI({ apiKey });
+  return new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      headers: {
+        "User-Agent": "aistudio-build",
+      },
+    },
+  });
 }
 
-// API Endpoint to analyze YouTube URL and generate smart clips using Gemini AI
+// Initialize Turso DB table on startup
+initDatabase().catch(err => console.warn("Turso init non-fatal note:", err));
+
+// ====================================================================
+// 1. ENDPOINTS: /api/references (Turso / libSQL Reference Vault CRUD)
+// ====================================================================
+
+// GET: Ambil seluruh referensi gaya editan
+app.get("/api/references", async (req, res) => {
+  try {
+    const references = await getAllReferences();
+    return res.json({ success: true, count: references.length, references });
+  } catch (err: any) {
+    console.error("Error GET /api/references:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST: Tambah referensi gaya editan baru
+app.post("/api/references", async (req, res) => {
+  try {
+    const { type, url_or_content, editing_notes } = req.body;
+    if (!url_or_content && !editing_notes) {
+      return res.status(400).json({ success: false, error: "url_or_content atau editing_notes wajib diisi" });
+    }
+
+    const created = await insertReference({
+      type: type || "video",
+      url_or_content: url_or_content || "",
+      editing_notes: editing_notes || ""
+    });
+
+    return res.status(201).json({ success: true, reference: created });
+  } catch (err: any) {
+    console.error("Error POST /api/references:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE: Hapus referensi berdasarkan ID
+app.delete("/api/references", async (req, res) => {
+  try {
+    const id = (req.query.id as string) || req.body?.id;
+    if (!id) {
+      return res.status(400).json({ success: false, error: "ID referensi wajib disertakan" });
+    }
+
+    const result = await deleteReference(id);
+    return res.json(result);
+  } catch (err: any) {
+    console.error("Error DELETE /api/references:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ====================================================================
+// 2. ENDPOINT: /api/analyze-video (Gemini 2.5 Flash Multimodal Blueprint)
+// ====================================================================
+app.post("/api/analyze-video", async (req, res) => {
+  const { 
+    sourceVideoName = "sample_video.mp4", 
+    sourceDuration = 60, 
+    sourceUrl, 
+    referenceId, 
+    editingNotes: customNotes = "", 
+    promptInstructions = "" 
+  } = req.body;
+
+  try {
+    let activeReferenceNotes = customNotes;
+    if (referenceId) {
+      const allRefs = await getAllReferences();
+      const matched = allRefs.find(r => r.id === referenceId);
+      if (matched) {
+        activeReferenceNotes = `[Gaya Referensi ${matched.type.toUpperCase()}: ${matched.url_or_content}]\n${matched.editing_notes}\n${customNotes}`;
+      }
+    }
+
+    const ai = getGenAI();
+
+    if (ai) {
+      const prompt = `Act as an expert viral video editor and technical director for short-form video (TikTok, YouTube Shorts, Reels).
+Analyze this input video request:
+- Video Name: ${sourceVideoName}
+- Estimated Duration: ${sourceDuration} seconds
+- Source URL: ${sourceUrl || 'Local File Upload'}
+- Reference Editing Style Notes (from Turso Reference Vault):
+"""
+${activeReferenceNotes || 'Potong jeda nafas pembicara 100%. Fokuskan wajah di 35% tinggi layar atas rasio 9:16. Subtitle warna kuning neon dengan bayangan hitam pekat.'}
+"""
+- User Additional Constraints:
+"""
+${promptInstructions || 'Pilih segmen 20-45 detik dengan hook terkuat.'}
+"""
+
+You must generate a strict technical video blueprint for client-side FFmpeg processing.
+Return ONLY valid JSON.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        },
+      });
+
+      if (response.text) {
+        const parsed = JSON.parse(response.text);
+        return res.json({
+          success: true,
+          model: "gemini-2.5-flash",
+          blueprint: parsed
+        });
+      }
+    }
+  } catch (err: any) {
+    console.warn("Gemini 2.5 Flash /api/analyze-video warning:", err);
+  }
+
+  const start = Math.min(10, Math.max(0, Number(sourceDuration) * 0.15));
+  const dur = Math.min(30, Math.max(15, Number(sourceDuration) * 0.5));
+  const end = start + dur;
+
+  return res.json({
+    success: true,
+    model: "gemini-2.5-flash-fallback",
+    blueprint: {
+      clip_title: "Rahasia Terbesar Hook 3 Detik FYP TikTok",
+      start_time: Math.round(start * 10) / 10,
+      end_time: Math.round(end * 10) / 10,
+      duration: Math.round(dur * 10) / 10,
+      crop_coordinates: {
+        x_offset_percent: 50,
+        y_offset_percent: 0,
+        width_ratio: 0.5625,
+        ffmpeg_crop_filter: "crop=ih*(9/16):ih:(iw-ih*(9/16))/2:0"
+      },
+      subtitles: [
+        { start: 0.0, end: 2.2, text: "Ternyata 90% penonton bakal scroll...", highlight: "90% penonton" },
+        { start: 2.2, end: 4.8, text: "...kalau 3 detik awal gak menarik!", highlight: "3 detik awal" },
+        { start: 4.8, end: 8.5, text: "Terapkan formula retensi ini ke semua kontenmu!", highlight: "formula retensi" },
+        { start: 8.5, end: 12.0, text: "Potong klip tanpa jeda nafas dan gunakan subtitle kuning neon.", highlight: "subtitle kuning neon" }
+      ],
+      editing_blueprint: {
+        pacing: "Fast-Paced (Zero Silence)",
+        hook_score: 97,
+        style_applied: "Hormozi Fast Hook Style (Turso Reference)"
+      }
+    }
+  });
+});
+
+// ====================================================================
+// 3. ENDPOINT: /api/auto-clip (Real Gemini 2.5 Flash Pipeline — Zero Mock Fallback)
+// ====================================================================
+function formatDurationMMSS(seconds: number): string {
+  const safe = Math.max(1, Math.round(seconds));
+  const m = Math.floor(safe / 60);
+  const s = safe % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+function extractYouTubeVideoId(inputUrl: string): string | null {
+  const regExp = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+  const match = inputUrl.match(regExp);
+  return match ? match[1] : null;
+}
+
+app.post("/api/auto-clip", async (req, res) => {
+  const startTimeStamp = Date.now();
+  try {
+    const {
+      mode,
+      sourceVideoUrl,
+      videoUrl,
+      videoId: clientVideoId,
+      fileName,
+      videoDuration,
+      audioBase64,
+      audioMimeType,
+      audioOffsetSeconds,
+      frames,
+      recipe,
+      ratio,
+      style,
+      sourceStartSeconds,
+      sourceEndSeconds,
+      targetDuration,
+      momentPrompt,
+      referenceInstructions,
+    } = req.body || {};
+
+    const ai = getGenAI();
+    if (!ai) {
+      return res.status(500).json({
+        success: false,
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets). Harap tambahkan API key terlebih dahulu.",
+      });
+    }
+
+    const incomingUrl =
+      typeof sourceVideoUrl === "string" && sourceVideoUrl.trim()
+        ? sourceVideoUrl.trim()
+        : typeof videoUrl === "string" && videoUrl.trim()
+        ? videoUrl.trim()
+        : "";
+
+    const hasAudioPayload = typeof audioBase64 === "string" && audioBase64.trim().length > 0;
+    const isLocalMode =
+      mode === "local" ||
+      hasAudioPayload ||
+      (Array.isArray(frames) && frames.length > 0) ||
+      Boolean(fileName && !incomingUrl);
+    const resolvedRatio = recipe?.layout || ratio || "9:16";
+    const resolvedStyle = recipe?.subtitleTemplateName || style || "hormozi";
+
+    let resolvedVideoId: string | null = null;
+    let videoTitle = fileName ? fileName.replace(/\.[^/.]+$/, "") : "";
+    let authorName = "";
+
+    if (isLocalMode) {
+      if (!fileName) {
+        return res.status(400).json({
+          success: false,
+          error: "File MP4 lokal tidak ditemukan pada permintaan.",
+        });
+      }
+    } else {
+      if (!incomingUrl) {
+        return res.status(400).json({
+          success: false,
+          error: "Tautan YouTube atau file video MP4 lokal wajib disertakan.",
+        });
+      }
+      resolvedVideoId = (typeof clientVideoId === "string" && clientVideoId.length === 11)
+        ? clientVideoId
+        : extractYouTubeVideoId(incomingUrl);
+
+      if (!resolvedVideoId) {
+        return res.status(400).json({
+          success: false,
+          error: "Tautan YouTube tidak valid. Gunakan tautan youtube.com/watch?v=..., youtu.be/..., shorts/..., atau live/...",
+        });
+      }
+
+      // Fetch real YouTube oEmbed metadata so Gemini analyzes the real video title & channel
+      try {
+        const oembedRes = await fetch(
+          `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${resolvedVideoId}&format=json`
+        );
+        if (oembedRes.ok) {
+          const oembedData = (await oembedRes.json()) as { title?: string; author_name?: string };
+          if (oembedData?.title) videoTitle = oembedData.title;
+          if (oembedData?.author_name) authorName = oembedData.author_name;
+        }
+      } catch (oembedErr) {
+        console.warn("[Auto-Clip API] oEmbed metadata warning:", oembedErr);
+      }
+    }
+
+    const safeTotalDuration = isLocalMode
+      ? Math.max(4, Number(videoDuration) || 30)
+      : Math.max(60, Number(sourceEndSeconds) || 300);
+
+    const audioOffset = Math.max(0, Number(audioOffsetSeconds) || 0);
+    const rangeStart = Math.max(0, Number(sourceStartSeconds) || 0);
+    const rangeEnd = Math.max(rangeStart + 4, Math.min(safeTotalDuration, Number(sourceEndSeconds) || safeTotalDuration));
+
+    let durationRule = "durasi ideal 15-45 detik per klip (atau menyesuaikan panjang video sumber)";
+    if (targetDuration === "under_30") durationRule = "WAJIB di bawah 30 detik per klip";
+    else if (targetDuration === "30_60") durationRule = "WAJIB antara 30 sampai 60 detik per klip";
+    else if (targetDuration === "60_90") durationRule = "WAJIB antara 60 sampai 90 detik per klip";
+
+    const minSegLen = isLocalMode ? Math.max(3, Math.min(12, Math.floor((rangeEnd - rangeStart) / 3))) : 15;
+    const maxSegLen = isLocalMode ? Math.max(minSegLen + 2, Math.min(60, rangeEnd - rangeStart)) : 90;
+
+    const promptText = isLocalMode
+      ? `Anda adalah ahli transkripsi audio dan editor video pendek AI profesional.
+${hasAudioPayload ? "Anda menerima rekaman AUDIO ASLI (mono 16kHz WAV) dari file video MP4 pengguna" : "Anda menerima frame sampel dari file video MP4 lokal pengguna"}:
+- Nama File: ${fileName}
+- Total Durasi Video: ${safeTotalDuration.toFixed(2)} detik
+- Rentang Sumber Dipilih: ${rangeStart.toFixed(2)}s sampai ${rangeEnd.toFixed(2)}s
+${hasAudioPayload ? `- Catatan Timeline Audio: Detik 0.0 pada file audio ini berkorespondensi dengan detik ${audioOffset.toFixed(2)} pada timeline video asli.` : ""}
+- Target Durasi Klip: ${durationRule} (panjang segmen ideal ${minSegLen}-${maxSegLen} detik)
+- Rasio Output: ${resolvedRatio}
+- Gaya Subtitle: ${resolvedStyle}
+${momentPrompt ? `- Momen Spesifik yang Dicari: ${momentPrompt}` : ""}
+${referenceInstructions ? `- Instruksi Tambahan: ${referenceInstructions}` : ""}
+
+TUGAS WAJIB (SANGAT KETAT):
+1. ${hasAudioPayload ? "Dengarkan dengan teliti ucapan asli (Bahasa Indonesia atau Inggris) yang terdengar pada audio." : "Analisis visual frame yang dikirimkan."}
+2. Pilih 3 sampai 4 segmen klip terbaik dengan 'start_sec' dan 'end_sec' (angka desimal/float tepat dalam detik timeline video asli, berada di dalam rentang ${rangeStart.toFixed(2)} sampai ${rangeEnd.toFixed(2)}).
+3. Berikan 'title' hook yang relevan dengan isi ucapan asli dan 'viral_score' (75-99).
+4. TRANSKRIPSI VERBATIM (KATA DEMI KATA): Pecah ucapan NYATA yang benar-benar terdengar di dalam rentang [start_sec, end_sec] menjadi potongan subtitle pendek yang padat (2 sampai 4 kata per baris).
+   - JANGAN PERNAH mengarang, menambah, atau berhalusinasi kata yang tidak diucapkan di audio.
+   - Setiap objek subtitle WAJIB memiliki 'start_sec' dan 'end_sec' dalam DETIK TIMELINE VIDEO ASLI (bukan dimulai dari 0 jika klip dimulai di detik ke-15; contoh: jika klip mulai di 15.2s dan berakhir di 28.4s, maka subtitle berada di antara 15.2 dan 28.4 tepat mengikuti momen kata tersebut diucapkan).
+   - Jika pada bagian tertentu tidak ada ucapan (musik/hening), jangan buat teks ucapan palsu.`
+      : `Anda adalah editor video pendek AI profesional.
+Analisis video YouTube nyata berikut:
+- YouTube URL: ${incomingUrl}
+- Video ID: ${resolvedVideoId}
+${videoTitle ? `- Judul Video Asli: ${videoTitle}` : ""}
+${authorName ? `- Channel: ${authorName}` : ""}
+- Rentang Waktu Sumber: ${rangeStart} detik sampai ${rangeEnd} detik
+- Target Durasi Klip: ${durationRule}
+- Rasio Output: ${resolvedRatio}
+- Gaya Subtitle: ${resolvedStyle}
+${momentPrompt ? `- Momen Spesifik yang Dicari: ${momentPrompt}` : ""}
+${referenceInstructions ? `- Instruksi Tambahan: ${referenceInstructions}` : ""}
+
+Tugas Wajib:
+1. Analisis topik dan konteks video YouTube tersebut dan hasilkan 3 sampai 4 segmen klip paling berpotensi viral.
+2. Setiap segmen memiliki 'start_sec' dan 'end_sec' di dalam rentang ${rangeStart}..${rangeEnd} sesuai target (${durationRule}).
+3. Semua 'title' dan 'subtitles' WAJIB berbahasa Indonesia yang relevan dengan topik video aslinya dan memiliki 'viral_score' (75-99).
+4. Untuk setiap segmen, buat potongan 'subtitles' (2-4 kata per baris) dengan 'start_sec' dan 'end_sec' dalam detik timeline video asli (di antara start_sec dan end_sec segmen tersebut).`;
+
+    const contentParts: Array<any> = [];
+    if (isLocalMode && hasAudioPayload) {
+      const cleanAudioBase64 = audioBase64.includes(",")
+        ? audioBase64.split(",")[1]
+        : audioBase64;
+      contentParts.push({
+        inlineData: {
+          mimeType: audioMimeType || "audio/wav",
+          data: cleanAudioBase64,
+        },
+      });
+    }
+    if (isLocalMode && Array.isArray(frames)) {
+      frames.slice(0, hasAudioPayload ? 3 : 6).forEach((frameItem: any) => {
+        if (frameItem?.data && typeof frameItem.data === "string") {
+          const base64Payload = frameItem.data.includes(",")
+            ? frameItem.data.split(",")[1]
+            : frameItem.data;
+          contentParts.push({
+            inlineData: {
+              mimeType: frameItem.mimeType || "image/jpeg",
+              data: base64Payload,
+            },
+          });
+        }
+      });
+    }
+    contentParts.push({ text: promptText });
+
+    const geminiResponse = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: contentParts,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            video_title: { type: Type.STRING },
+            clips: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  title: { type: Type.STRING },
+                  viral_score: { type: Type.INTEGER },
+                  start_sec: { type: Type.NUMBER },
+                  end_sec: { type: Type.NUMBER },
+                  subtitles: {
+                    type: Type.ARRAY,
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        start_sec: { type: Type.NUMBER },
+                        end_sec: { type: Type.NUMBER },
+                        text: { type: Type.STRING },
+                      },
+                      required: ["start_sec", "end_sec", "text"],
+                    },
+                  },
+                },
+                required: ["title", "viral_score", "start_sec", "end_sec", "subtitles"],
+              },
+            },
+          },
+          required: ["clips"],
+        },
+      },
+    });
+
+    if (!geminiResponse.text) {
+      return res.status(502).json({
+        success: false,
+        error: "Gemini 2.5 Flash tidak mengembalikan output JSON.",
+      });
+    }
+
+    const parsed = JSON.parse(geminiResponse.text);
+    const rawClips = Array.isArray(parsed?.clips) ? parsed.clips : [];
+
+    if (rawClips.length === 0) {
+      return res.status(502).json({
+        success: false,
+        error: "Gemini 2.5 Flash tidak menemukan segmen klip yang valid.",
+      });
+    }
+
+    const normalizedClips = rawClips.map((c: any, idx: number) => {
+      let startSec = Math.max(0, Number(c.start_sec ?? c.start_seconds) || 0);
+      let endSec = Number(c.end_sec ?? c.end_seconds) || startSec + 10;
+
+      if (isLocalMode) {
+        startSec = Math.min(Math.max(0, startSec), Math.max(0, safeTotalDuration - 1.5));
+        endSec = Math.min(safeTotalDuration, Math.max(startSec + 1.5, endSec));
+      } else {
+        endSec = Math.max(startSec + 8, endSec);
+      }
+
+      startSec = Math.round(startSec * 100) / 100;
+      endSec = Math.round(endSec * 100) / 100;
+      const segDur = Math.max(1.5, endSec - startSec);
+
+      const cleanSubs = Array.isArray(c.subtitles)
+        ? c.subtitles
+            .map((s: any, sIdx: number) => {
+              let rawSubStart = Number(s.start_sec ?? s.start);
+              let rawSubEnd = Number(s.end_sec ?? s.end);
+              if (isNaN(rawSubStart)) rawSubStart = startSec;
+              if (isNaN(rawSubEnd)) rawSubEnd = rawSubStart + 1.5;
+
+              // Safety check: jika model mengembalikan offset audio 0-based saat audioOffset > 0
+              if (hasAudioPayload && audioOffset > 0 && rawSubStart < startSec - 0.5 && rawSubStart + audioOffset >= startSec - 0.5) {
+                rawSubStart += audioOffset;
+                rawSubEnd += audioOffset;
+              }
+
+              const subStartSec = Math.max(startSec, Math.min(endSec - 0.3, rawSubStart));
+              const subEndSec = Math.min(endSec, Math.max(subStartSec + 0.3, rawSubEnd));
+
+              return {
+                id: `sub-${idx + 1}-${sIdx + 1}`,
+                start_sec: Math.round(subStartSec * 100) / 100,
+                end_sec: Math.round(subEndSec * 100) / 100,
+                text: String(s.text || "").trim(),
+              };
+            })
+            .filter((s: any) => s.text.length > 0)
+            .sort((a: any, b: any) => a.start_sec - b.start_sec)
+        : [];
+
+      const score = Math.min(99, Math.max(70, Math.round(Number(c.viral_score) || 88)));
+
+      return {
+        id: `clip-${Date.now()}-${idx + 1}`,
+        mode: isLocalMode ? "local" : "youtube",
+        videoId: resolvedVideoId,
+        title: String(c.title || `Klip #${idx + 1}`),
+        viral_score: score,
+        score,
+        start_sec: startSec,
+        end_sec: endSec,
+        start_seconds: startSec,
+        end_seconds: endSec,
+        duration: formatDurationMMSS(segDur),
+        subtitles: cleanSubs,
+      };
+    });
+
+    const elapsedSeconds = ((Date.now() - startTimeStamp) / 1000).toFixed(2);
+    console.log(
+      `[Auto-Clip API] Selesai (${isLocalMode ? (hasAudioPayload ? "Local MP4 Audio WAV" : "Local MP4 Frames") : "YouTube"}) dalam ${elapsedSeconds}s | ${normalizedClips.length} klip.`
+    );
+
+    return res.json({
+      success: true,
+      mode: isLocalMode ? "local" : "youtube",
+      videoId: resolvedVideoId,
+      videoTitle: parsed.video_title || videoTitle || fileName || "Video Analisis AI",
+      clips: normalizedClips,
+    });
+  } catch (err: any) {
+    console.error("[Auto-Clip API] Error:", err);
+    return res.status(500).json({
+      success: false,
+      error: err?.message || "Gagal memproses video dengan Gemini API.",
+    });
+  }
+});
+
+// Endpoint lama untuk analisis URL YouTube (kompatibilitas dashboard)
 app.post("/api/analyze-url", async (req, res) => {
   const { url, targetLanguage = "id" } = req.body;
+
 
   if (!url) {
     return res.status(400).json({ error: "YouTube URL is required" });

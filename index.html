@@ -1,14 +1,2542 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/assets/aistudio/clipA_dae34944.png" />
-    <title>ClipA - Studio Video AI</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClipA Studio — Pemotong Klip Video AI Otomatis</title>
+  <meta name="description" content="Ubah video YouTube atau file MP4 lokal menjadi klip vertikal 9:16 viral secara otomatis dengan AI dan editor timeline presisi." />
+  <meta property="og:title" content="ClipA Studio — Pemotong Klip Video AI Otomatis" />
+  <meta property="og:description" content="Ubah video YouTube atau file MP4 lokal menjadi klip vertikal 9:16 viral secara otomatis dengan AI dan editor timeline presisi." />
+  <link rel="icon" type="image/png" href="/assets/aistudio/clipA_dae34944.png" />
 
+  <!-- Bootstrap 5.3 CSS & Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <!-- Google Fonts for Clean UI & Subtitle Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@500;700&family=Montserrat:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-deep: #0A192F;
+      --navy-light: #112240;
+      --accent-blue: #2563EB;
+      --accent-blue-hover: #1D4ED8;
+      --surface-white: #FFFFFF;
+      --surface-soft: #F8F9FA;
+      --sidebar-width: 264px;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      background-color: var(--surface-white);
+      color: var(--navy-deep);
+      margin: 0;
+    }
+
+    .font-mono-tabular {
+      font-family: "JetBrains Mono", monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bg-navy {
+      background-color: var(--navy-deep) !important;
+    }
+
+    .bg-navy-light {
+      background-color: var(--navy-light) !important;
+    }
+
+    .text-navy {
+      color: var(--navy-deep) !important;
+    }
+
+    .btn-accent {
+      background-color: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #FFFFFF;
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus {
+      background-color: var(--accent-blue-hover);
+      border-color: var(--accent-blue-hover);
+      color: #FFFFFF;
+    }
+
+    .btn-navy {
+      background-color: var(--navy-deep);
+      border-color: var(--navy-deep);
+      color: #FFFFFF;
+    }
+
+    .btn-navy:hover,
+    .btn-navy:focus {
+      background-color: var(--navy-light);
+      border-color: var(--navy-light);
+      color: #FFFFFF;
+    }
+
+    /* Fixed Desktop Sidebar */
+    .sidebar-fixed {
+      background-color: var(--navy-deep);
+      color: #FFFFFF;
+      width: var(--sidebar-width);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1030;
+    }
+
+    .sidebar-nav .nav-link {
+      color: rgba(255, 255, 255, 0.78);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .sidebar-nav .nav-link:hover {
+      background-color: var(--navy-light);
+      color: #FFFFFF;
+    }
+
+    .sidebar-nav .nav-link.active {
+      background-color: var(--accent-blue);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    /* Main Workspace Offset on Desktop */
+    .main-workspace {
+      background-color: var(--surface-white);
+      min-height: 100vh;
+    }
+
+    @media (min-width: 992px) {
+      .main-workspace {
+        margin-left: var(--sidebar-width);
+      }
+    }
+
+    /* 9:16 Vertical & 16:9 Media Containers */
+    .clip-fs-host {
+      width: 100%;
+      background-color: #071324;
+    }
+
+    .ratio-9-16 {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      background-color: #071324;
+      overflow: hidden;
+    }
+
+    .ratio-16-9 {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #071324;
+      overflow: hidden;
+    }
+
+    .video-contain {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: #071324;
+    }
+
+    .thumb-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Custom 9:16 Player Controls & Fullscreen Lock */
+    .clip-player-controls {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 8;
+      padding: 22px 12px 10px;
+      background: linear-gradient(to top, rgba(7, 19, 36, 0.94) 0%, rgba(7, 19, 36, 0.65) 55%, rgba(7, 19, 36, 0) 100%);
+    }
+
+    .clip-range-slider {
+      width: 100%;
+      height: 5px;
+      accent-color: #2563EB;
+      cursor: pointer;
+    }
+
+    .clip-fs-host:fullscreen,
+    .clip-fs-host:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      background-color: #000000 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .clip-fs-host::backdrop {
+      background-color: #000000;
+    }
+
+    .clip-fs-host:fullscreen .ratio-9-16,
+    .clip-fs-host:-webkit-full-screen .ratio-9-16 {
+      height: 100vh !important;
+      width: auto !important;
+      aspect-ratio: 9 / 16 !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      margin: 0 auto !important;
+      border-radius: 0 !important;
+    }
+
+    .clip-fs-host:fullscreen .ratio-9-16 video,
+    .clip-fs-host:-webkit-full-screen .ratio-9-16 video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+
+    .clip-fs-host:fullscreen .ratio-9-16 video.video-contain,
+    .clip-fs-host:-webkit-full-screen .ratio-9-16 video.video-contain {
+      object-fit: contain !important;
+    }
+
+    /* Project Card Hover */
+    .project-card-clickable {
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .project-card-clickable:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Editor Timeline Tracks */
+    .timeline-track-bar {
+      position: relative;
+      height: 46px;
+      background-color: var(--surface-soft);
+      border-radius: 0.65rem;
+      overflow: hidden;
+    }
+
+    .timeline-playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: var(--accent-blue);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .timeline-subtitle-block {
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      border-radius: 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0 0.5rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 0.12s ease, background-color 0.15s ease;
+    }
+
+    .timeline-subtitle-block:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Subtitle Animations */
+    @keyframes subPop {
+      0% { transform: scale(0.82); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes subFade {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .anim-pop {
+      animation: subPop 0.2s ease-out;
+    }
+
+    .anim-fade {
+      animation: subFade 0.35s ease-in;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Top Header -->
+  <header class="d-lg-none bg-navy text-white px-3 py-2 d-flex align-items-center justify-content-between sticky-top shadow-sm">
+    <a href="#home" class="d-flex align-items-center gap-2 text-white text-decoration-none fw-bold" onclick="navigateToTab('home', 'view-input'); return false;">
+      <img src="/assets/aistudio/clipA_dae34944.png" alt="Logo ClipA Studio" width="38" height="38" class="rounded bg-white p-1" />
+      <span class="fs-5">ClipA Studio</span>
+    </a>
+    <button class="btn btn-sm btn-accent" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+  </header>
+
+  <!-- Sidebar Navigation (Fixed Desktop) -->
+  <aside class="sidebar-fixed d-none d-lg-flex flex-column p-4 shadow" aria-label="Navigasi Utama">
+    <!-- Brand Header -->
+    <div class="d-flex align-items-center gap-3 pb-4 mb-4 border-bottom border-white border-opacity-10">
+      <div class="bg-white rounded-3 p-1 d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 56px; height: 56px;">
+        <img src="/assets/aistudio/clipA_dae34944.png" alt="Logo ClipA Studio" width="48" height="48" class="img-fluid rounded-2" />
+      </div>
+      <div>
+        <div class="fs-4 fw-bold lh-sm text-white">ClipA Studio</div>
+        <small class="text-white-50" style="font-size: 0.78rem;">Editor Klip Video AI</small>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="nav flex-column gap-2 sidebar-nav" id="desktopNav">
+      <a class="nav-link active d-flex align-items-center gap-2" href="#home" data-nav="home" data-target-view="view-input">
+        <i class="bi bi-house-door-fill"></i>
+        <span>Home</span>
+      </a>
+      <a class="nav-link d-flex align-items-center gap-2" href="#projects" data-nav="projects" data-target-view="view-projects">
+        <i class="bi bi-folder2-open"></i>
+        <span>My Projects</span>
+      </a>
+      <a class="nav-link d-flex align-items-center gap-2" href="#referensi" data-nav="referensi" data-target-view="view-references">
+        <i class="bi bi-bookmarks-fill"></i>
+        <span>Gudang Referensi</span>
+      </a>
+      <a class="nav-link d-flex align-items-center gap-2" href="#settings" data-nav="settings" data-target-view="view-settings">
+        <i class="bi bi-gear-fill"></i>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Mobile Offcanvas Sidebar -->
+  <div class="offcanvas offcanvas-start bg-navy text-white" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+    <div class="offcanvas-header border-bottom border-white border-opacity-10">
+      <div class="d-flex align-items-center gap-3">
+        <div class="bg-white rounded-3 p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+          <img src="/assets/aistudio/clipA_dae34944.png" alt="Logo ClipA Studio" width="42" height="42" class="img-fluid rounded-2" />
+        </div>
+        <h5 class="offcanvas-title fs-4 fw-bold mb-0" id="mobileSidebarLabel">ClipA Studio</h5>
+      </div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+    </div>
+    <div class="offcanvas-body">
+      <nav class="nav flex-column gap-2 sidebar-nav" id="mobileNav">
+        <a class="nav-link active d-flex align-items-center gap-2" href="#home" data-nav="home" data-target-view="view-input" data-bs-dismiss="offcanvas">
+          <i class="bi bi-house-door-fill"></i><span>Home</span>
+        </a>
+        <a class="nav-link d-flex align-items-center gap-2" href="#projects" data-nav="projects" data-target-view="view-projects" data-bs-dismiss="offcanvas">
+          <i class="bi bi-folder2-open"></i><span>My Projects</span>
+        </a>
+        <a class="nav-link d-flex align-items-center gap-2" href="#referensi" data-nav="referensi" data-target-view="view-references" data-bs-dismiss="offcanvas">
+          <i class="bi bi-bookmarks-fill"></i><span>Gudang Referensi</span>
+        </a>
+        <a class="nav-link d-flex align-items-center gap-2" href="#settings" data-nav="settings" data-target-view="view-settings" data-bs-dismiss="offcanvas">
+          <i class="bi bi-gear-fill"></i><span>Settings</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Workspace Area -->
+  <main class="main-workspace p-4 p-md-5">
+
+    <!-- Workspace Top Header -->
+    <header class="bg-navy text-white rounded-4 p-4 mb-4 shadow-sm d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+      <div>
+        <span class="text-uppercase fw-bold text-info" style="font-size: 0.72rem; letter-spacing: 0.08em;">Studio Produksi Klip 9:16</span>
+        <h1 class="h4 fw-bold mb-1 text-white">ClipA Studio — Ruang Kerja Otomatis</h1>
+        <p class="mb-0 small text-white-50">Potong video panjang menjadi konten vertikal siap viral lengkap dengan subtitle dan editor timeline.</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-light rounded-3 px-3" onclick="navigateToTab('home', 'view-input')">
+          <i class="bi bi-plus-circle me-1"></i> Video Baru
+        </button>
+      </div>
+    </header>
+
+    <!-- View 1: Home Input View -->
+    <section id="view-input" class="workspace-view py-3 py-md-4">
+      <div class="container" style="max-width: 780px;">
+        <article class="card border-0 shadow rounded-4 bg-light p-4 p-md-5">
+          <div class="text-center mb-4">
+            <span class="badge bg-navy text-white px-3 py-2 rounded-pill mb-3">
+              <i class="bi bi-stars me-1"></i> Pemotongan Cerdas 1-Klik
+            </span>
+            <h2 class="h3 fw-bold text-navy mb-2">Masukkan Tautan YouTube atau Unggah File MP4</h2>
+            <p class="text-secondary small mb-0">
+              Tempel tautan YouTube atau pilih file MP4 lokal, lalu lanjutkan ke pengaturan klip sebelum AI memproses video Anda.
+            </p>
+          </div>
+
+          <form id="autoClipForm" onsubmit="handleProceedToConfig(event)">
+            <div id="apiErrorAlert" class="alert alert-danger d-none border-0 shadow-sm small fw-semibold mb-4" role="alert"></div>
+
+            <!-- YouTube Link Box -->
+            <div class="mb-3">
+              <label for="youtubeLinkInput" class="form-label small fw-bold text-navy">Tautan Video YouTube</label>
+              <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0 text-primary">
+                  <i class="bi bi-youtube fs-5"></i>
+                </span>
+                <input
+                  type="url"
+                  id="youtubeLinkInput"
+                  class="form-control border-0 bg-white fs-6"
+                  placeholder="Tempel tautan YouTube (watch?v=..., youtu.be/..., shorts/..., live/...)"
+                  value=""
+                />
+              </div>
+            </div>
+
+            <!-- Local MP4 Upload Box -->
+            <div class="mb-4">
+              <label for="localFileInput" class="form-label small fw-bold text-navy">Atau Unggah File Video Lokal (.MP4)</label>
+              <div class="bg-white rounded-3 p-3 shadow-sm d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+                <input type="file" id="localFileInput" accept="video/mp4,.mp4" class="form-control form-control-sm border-0" />
+                <span id="selectedFileLabel" class="small text-secondary text-nowrap">Maks. 500 MB</span>
+              </div>
+            </div>
+
+            <!-- Primary CTA: Lanjut Konfigurasi -->
+            <div class="d-grid">
+              <button type="submit" id="btnProceedConfig" class="btn btn-accent btn-lg fw-bold rounded-3 py-3 shadow-sm">
+                <span>Lanjut Konfigurasi</span> <i class="bi bi-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </form>
+        </article>
+      </div>
+    </section>
+
+    <!-- View 2: Pre-Clipping Configuration Screen (OpusClip Setup Style) -->
+    <section id="view-config" class="workspace-view d-none">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+          <button type="button" class="btn btn-sm btn-light text-navy fw-semibold mb-2 shadow-sm" onclick="navigateToTab('home', 'view-input')">
+            <i class="bi bi-arrow-left me-1"></i> Ganti Video Sumber
+          </button>
+          <h2 class="h4 fw-bold text-navy mb-0">Konfigurasi Klip Sebelum Diproses</h2>
+          <p class="small text-secondary mb-0">Atur rentang waktu sumber, durasi target, dan gaya subtitle pilihan Anda.</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Left Panel: Real Video Preview & Recipe Controls -->
+        <div class="col-12 col-lg-7">
+          <!-- Real Video Preview Card -->
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-4 mb-4">
+            <div class="ratio-16-9 rounded-3 shadow-sm mb-3" id="configPreviewContainer">
+              <!-- Populated dynamically with real YouTube thumbnail/iframe or local MP4 video -->
+            </div>
+            <div class="d-flex align-items-start justify-content-between gap-3">
+              <div>
+                <span class="badge bg-navy text-white mb-2" id="configSourceBadge">Sumber Video</span>
+                <h3 class="h5 fw-bold text-navy mb-1" id="configVideoTitle">Memuat judul video...</h3>
+                <p class="small text-secondary mb-0" id="configVideoSubtitle">Memeriksa metadata video sumber...</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Range & Recipe Controls -->
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-4">
+            <h3 class="h6 fw-bold text-navy mb-3"><i class="bi bi-sliders2 me-2 text-primary"></i>Pengaturan Pemotongan &amp; Gaya</h3>
+
+            <!-- Rentang Waktu Sumber -->
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-navy">Rentang Waktu Sumber (MM:SS)</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                    <span class="input-group-text bg-white border-0 small text-secondary">Mulai</span>
+                    <input type="text" id="configStartTime" class="form-control border-0 bg-white font-mono-tabular" value="00:00" placeholder="00:00" oninput="syncConfigSummary()" />
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                    <span class="input-group-text bg-white border-0 small text-secondary">Selesai</span>
+                    <input type="text" id="configEndTime" class="form-control border-0 bg-white font-mono-tabular" value="05:00" placeholder="05:00" oninput="syncConfigSummary()" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Durasi Klip & Referensi Gaya -->
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-sm-6">
+                <label for="configTargetDuration" class="form-label small fw-bold text-navy">Target Durasi Klip</label>
+                <select id="configTargetDuration" class="form-select border-0 shadow-sm" onchange="syncConfigSummary()">
+                  <option value="auto" selected>Auto (Rekomendasi AI)</option>
+                  <option value="under_30">&lt; 30 detik</option>
+                  <option value="30_60">30 - 60 detik</option>
+                  <option value="60_90">60 - 90 detik</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label for="configStyleRef" class="form-label small fw-bold text-navy">Pilih Referensi Gaya</label>
+                <select id="configStyleRef" class="form-select border-0 shadow-sm" onchange="syncConfigSummary()">
+                  <option value="hormozi" selected>Hormozi Pop (Kuning Neon)</option>
+                  <option value="karaoke">Highlight Karaoke (Edukasi)</option>
+                  <option value="fade">Minimalis Fade Lembut (Podcast)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Momen Spesifik yang Dicari -->
+            <div>
+              <label for="configMomentPrompt" class="form-label small fw-bold text-navy">Momen Spesifik yang Dicari (Opsional)</label>
+              <textarea
+                id="configMomentPrompt"
+                rows="3"
+                class="form-control border-0 shadow-sm"
+                placeholder="Contoh: Cari bagian yang membahas strategi marketing paling berdampak atau hook pembuka yang mengejutkan..."
+                oninput="syncConfigSummary()"
+              ></textarea>
+            </div>
+          </article>
+        </div>
+
+        <!-- Right Summary Card -->
+        <div class="col-12 col-lg-5">
+          <article class="card border-0 shadow rounded-4 bg-white p-4 sticky-lg-top" style="top: 1.5rem;">
+            <div class="bg-navy text-white rounded-3 p-3 mb-4">
+              <div class="small text-info fw-bold text-uppercase mb-1">Ringkasan Resep AI</div>
+              <div class="h6 fw-bold mb-0" id="summarySourceTitle">Video Siap Diproses</div>
+            </div>
+
+            <ul class="list-group list-group-flush mb-4 small">
+              <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
+                <span class="text-secondary">Rasio Video</span>
+                <span class="fw-bold text-navy">9:16 Vertikal</span>
+              </li>
+              <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
+                <span class="text-secondary">Rentang Sumber</span>
+                <span class="fw-bold text-navy font-mono-tabular" id="summaryRangeText">00:00 - 05:00</span>
+              </li>
+              <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
+                <span class="text-secondary">Target Durasi Klip</span>
+                <span class="fw-bold text-navy" id="summaryDurationText">Auto (Rekomendasi AI)</span>
+              </li>
+              <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
+                <span class="text-secondary">Referensi Gaya</span>
+                <span class="fw-bold text-navy" id="summaryStyleText">Hormozi Pop (Kuning Neon)</span>
+              </li>
+              <li class="list-group-item bg-transparent px-0">
+                <div class="text-secondary mb-1">Fokus Momen</div>
+                <div class="fw-semibold text-navy" id="summaryMomentText">Semua momen berpotensi viral</div>
+              </li>
+            </ul>
+
+            <div class="d-grid">
+              <button type="button" id="btnCreateAutoClip" class="btn btn-accent btn-lg fw-bold rounded-3 py-3 shadow-sm" onclick="handleStartAutoClip()">
+                <i class="bi bi-magic me-2"></i>Buat Klip Otomatis
+              </button>
+            </div>
+            <p class="small text-secondary text-center mt-3 mb-0">
+              Pemrosesan berjalan di tab <strong>My Projects</strong> sehingga Anda tetap bisa meninjau proyek lainnya.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- View 3: My Projects (Background Progress & Project Cards) -->
+    <section id="view-projects" class="workspace-view d-none">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+        <div>
+          <h2 class="h4 fw-bold text-navy mb-1">My Projects</h2>
+          <p class="small text-secondary mb-0">Pantau progres analisis AI dan klik proyek yang selesai untuk melihat hasil klip.</p>
+        </div>
+        <button type="button" class="btn btn-accent btn-sm fw-bold px-3 rounded-3" onclick="navigateToTab('home', 'view-input')">
+          <i class="bi bi-plus-lg me-1"></i> Buat Proyek Baru
+        </button>
+      </div>
+
+      <div id="projectsErrorBanner" class="alert alert-danger d-none border-0 shadow-sm small fw-semibold mb-4" role="alert"></div>
+
+      <div class="row g-4" id="projectsGridContainer">
+        <!-- Project cards injected dynamically by Vanilla JS -->
+      </div>
+    </section>
+
+    <!-- View 4: Results Grid (Hasil Generate Klip Viral) -->
+    <section id="view-results" class="workspace-view d-none">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+        <div>
+          <button type="button" class="btn btn-sm btn-light text-navy fw-semibold mb-2 shadow-sm" onclick="navigateToTab('projects', 'view-projects')">
+            <i class="bi bi-arrow-left me-1"></i> Kembali ke My Projects
+          </button>
+          <h2 class="h4 fw-bold text-navy mb-0" id="resultsHeadingTitle">Hasil Generate Klip Viral</h2>
+          <p class="small text-secondary mb-0" id="resultsSubtitle">Klip vertikal terbaik siap ditonton, diunduh, atau disunting di timeline.</p>
+        </div>
+        <span class="badge bg-navy text-white px-3 py-2 rounded-3 font-mono-tabular">
+          Format 9:16 HD
+        </span>
+      </div>
+
+      <!-- Notice Banner untuk Proyek YouTube -->
+      <div id="youtubeResultsNotice" class="alert alert-primary border-0 shadow-sm rounded-4 d-none align-items-center justify-content-between flex-wrap gap-2 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2 small fw-semibold text-navy">
+          <i class="bi bi-info-circle-fill fs-5 text-primary"></i>
+          <span>Untuk ekspor file MP4 dengan subtitle permanen, hubungkan Backend API atau unggah file MP4 sumber secara langsung.</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-navy fw-bold rounded-3" onclick="navigateToTab('settings', 'view-settings')">
+          <i class="bi bi-gear me-1"></i>Atur Backend API
+        </button>
+      </div>
+
+      <!-- Bootstrap Grid for Clip Cards -->
+      <div class="row g-4" id="resultsGridContainer">
+        <!-- Clip cards injected dynamically by Vanilla JS -->
+      </div>
+    </section>
+
+    <!-- View 5: Editor View (CapCut Style) -->
+    <section id="view-editor" class="workspace-view d-none">
+      <!-- Editor Top Toolbar -->
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+          <button type="button" class="btn btn-sm btn-light text-navy fw-bold shadow-sm" onclick="switchView('view-results')">
+            <i class="bi bi-arrow-left me-1"></i> Kembali ke Hasil
+          </button>
+          <div>
+            <h2 class="h5 fw-bold text-navy mb-0" id="editorClipTitle">Edit Manual Timeline</h2>
+            <small class="text-secondary">Klik blok subtitle pada timeline untuk mengubah teks dan gaya secara langsung</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-accent fw-bold px-4 rounded-3 shadow-sm" onclick="exportEditedClip()">
+          <i class="bi bi-cloud-arrow-down-fill me-2"></i>Ekspor &amp; Unduh
+        </button>
+      </div>
+
+      <!-- Editor Top Half: Video Preview & Properties Panel -->
+      <div class="row g-4 mb-4">
+        <!-- Video Preview Canvas -->
+        <div class="col-12 col-lg-7">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="small fw-bold text-navy"><i class="bi bi-phone me-1 text-primary"></i>Pratinjau Kanvas 9:16</span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-navy font-mono-tabular" id="editorTimeDisplay">00:00.0 / 00:30.0</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="toggleElementFullscreen('editor-fs-host')" title="Layar Penuh 9:16">
+                  <i class="bi bi-fullscreen"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center bg-white rounded-3 p-3 shadow-sm">
+              <div id="editor-fs-host" class="clip-fs-host rounded-4 overflow-hidden" style="max-width: 245px;">
+                <div class="ratio-9-16 rounded-4 shadow">
+                  <video
+                    id="editorVideoPlayer"
+                    class="video-contain d-none"
+                    playsinline
+                  ></video>
+                  <div id="editorYoutubeWrap" class="w-100 h-100 position-relative d-none"></div>
+
+                  <!-- Dynamic Real-Time Subtitle Overlay -->
+                  <div
+                    id="editorSubtitleOverlay"
+                    class="position-absolute start-0 end-0 px-3 text-center"
+                    style="bottom: 18%; pointer-events: none; z-index: 6;"
+                  >
+                    <span id="editorSubtitleText" class="d-inline-block px-2 py-1 rounded bg-dark bg-opacity-75 fw-bold text-uppercase" style="display: none;"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Video Transport Controls -->
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
+              <button type="button" class="btn btn-sm btn-light shadow-sm text-navy" onclick="seekEditorTime(0)" title="Ulang dari Awal">
+                <i class="bi bi-skip-backward-fill"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-accent fw-bold px-4" id="btnTogglePlay" onclick="toggleEditorPlay()">
+                <i class="bi bi-play-fill me-1"></i> Putar
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Properties Panel -->
+        <div class="col-12 col-lg-5">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+              <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-sliders me-2 text-primary"></i>Panel Properti Subtitle</h3>
+              <button type="button" class="btn btn-sm btn-navy" onclick="addNewSubtitleBlock()">
+                <i class="bi bi-plus-lg me-1"></i>Tambah Teks
+              </button>
+            </div>
+
+            <div id="propertiesFormContainer">
+              <div class="mb-3">
+                <label for="propSubText" class="form-label small fw-bold text-navy">Teks Subtitle</label>
+                <textarea id="propSubText" rows="2" class="form-control border-0 shadow-sm fw-bold" oninput="updateSelectedSubtitle()"></textarea>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-7">
+                  <label for="propFontFamily" class="form-label small fw-bold text-navy">Jenis Font</label>
+                  <select id="propFontFamily" class="form-select border-0 shadow-sm" onchange="updateSelectedSubtitle()">
+                    <option value="'Montserrat', sans-serif">Montserrat Bold</option>
+                    <option value="'Poppins', sans-serif">Poppins ExtraBold</option>
+                    <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <label for="propFontSize" class="form-label small fw-bold text-navy">Ukuran (px)</label>
+                  <input type="number" id="propFontSize" min="14" max="42" value="18" class="form-control border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" />
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <label for="propColor" class="form-label small fw-bold text-navy">Warna Teks</label>
+                  <input type="color" id="propColor" value="#FACC15" class="form-control form-control-color w-100 border-0 shadow-sm" onchange="updateSelectedSubtitle()" />
+                </div>
+                <div class="col-6">
+                  <label for="propAnimation" class="form-label small fw-bold text-navy">Gaya Animasi</label>
+                  <select id="propAnimation" class="form-select border-0 shadow-sm" onchange="updateSelectedSubtitle()">
+                    <option value="pop">Pop Hormozi</option>
+                    <option value="karaoke">Highlight Karaoke</option>
+                    <option value="fade">Fade Lembut</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-6">
+                  <label for="propStart" class="form-label small fw-bold text-navy">Mulai (detik)</label>
+                  <input type="number" step="0.5" min="0" id="propStart" class="form-control border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" />
+                </div>
+                <div class="col-6">
+                  <label for="propEnd" class="form-label small fw-bold text-navy">Selesai (detik)</label>
+                  <input type="number" step="0.5" min="0.5" id="propEnd" class="form-control border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" />
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Editor Bottom Half: Horizontal Timeline Component -->
+      <article class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-soundwave me-2 text-primary"></i>Timeline Interaktif</h3>
+          <span class="small text-secondary">Klik ruler waktu untuk menggeser playhead atau klik blok subtitle</span>
+        </div>
+
+        <!-- Time Ruler -->
+        <div class="row g-2 align-items-center mb-2">
+          <div class="col-3 col-md-2 small fw-bold text-secondary">Waktu</div>
+          <div class="col-9 col-md-10">
+            <div
+              id="timelineRuler"
+              onclick="handleRulerClick(event)"
+              class="bg-light rounded-3 px-3 py-2 d-flex justify-content-between small font-mono-tabular text-secondary position-relative"
+              style="cursor: pointer;"
+            >
+              <span id="rulerTick0">00:00</span>
+              <span id="rulerTick1">00:08</span>
+              <span id="rulerTick2">00:15</span>
+              <span id="rulerTick3">00:22</span>
+              <span id="rulerTick4">00:30</span>
+              <div id="rulerPlayhead" class="timeline-playhead" style="left: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Track 1: Main Video -->
+        <div class="row g-2 align-items-center mb-2">
+          <div class="col-3 col-md-2 small fw-bold text-navy">
+            <i class="bi bi-film text-primary me-1"></i> Video 9:16
+          </div>
+          <div class="col-9 col-md-10">
+            <div class="timeline-track-bar p-1">
+              <div class="bg-navy text-white h-100 rounded-2 px-3 d-flex align-items-center justify-content-between small fw-semibold">
+                <span id="timelineVideoLabel" class="text-truncate">Klip Utama</span>
+                <span id="timelineVideoDuration" class="font-mono-tabular text-info ms-2">00:30</span>
+              </div>
+              <div id="videoTrackPlayhead" class="timeline-playhead" style="left: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Track 2: Subtitles -->
+        <div class="row g-2 align-items-center">
+          <div class="col-3 col-md-2 small fw-bold text-navy">
+            <i class="bi bi-chat-square-text-fill text-primary me-1"></i> Subtitle
+          </div>
+          <div class="col-9 col-md-10">
+            <div class="timeline-track-bar" id="subtitleTrackContainer">
+              <!-- Subtitle blocks injected dynamically -->
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- View 6: Gudang Referensi -->
+    <section id="view-references" class="workspace-view d-none">
+      <div class="mb-4">
+        <h2 class="h4 fw-bold text-navy mb-1">Gudang Referensi Gaya Edit</h2>
+        <p class="small text-secondary mb-0">Koleksi template hook dan subtitle yang dapat dipilih saat konfigurasi klip.</p>
+      </div>
+      <div class="row g-4" id="referencesCardsContainer">
+        <div class="col-12 col-md-4">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-4 h-100">
+            <span class="badge bg-navy text-white align-self-start mb-2">Hormozi Pop</span>
+            <h3 class="h6 fw-bold text-navy">Hook 3 Detik &amp; Subtitle Kuning Neon</h3>
+            <p class="small text-secondary mb-0">Pemotongan jeda nafas ketat, huruf kapital tebal dengan kontras bayangan gelap untuk retensi maksimal.</p>
+          </article>
+        </div>
+        <div class="col-12 col-md-4">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-4 h-100">
+            <span class="badge bg-primary text-white align-self-start mb-2">Karaoke Sync</span>
+            <h3 class="h6 fw-bold text-navy">Sorotan Kata Kunci Dinamis</h3>
+            <p class="small text-secondary mb-0">Penyorotan kata per kata secara sinkron untuk video edukasi, tutorial teknologi, dan ulasan produk.</p>
+          </article>
+        </div>
+        <div class="col-12 col-md-4">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-4 h-100">
+            <span class="badge bg-secondary text-white align-self-start mb-2">Minimalis Fade</span>
+            <h3 class="h6 fw-bold text-navy">Teks Bersih Podcast</h3>
+            <p class="small text-secondary mb-0">Transisi fade halus dengan ukuran teks rapi untuk kutipan podcast, wawancara, dan storytelling.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- View 7: Settings -->
+    <section id="view-settings" class="workspace-view d-none">
+      <div class="container px-0" style="max-width: 720px;">
+        <article class="card border-0 shadow-sm rounded-4 bg-light p-4 p-md-5">
+          <h2 class="h4 fw-bold text-navy mb-1">Pengaturan Studio</h2>
+          <p class="small text-secondary mb-4">Konfigurasi endpoint Backend API, standar ekspor video, dan bahasa subtitle otomatis ClipA Studio.</p>
+          <div class="mb-3">
+            <label for="settingBackendEndpoint" class="form-label small fw-bold text-navy">Endpoint Backend API (Auto-Clip &amp; Stream MP4)</label>
+            <input
+              type="text"
+              id="settingBackendEndpoint"
+              class="form-control border-0 shadow-sm font-mono-tabular"
+              value="/api/auto-clip"
+              placeholder="/api/auto-clip"
+            />
+            <div class="form-text small text-secondary">
+              URL YouTube dikirim ke endpoint ini terlebih dahulu. Jika backend mengembalikan URL stream <code>.mp4</code>, klip dapat langsung dipotong dan diunduh di browser.
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="settingDefaultRatio" class="form-label small fw-bold text-navy">Rasio Video Default</label>
+            <select id="settingDefaultRatio" class="form-select border-0 shadow-sm">
+              <option value="9:16" selected>9:16 Vertikal (TikTok, Shorts, Reels)</option>
+              <option value="1:1">1:1 Persegi</option>
+              <option value="16:9">16:9 Lanskap</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="settingDefaultLang" class="form-label small fw-bold text-navy">Bahasa Subtitle AI</label>
+            <select id="settingDefaultLang" class="form-select border-0 shadow-sm">
+              <option value="id" selected>Bahasa Indonesia</option>
+              <option value="en">Bahasa Inggris</option>
+            </select>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-accent fw-bold px-4" onclick="saveStudioSettings()">
+              Simpan Pengaturan
+            </button>
+            <button type="button" class="btn btn-outline-secondary fw-semibold px-3" onclick="resetBackendEndpointSetting()">
+              Reset Default Endpoint
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="mt-5 pt-4 border-top text-center text-secondary small">
+      &copy; 2026 ClipA Studio · Pemotong Klip Video AI Otomatis 9:16
+    </footer>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div id="appToast" class="toast align-items-center text-white bg-navy border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body small fw-semibold" id="appToastBody">Notifikasi</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Tutup"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Vanilla JS Application Logic -->
+  <script>
+    // State Aplikasi Nyata (Nol Data Dummy)
+    let pendingSource = null;
+    let projectsList = [];
+    let currentResultProject = null;
+    let generatedClips = [];
+    let activeClip = null;
+    let activeSegmentDuration = 30;
+    let selectedSubtitleId = null;
+    let editorCurrentTime = 0;
+    let isEditorPlaying = false;
+    let editorTimer = null;
+    let localUploadedObjectUrl = null;
+    let localUploadedFile = null;
+    let youtubeSyncTimers = {};
+
+    // Listener Upload File Lokal & Input YouTube (Saling Membersihkan agar Tidak Bentrok)
+    document.getElementById("localFileInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      const label = document.getElementById("selectedFileLabel");
+      if (file) {
+        if (localUploadedObjectUrl) URL.revokeObjectURL(localUploadedObjectUrl);
+        localUploadedFile = file;
+        localUploadedObjectUrl = URL.createObjectURL(file);
+        label.textContent = file.name + " (" + (file.size / (1024 * 1024)).toFixed(1) + " MB)";
+        document.getElementById("youtubeLinkInput").value = "";
+      } else {
+        if (localUploadedObjectUrl) {
+          URL.revokeObjectURL(localUploadedObjectUrl);
+          localUploadedObjectUrl = null;
+        }
+        localUploadedFile = null;
+        label.textContent = "Maks. 500 MB";
+      }
+    });
+
+    document.getElementById("youtubeLinkInput").addEventListener("input", function () {
+      if (this.value.trim()) {
+        const fileInput = document.getElementById("localFileInput");
+        if (fileInput.value) {
+          fileInput.value = "";
+          if (localUploadedObjectUrl) {
+            URL.revokeObjectURL(localUploadedObjectUrl);
+            localUploadedObjectUrl = null;
+          }
+          localUploadedFile = null;
+          document.getElementById("selectedFileLabel").textContent = "Maks. 500 MB";
+        }
+      }
+    });
+
+    // Navigasi Sidebar & Active State (Hanya tab aktif yang disorot)
+    function setActiveNav(navKey) {
+      document.querySelectorAll(".sidebar-nav .nav-link").forEach(function (el) {
+        el.classList.toggle("active", el.getAttribute("data-nav") === navKey);
+      });
+    }
+
+    function navigateToTab(navKey, viewId) {
+      setActiveNav(navKey);
+      if (viewId === "view-projects") {
+        renderProjectsGrid();
+      }
+      if (viewId === "view-results") {
+        renderResultsGrid();
+      }
+      switchView(viewId);
+    }
+
+    document.querySelectorAll(".sidebar-nav .nav-link").forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        const navKey = this.getAttribute("data-nav");
+        const targetView = this.getAttribute("data-target-view");
+        navigateToTab(navKey, targetView);
+      });
+    });
+
+    function switchView(viewId) {
+      stopEditorPlayback();
+      clearAllYoutubeSyncTimers();
+      document.querySelectorAll(".workspace-view").forEach(function (section) {
+        section.classList.add("d-none");
+      });
+      const target = document.getElementById(viewId);
+      if (target) {
+        target.classList.remove("d-none");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Helper Formatting & Parsing
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatSeconds(sec) {
+      const safe = Math.max(0, Math.round(Number(sec) || 0));
+      const m = Math.floor(safe / 60).toString().padStart(2, "0");
+      const s = (safe % 60).toString().padStart(2, "0");
+      return m + ":" + s;
+    }
+
+    function parseTimeToSeconds(val, fallbackSec) {
+      const text = String(val || "").trim();
+      if (!text) return fallbackSec;
+      if (text.includes(":")) {
+        const parts = text.split(":").map(function (p) { return Number(p); });
+        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+          return Math.max(0, parts[0] * 60 + parts[1]);
+        }
+        if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+          return Math.max(0, parts[0] * 3600 + parts[1] * 60 + parts[2]);
+        }
+      }
+      const num = Number(text);
+      return !isNaN(num) && num >= 0 ? num : fallbackSec;
+    }
+
+    // Ekstrak YouTube Video ID (watch?v=, youtu.be/, shorts/, live/)
+    function extractYouTubeId(url) {
+      const match = String(url || "").match(
+        /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+      );
+      return match ? match[1] : null;
+    }
+
+    function showInputError(message) {
+      const alertBox = document.getElementById("apiErrorAlert");
+      if (alertBox) {
+        alertBox.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>' + escapeHtml(message);
+        alertBox.classList.remove("d-none");
+      }
+      showToast(message);
+    }
+
+    function clearInputError() {
+      const alertBox = document.getElementById("apiErrorAlert");
+      if (alertBox) {
+        alertBox.textContent = "";
+        alertBox.classList.add("d-none");
+      }
+    }
+
+    // STEP 1 -> STEP 2: Lanjut Konfigurasi (Tanpa Full-Screen Spinner)
+    async function handleProceedToConfig(event) {
+      if (event) event.preventDefault();
+      clearInputError();
+
+      const youtubeLinkValue = document.getElementById("youtubeLinkInput").value.trim();
+      const fileInput = document.getElementById("localFileInput");
+      const localFile = fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : null;
+
+      if (!localFile && !youtubeLinkValue) {
+        showInputError("Masukkan tautan YouTube atau pilih file MP4 lokal terlebih dahulu.");
+        return;
+      }
+
+      if (localFile) {
+        if (!localUploadedObjectUrl) {
+          localUploadedObjectUrl = URL.createObjectURL(localFile);
+        }
+        localUploadedFile = localFile;
+        pendingSource = {
+          mode: "local",
+          file: localFile,
+          fileName: localFile.name,
+          objectUrl: localUploadedObjectUrl,
+          videoId: null,
+          videoUrl: "",
+          title: localFile.name.replace(/\.[^/.]+$/, ""),
+          author: "File Video Lokal (.MP4)",
+          thumbnailUrl: "",
+          duration: 30
+        };
+        renderConfigScreen();
+        switchView("view-config");
+        return;
+      }
+
+      // Mode YouTube: Parse videoId dan fetch real metadata via oEmbed
+      const videoId = extractYouTubeId(youtubeLinkValue);
+      if (!videoId) {
+        showInputError("Tautan YouTube tidak valid. Gunakan format youtube.com/watch?v=..., youtu.be/..., shorts/..., atau live/...");
+        return;
+      }
+
+      const fallbackThumb = "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
+      pendingSource = {
+        mode: "youtube",
+        fileName: "",
+        objectUrl: "",
+        videoId: videoId,
+        videoUrl: youtubeLinkValue,
+        title: "Video YouTube (" + videoId + ")",
+        author: "YouTube",
+        thumbnailUrl: fallbackThumb,
+        duration: 300
+      };
+
+      renderConfigScreen();
+      switchView("view-config");
+
+      // Fetch real title & thumbnail via oEmbed
+      try {
+        const oembedUrl = "https://www.youtube.com/oembed?url=" + encodeURIComponent(youtubeLinkValue) + "&format=json";
+        const res = await fetch(oembedUrl);
+        if (res.ok) {
+          const meta = await res.json();
+          if (pendingSource && pendingSource.videoId === videoId) {
+            if (meta.title) pendingSource.title = meta.title;
+            if (meta.author_name) pendingSource.author = meta.author_name;
+            if (meta.thumbnail_url) pendingSource.thumbnailUrl = meta.thumbnail_url;
+            updateConfigMetadataUI();
+          }
+        }
+      } catch (err) {
+        // Fallback thumbnail & title sudah disiapkan
+      }
+    }
+
+    function updateConfigMetadataUI() {
+      if (!pendingSource) return;
+      document.getElementById("configVideoTitle").textContent = pendingSource.title;
+      document.getElementById("summarySourceTitle").textContent = pendingSource.title;
+      document.getElementById("configVideoSubtitle").textContent = pendingSource.author;
+      document.getElementById("configSourceBadge").textContent =
+        pendingSource.mode === "local" ? "MP4 Lokal" : "YouTube Source";
+      const thumbImg = document.getElementById("configYoutubeThumb");
+      if (thumbImg && pendingSource.thumbnailUrl) {
+        thumbImg.src = pendingSource.thumbnailUrl;
+      }
+    }
+
+    function renderConfigScreen() {
+      if (!pendingSource) return;
+      const previewContainer = document.getElementById("configPreviewContainer");
+      previewContainer.innerHTML = "";
+
+      if (pendingSource.mode === "local") {
+        const vid = document.createElement("video");
+        vid.id = "configLocalVideoPlayer";
+        vid.className = "video-contain";
+        vid.src = pendingSource.objectUrl;
+        vid.controls = true;
+        vid.playsInline = true;
+        vid.preload = "metadata";
+        vid.addEventListener("loadedmetadata", function () {
+          if (vid.duration && isFinite(vid.duration)) {
+            pendingSource.duration = vid.duration;
+            document.getElementById("configStartTime").value = "00:00";
+            document.getElementById("configEndTime").value = formatSeconds(vid.duration);
+            document.getElementById("configVideoSubtitle").textContent =
+              pendingSource.author + " · Durasi " + formatSeconds(vid.duration);
+            syncConfigSummary();
+          }
+        });
+        previewContainer.appendChild(vid);
+        document.getElementById("configStartTime").value = "00:00";
+        document.getElementById("configEndTime").value = "00:30";
+      } else {
+        previewContainer.innerHTML = `
+          <img id="configYoutubeThumb" src="${pendingSource.thumbnailUrl}" alt="${escapeHtml(pendingSource.title)}" class="thumb-cover" />
+          <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-2" style="background: rgba(10, 25, 47, 0.34);">
+            <button type="button" class="btn btn-accent btn-lg rounded-circle shadow" style="width: 64px; height: 64px;" onclick="playConfigYoutubeEmbed()" title="Putar Pratinjau YouTube">
+              <i class="bi bi-play-fill fs-2"></i>
+            </button>
+            <a href="https://youtu.be/${pendingSource.videoId}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Tonton di YouTube
+            </a>
+          </div>
+        `;
+        document.getElementById("configStartTime").value = "00:00";
+        document.getElementById("configEndTime").value = "05:00";
+      }
+
+      updateConfigMetadataUI();
+      syncConfigSummary();
+    }
+
+    function playConfigYoutubeEmbed() {
+      if (!pendingSource || pendingSource.mode !== "youtube") return;
+      const previewContainer = document.getElementById("configPreviewContainer");
+      previewContainer.innerHTML = `
+        <iframe
+          class="w-100 h-100 border-0"
+          src="https://www.youtube.com/embed/${pendingSource.videoId}?rel=0"
+          title="${escapeHtml(pendingSource.title)}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      `;
+    }
+
+    function syncConfigSummary() {
+      const startText = document.getElementById("configStartTime").value.trim() || "00:00";
+      const endText = document.getElementById("configEndTime").value.trim() || "05:00";
+      const durSelect = document.getElementById("configTargetDuration");
+      const styleSelect = document.getElementById("configStyleRef");
+      const momentText = document.getElementById("configMomentPrompt").value.trim();
+
+      document.getElementById("summaryRangeText").textContent = startText + " - " + endText;
+      document.getElementById("summaryDurationText").textContent = durSelect.options[durSelect.selectedIndex].text;
+      document.getElementById("summaryStyleText").textContent = styleSelect.options[styleSelect.selectedIndex].text;
+      document.getElementById("summaryMomentText").textContent = momentText || "Semua momen berpotensi viral";
+    }
+
+    // Konversi Float32Array Mono 16kHz menjadi Byte Buffer WAV 16-bit PCM & Base64
+    function encodeMonoWavBase64(floatSamples, sampleRate) {
+      const dataLength = floatSamples.length * 2;
+      const buffer = new ArrayBuffer(44 + dataLength);
+      const view = new DataView(buffer);
+
+      function writeAscii(offset, text) {
+        for (let i = 0; i < text.length; i++) {
+          view.setUint8(offset + i, text.charCodeAt(i));
+        }
+      }
+
+      writeAscii(0, "RIFF");
+      view.setUint32(4, 36 + dataLength, true);
+      writeAscii(8, "WAVE");
+      writeAscii(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true); // PCM
+      view.setUint16(22, 1, true); // Mono
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeAscii(36, "data");
+      view.setUint32(40, dataLength, true);
+
+      let offset = 44;
+      for (let i = 0; i < floatSamples.length; i++) {
+        const s = Math.max(-1, Math.min(1, floatSamples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+      }
+
+      const bytes = new Uint8Array(buffer);
+      const chunkSize = 0x8000;
+      let binary = "";
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    // Step A: Ekstrak Audio MP4 Lokal ke Mono 16kHz WAV Base64 via Web Audio API
+    async function extractLocalAudioWavBase64(file, objectUrl, rangeStart) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      if (!AudioCtx || !OfflineCtx) return null;
+
+      let decodeCtx = null;
+      try {
+        const arrayBuffer = file
+          ? await file.arrayBuffer()
+          : await (await fetch(objectUrl)).arrayBuffer();
+
+        decodeCtx = new AudioCtx();
+        const decodedBuffer = await decodeCtx.decodeAudioData(arrayBuffer);
+        const totalDuration = Number(decodedBuffer.duration) || 0;
+        if (totalDuration <= 0.2) return null;
+
+        // Batasi jendela audio maks 360 detik (~11.5 MB WAV) agar selalu muat batas payload API
+        const maxWindowSec = 360;
+        const audioOffset = totalDuration > maxWindowSec
+          ? Math.max(0, Math.min(totalDuration - maxWindowSec, Number(rangeStart) || 0))
+          : 0;
+        const sliceDuration = Math.min(maxWindowSec, totalDuration - audioOffset);
+        const targetSampleRate = 16000;
+        const targetFrames = Math.max(1, Math.ceil(sliceDuration * targetSampleRate));
+
+        const offlineCtx = new OfflineCtx(1, targetFrames, targetSampleRate);
+        const sourceNode = offlineCtx.createBufferSource();
+        sourceNode.buffer = decodedBuffer;
+        sourceNode.connect(offlineCtx.destination);
+        sourceNode.start(0, audioOffset, sliceDuration);
+
+        const renderedBuffer = await offlineCtx.startRendering();
+        const monoSamples = renderedBuffer.getChannelData(0);
+        const audioBase64 = encodeMonoWavBase64(monoSamples, targetSampleRate);
+
+        return {
+          audioBase64: audioBase64,
+          audioMimeType: "audio/wav",
+          audioOffsetSeconds: Math.round(audioOffset * 100) / 100,
+          duration: totalDuration
+        };
+      } catch (err) {
+        console.warn("Ekstraksi audio Web Audio dilewati:", err);
+        return null;
+      } finally {
+        if (decodeCtx && typeof decodeCtx.close === "function") {
+          decodeCtx.close().catch(function () {});
+        }
+      }
+    }
+
+    // Ekstrak frame JPEG untuk konteks visual pendamping MP4 Lokal
+    function extractLocalVideoFrames(objectUrl) {
+      return new Promise(function (resolve, reject) {
+        const video = document.createElement("video");
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = "auto";
+        video.src = objectUrl;
+
+        video.addEventListener("error", function () {
+          reject(new Error("Gagal membaca file MP4 lokal di browser."));
+        });
+
+        video.addEventListener("loadedmetadata", async function () {
+          const duration = Number(video.duration) || 0;
+          if (!duration || !isFinite(duration)) {
+            reject(new Error("Durasi video tidak terbaca."));
+            return;
+          }
+
+          const canvas = document.createElement("canvas");
+          const targetWidth = 320;
+          const aspect = video.videoHeight && video.videoWidth ? video.videoHeight / video.videoWidth : 16 / 9;
+          canvas.width = targetWidth;
+          canvas.height = Math.round(targetWidth * aspect);
+          const ctx = canvas.getContext("2d");
+
+          const sampleCount = 3;
+          const frames = [];
+
+          for (let i = 0; i < sampleCount; i++) {
+            const seekTo = Math.min(duration - 0.2, Math.max(0.1, ((i + 0.5) / sampleCount) * duration));
+            await new Promise(function (resSeek) {
+              function onSeeked() {
+                video.removeEventListener("seeked", onSeeked);
+                if (ctx) {
+                  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                  frames.push({
+                    time: Math.round(seekTo * 10) / 10,
+                    mimeType: "image/jpeg",
+                    data: canvas.toDataURL("image/jpeg", 0.7)
+                  });
+                }
+                resSeek();
+              }
+              video.addEventListener("seeked", onSeeked);
+              video.currentTime = seekTo;
+            });
+          }
+
+          resolve({ duration: duration, frames: frames });
+        });
+      });
+    }
+
+    // STEP 3: Background Progress Inside My Projects
+    async function handleStartAutoClip() {
+      if (!pendingSource) {
+        navigateToTab("home", "view-input");
+        return;
+      }
+
+      const startSec = parseTimeToSeconds(document.getElementById("configStartTime").value, 0);
+      const endSec = parseTimeToSeconds(
+        document.getElementById("configEndTime").value,
+        pendingSource.mode === "local" ? Math.round(pendingSource.duration) : 300
+      );
+      const targetDuration = document.getElementById("configTargetDuration").value;
+      const selectedStyle = document.getElementById("configStyleRef").value;
+      const momentPrompt = document.getElementById("configMomentPrompt").value.trim();
+
+      const projectId = "proj-" + Date.now();
+      const nowLabel = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+      const newProject = {
+        id: projectId,
+        mode: pendingSource.mode,
+        file: pendingSource.file || null,
+        videoId: pendingSource.videoId,
+        videoUrl: pendingSource.videoUrl,
+        objectUrl: pendingSource.objectUrl,
+        fileName: pendingSource.fileName,
+        title: pendingSource.title,
+        author: pendingSource.author,
+        thumbnailUrl: pendingSource.thumbnailUrl,
+        createdAt: "Hari ini, " + nowLabel,
+        status: "processing",
+        progress: 14,
+        clips: [],
+        errorMessage: null,
+        style: selectedStyle
+      };
+
+      projectsList.unshift(newProject);
+      clearProjectsError();
+      navigateToTab("projects", "view-projects");
+
+      // Smooth progress ticker while extracting audio & calling Gemini API
+      const progressTimer = setInterval(function () {
+        if (newProject.status !== "processing") {
+          clearInterval(progressTimer);
+          return;
+        }
+        if (newProject.progress < 90) {
+          newProject.progress = Math.min(90, newProject.progress + Math.floor(Math.random() * 9 + 5));
+          updateProjectCardProgressUI(newProject);
+        }
+      }, 650);
+
+      try {
+        let requestPayload = null;
+        if (newProject.mode === "local") {
+          const results = await Promise.all([
+            extractLocalVideoFrames(newProject.objectUrl),
+            extractLocalAudioWavBase64(newProject.file, newProject.objectUrl, startSec)
+          ]);
+          const extractedFrames = results[0];
+          const extractedAudio = results[1];
+
+          newProject.progress = Math.max(newProject.progress, 48);
+          updateProjectCardProgressUI(newProject);
+
+          requestPayload = {
+            mode: "local",
+            fileName: newProject.fileName,
+            videoDuration: extractedFrames.duration,
+            audioBase64: extractedAudio ? extractedAudio.audioBase64 : "",
+            audioMimeType: extractedAudio ? extractedAudio.audioMimeType : "audio/wav",
+            audioOffsetSeconds: extractedAudio ? extractedAudio.audioOffsetSeconds : 0,
+            frames: extractedFrames.frames,
+            ratio: "9:16",
+            style: selectedStyle,
+            sourceStartSeconds: startSec,
+            sourceEndSeconds: Math.min(extractedFrames.duration, Math.max(startSec + 4, endSec)),
+            targetDuration: targetDuration,
+            momentPrompt: momentPrompt
+          };
+        } else {
+          requestPayload = {
+            mode: "youtube",
+            videoUrl: newProject.videoUrl,
+            videoId: newProject.videoId,
+            ratio: "9:16",
+            style: selectedStyle,
+            sourceStartSeconds: startSec,
+            sourceEndSeconds: Math.max(startSec + 30, endSec),
+            targetDuration: targetDuration,
+            momentPrompt: momentPrompt
+          };
+        }
+
+        const backendEndpoint = getConfiguredBackendEndpoint();
+        const response = await fetch(backendEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestPayload)
+        });
+
+        const data = await response.json().catch(function () { return null; });
+        if (!response.ok) {
+          throw new Error((data && data.error) ? data.error : "Gagal memproses video (HTTP " + response.status + ")");
+        }
+
+        const rawClips = Array.isArray(data) ? data : (data && Array.isArray(data.clips) ? data.clips : []);
+        if (!rawClips || rawClips.length === 0) {
+          throw new Error("Gemini API tidak mengembalikan segmen klip.");
+        }
+
+        if (data && data.videoTitle) {
+          newProject.title = data.videoTitle;
+        }
+
+        const rootStreamUrl = (data && (data.streamUrl || data.mp4Url || data.videoUrl)) || "";
+        let anyPlayableStream = false;
+
+        newProject.clips = rawClips.map(function (item, idx) {
+          const cStart = Math.max(0, Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds) || 0);
+          const cEnd = Math.max(cStart + 1.5, Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds) || cStart + 20);
+          const segDur = cEnd - cStart;
+          const rawSubs = Array.isArray(item.subtitles) ? item.subtitles : [];
+          const itemStreamUrl = item.mp4Url || item.streamUrl || item.videoUrl || rootStreamUrl || "";
+          const playableVideoUrl = newProject.mode === "local" ? newProject.objectUrl : itemStreamUrl;
+          if (playableVideoUrl) anyPlayableStream = true;
+
+          return {
+            id: item.id || ("clip-" + projectId + "-" + (idx + 1)),
+            mode: playableVideoUrl ? (newProject.mode === "local" ? "local" : "stream") : "youtube",
+            sourceType: newProject.mode,
+            videoId: item.videoId || newProject.videoId,
+            videoUrl: playableVideoUrl,
+            thumbnailUrl: newProject.thumbnailUrl,
+            title: item.title || ("Klip Viral #" + (idx + 1)),
+            score: item.viral_score !== undefined ? item.viral_score : (item.score !== undefined ? item.score : 88),
+            start_sec: Math.round(cStart * 100) / 100,
+            end_sec: Math.round(cEnd * 100) / 100,
+            start_seconds: Math.round(cStart * 100) / 100,
+            end_seconds: Math.round(cEnd * 100) / 100,
+            duration: item.duration || formatSeconds(segDur),
+            range: formatSeconds(cStart) + " - " + formatSeconds(cEnd),
+            style: selectedStyle,
+            subtitles: rawSubs.map(function (s, sIdx) {
+              let subStartSec = Number(s.start_sec);
+              let subEndSec = Number(s.end_sec);
+              if (isNaN(subStartSec)) {
+                const relS = Math.max(0, Number(s.start) || 0);
+                subStartSec = cStart + relS;
+              }
+              if (isNaN(subEndSec)) {
+                const relE = Number(s.end);
+                subEndSec = !isNaN(relE) ? (cStart + relE) : (subStartSec + 1.5);
+              }
+              subStartSec = Math.max(cStart, Math.min(cEnd - 0.2, subStartSec));
+              subEndSec = Math.min(cEnd, Math.max(subStartSec + 0.2, subEndSec));
+
+              return {
+                id: s.id || ("sub-" + idx + "-" + sIdx),
+                start_sec: Math.round(subStartSec * 100) / 100,
+                end_sec: Math.round(subEndSec * 100) / 100,
+                start: Math.round((subStartSec - cStart) * 100) / 100,
+                end: Math.round((subEndSec - cStart) * 100) / 100,
+                text: String(s.text || "").trim(),
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: 18,
+                color: selectedStyle === "karaoke" ? "#38BDF8" : "#FACC15",
+                animation: selectedStyle === "karaoke" || selectedStyle === "fade" ? selectedStyle : "pop"
+              };
+            }).filter(function (s) { return s.text.length > 0; })
+          };
+        });
+
+        newProject.hasPlayableStream = anyPlayableStream;
+
+        clearInterval(progressTimer);
+        newProject.progress = 100;
+        newProject.status = "done";
+        renderProjectsGrid();
+        showToast("Selesai! " + newProject.clips.length + " klip siap ditinjau di My Projects.");
+      } catch (err) {
+        clearInterval(progressTimer);
+        newProject.status = "error";
+        newProject.progress = 0;
+        newProject.errorMessage = err && err.message ? err.message : "Terjadi kesalahan pemrosesan AI.";
+        renderProjectsGrid();
+        showProjectsError("Gagal memproses proyek \"" + newProject.title + "\": " + newProject.errorMessage);
+      }
+    }
+
+    function updateProjectCardProgressUI(project) {
+      const badge = document.getElementById("proj-badge-" + project.id);
+      const bar = document.getElementById("proj-bar-" + project.id);
+      if (badge) {
+        badge.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Memproses AI... ' + project.progress + '%';
+      }
+      if (bar) {
+        bar.style.width = project.progress + "%";
+      }
+    }
+
+    function showProjectsError(msg) {
+      const el = document.getElementById("projectsErrorBanner");
+      if (el) {
+        el.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>' + escapeHtml(msg);
+        el.classList.remove("d-none");
+      }
+    }
+
+    function clearProjectsError() {
+      const el = document.getElementById("projectsErrorBanner");
+      if (el) {
+        el.textContent = "";
+        el.classList.add("d-none");
+      }
+    }
+
+    function renderProjectsGrid() {
+      const container = document.getElementById("projectsGridContainer");
+      container.innerHTML = "";
+
+      if (projectsList.length === 0) {
+        container.innerHTML = `
+          <div class="col-12">
+            <article class="card border-0 shadow-sm rounded-4 bg-light p-5 text-center">
+              <i class="bi bi-folder2-open fs-1 text-primary mb-2"></i>
+              <h3 class="h5 fw-bold text-navy mb-2">Belum Ada Proyek</h3>
+              <p class="small text-secondary mb-3">Mulai dengan menempel tautan YouTube atau mengunggah MP4 di halaman Home.</p>
+              <div>
+                <button type="button" class="btn btn-accent fw-bold px-4" onclick="navigateToTab('home', 'view-input')">
+                  <i class="bi bi-plus-circle me-1"></i> Mulai di Home
+                </button>
+              </div>
+            </article>
+          </div>
+        `;
+        return;
+      }
+
+      projectsList.forEach(function (project) {
+        const col = document.createElement("div");
+        col.className = "col-12 col-md-6 col-lg-4";
+
+        const isDone = project.status === "done";
+        const isError = project.status === "error";
+
+        const badgeHtml = isDone
+          ? `<span id="proj-badge-${project.id}" class="badge bg-success text-white px-3 py-2 rounded-3 shadow-sm">
+               <i class="bi bi-check-circle-fill me-1"></i>Selesai • ${project.clips.length} Klip
+             </span>`
+          : isError
+          ? `<span id="proj-badge-${project.id}" class="badge bg-danger text-white px-3 py-2 rounded-3 shadow-sm">
+               <i class="bi bi-exclamation-octagon-fill me-1"></i>Gagal
+             </span>`
+          : `<span id="proj-badge-${project.id}" class="badge bg-primary text-white px-3 py-2 rounded-3 shadow-sm">
+               <span class="spinner-border spinner-border-sm me-1"></span>Memproses AI... ${project.progress}%
+             </span>`;
+
+        const thumbVisualHtml = project.mode === "youtube"
+          ? `<img src="${project.thumbnailUrl}" alt="${escapeHtml(project.title)}" class="thumb-cover" />`
+          : `<video src="${project.objectUrl}" class="video-contain" muted playsinline preload="metadata"></video>`;
+
+        const progressStripHtml = project.status === "processing"
+          ? `<div class="progress bg-white mt-3" style="height: 6px;">
+               <div id="proj-bar-${project.id}" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: ${project.progress}%;"></div>
+             </div>`
+          : isError
+          ? `<p class="small text-danger mt-2 mb-0">${escapeHtml(project.errorMessage || "Gagal memproses.")}</p>`
+          : `<div class="d-grid mt-3">
+               <button type="button" class="btn btn-sm btn-accent fw-bold">
+                 <i class="bi bi-collection-play-fill me-1"></i>Lihat ${project.clips.length} Klip Hasil
+               </button>
+             </div>`;
+
+        col.innerHTML = `
+          <article class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-light ${isDone ? "project-card-clickable" : ""}" id="proj-card-${project.id}">
+            <div class="ratio-16-9">
+              ${thumbVisualHtml}
+              <div class="position-absolute top-0 start-0 m-3">
+                ${badgeHtml}
+              </div>
+              <div class="position-absolute bottom-0 end-0 m-2">
+                <span class="badge bg-dark bg-opacity-75 text-white">${project.mode === "local" ? "MP4 Lokal" : "YouTube"}</span>
+              </div>
+            </div>
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+              <div>
+                <h3 class="h6 fw-bold text-navy mb-1">${escapeHtml(project.title)}</h3>
+                <small class="text-secondary">${project.createdAt}</small>
+              </div>
+              ${progressStripHtml}
+            </div>
+          </article>
+        `;
+
+        if (isDone) {
+          col.querySelector("#proj-card-" + project.id).addEventListener("click", function () {
+            openProjectResults(project.id);
+          });
+        }
+
+        container.appendChild(col);
+      });
+    }
+
+    function openProjectResults(projectId) {
+      const proj = projectsList.find(function (p) { return p.id === projectId; });
+      if (!proj || proj.status !== "done") return;
+      currentResultProject = proj;
+      generatedClips = proj.clips;
+      document.getElementById("resultsHeadingTitle").textContent = proj.title;
+      document.getElementById("resultsSubtitle").textContent =
+        generatedClips.length + " klip vertikal siap ditonton, diunduh, atau disunting di editor timeline.";
+      renderResultsGrid();
+      switchView("view-results");
+    }
+
+    function clearAllYoutubeSyncTimers() {
+      Object.keys(youtubeSyncTimers).forEach(function (key) {
+        clearInterval(youtubeSyncTimers[key]);
+        delete youtubeSyncTimers[key];
+      });
+    }
+
+    // Toggle Fullscreen pada wrapper 9:16 agar rasio TikTok & subtitle tetap utuh
+    function toggleElementFullscreen(hostId) {
+      const host = document.getElementById(hostId);
+      if (!host) return;
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fsEl) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } else {
+        if (host.requestFullscreen) {
+          host.requestFullscreen().catch(function () {});
+        } else if (host.webkitRequestFullscreen) {
+          host.webkitRequestFullscreen();
+        }
+      }
+    }
+
+    document.addEventListener("fullscreenchange", function () {
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      document.querySelectorAll("[data-fs-btn]").forEach(function (btn) {
+        const hostId = btn.getAttribute("data-fs-btn");
+        const isTargetFs = fsEl && fsEl.id === hostId;
+        btn.innerHTML = isTargetFs
+          ? '<i class="bi bi-fullscreen-exit"></i>'
+          : '<i class="bi bi-fullscreen"></i>';
+        btn.title = isTargetFs ? "Keluar Layar Penuh" : "Layar Penuh 9:16";
+      });
+    });
+
+    function toggleCardPlay(clipId) {
+      const videoEl = document.getElementById("card-video-" + clipId);
+      const clip = generatedClips.find(function (c) { return c.id === clipId; });
+      if (!videoEl || !clip) return;
+      const cStart = clip.start_sec;
+      const cEnd = clip.end_sec;
+
+      if (videoEl.paused) {
+        if (videoEl.currentTime < cStart || videoEl.currentTime >= cEnd) {
+          videoEl.currentTime = cStart;
+        }
+        videoEl.play().catch(function () {});
+      } else {
+        videoEl.pause();
+      }
+    }
+
+    function toggleCardMute(clipId) {
+      const videoEl = document.getElementById("card-video-" + clipId);
+      const muteBtn = document.getElementById("card-mute-btn-" + clipId);
+      if (!videoEl) return;
+      videoEl.muted = !videoEl.muted;
+      if (muteBtn) {
+        muteBtn.innerHTML = videoEl.muted
+          ? '<i class="bi bi-volume-mute-fill"></i>'
+          : '<i class="bi bi-volume-up-fill"></i>';
+      }
+    }
+
+    // STEP 4: Results Grid (9:16 Cropped Looping Video + Verbatim Subtitles + Custom 9:16 Fullscreen)
+    function renderResultsGrid() {
+      clearAllYoutubeSyncTimers();
+      const grid = document.getElementById("resultsGridContainer");
+      const noticeBanner = document.getElementById("youtubeResultsNotice");
+      grid.innerHTML = "";
+
+      if (noticeBanner) {
+        const isYoutubeWithoutStream = currentResultProject && currentResultProject.mode === "youtube" && !currentResultProject.hasPlayableStream;
+        noticeBanner.classList.toggle("d-none", !isYoutubeWithoutStream);
+        noticeBanner.classList.toggle("d-flex", Boolean(isYoutubeWithoutStream));
+      }
+
+      if (!generatedClips || generatedClips.length === 0) {
+        grid.innerHTML = `
+          <div class="col-12">
+            <article class="card border-0 shadow-sm rounded-4 bg-light p-5 text-center">
+              <i class="bi bi-film fs-1 text-primary mb-2"></i>
+              <h3 class="h5 fw-bold text-navy mb-2">Belum Ada Klip Dipilih</h3>
+              <p class="small text-secondary mb-3">Pilih proyek yang sudah selesai di My Projects untuk membuka hasil klip.</p>
+              <div>
+                <button type="button" class="btn btn-accent fw-bold px-4" onclick="navigateToTab('projects', 'view-projects')">
+                  Ke My Projects
+                </button>
+              </div>
+            </article>
+          </div>
+        `;
+        return;
+      }
+
+      generatedClips.forEach(function (clip) {
+        const col = document.createElement("div");
+        col.className = "col-12 col-md-4";
+        const isPlayableMp4 = Boolean(clip.videoUrl);
+        const startSec = Math.floor(clip.start_sec);
+        const segDur = Math.max(1.5, clip.end_sec - clip.start_sec);
+
+        const initialSub = clip.subtitles.find(function (s) {
+          return clip.start_sec >= s.start_sec && clip.start_sec <= s.end_sec;
+        }) || null;
+
+        const mediaHtml = isPlayableMp4
+          ? `<video
+               id="card-video-${clip.id}"
+               class="thumb-cover"
+               src="${clip.videoUrl}"
+               playsinline
+               preload="metadata"
+               controlsList="nodownload nofullscreen noremoteplayback"
+               disablePictureInPicture
+               onclick="toggleCardPlay('${clip.id}')"
+               style="cursor: pointer;"
+             ></video>
+             <div class="clip-player-controls">
+               <input
+                 type="range"
+                 id="card-seek-${clip.id}"
+                 class="clip-range-slider mb-2"
+                 min="${clip.start_sec}"
+                 max="${clip.end_sec}"
+                 step="0.05"
+                 value="${clip.start_sec}"
+                 aria-label="Geser Waktu Klip"
+               />
+               <div class="d-flex align-items-center justify-content-between text-white gap-2">
+                 <div class="d-flex align-items-center gap-2">
+                   <button type="button" id="card-play-btn-${clip.id}" class="btn btn-sm btn-accent rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 30px; height: 30px;" onclick="toggleCardPlay('${clip.id}')" title="Putar / Jeda">
+                     <i class="bi bi-play-fill fs-6"></i>
+                   </button>
+                   <span id="card-time-${clip.id}" class="small font-mono-tabular text-white-50" style="font-size: 0.72rem;">00:00 / ${formatSeconds(segDur)}</span>
+                 </div>
+                 <div class="d-flex align-items-center gap-1">
+                   <button type="button" id="card-mute-btn-${clip.id}" class="btn btn-sm btn-link text-white text-decoration-none p-1" onclick="toggleCardMute('${clip.id}')" title="Suara / Bisu">
+                     <i class="bi bi-volume-up-fill"></i>
+                   </button>
+                   <button type="button" data-fs-btn="clip-fs-host-${clip.id}" class="btn btn-sm btn-link text-white text-decoration-none p-1" onclick="toggleElementFullscreen('clip-fs-host-${clip.id}')" title="Layar Penuh 9:16">
+                     <i class="bi bi-fullscreen"></i>
+                   </button>
+                 </div>
+               </div>
+             </div>`
+          : `<div id="card-yt-wrap-${clip.id}" class="w-100 h-100 position-relative">
+               <img src="${clip.thumbnailUrl}" alt="${escapeHtml(clip.title)}" class="thumb-cover" />
+               <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-2 px-3 text-center" style="background: rgba(10, 25, 47, 0.42);">
+                 <button type="button" class="btn btn-accent rounded-circle shadow" style="width: 60px; height: 60px;" onclick="playYoutubeClipCard('${clip.id}')" title="Putar Segmen YouTube">
+                   <i class="bi bi-play-fill fs-2"></i>
+                 </button>
+                 <a href="https://youtu.be/${clip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3">
+                   <i class="bi bi-box-arrow-up-right me-1"></i>Tonton Segmen di YouTube
+                 </a>
+               </div>
+             </div>`;
+
+        const buttonsHtml = isPlayableMp4
+          ? `<button type="button" id="btn-dl-${clip.id}" class="btn btn-navy btn-sm fw-bold flex-fill py-2" onclick="downloadLocalClipWithSubtitles('${clip.id}')">
+               <i class="bi bi-download me-1"></i>Unduh Video
+             </button>
+             <button type="button" class="btn btn-accent btn-sm fw-bold flex-fill py-2" onclick="openManualEditor('${clip.id}')">
+               <i class="bi bi-scissors me-1"></i>Edit Manual
+             </button>`
+          : `<div class="d-grid gap-2 w-100">
+               <div class="d-flex gap-2">
+                 <button type="button" class="btn btn-navy btn-sm fw-bold flex-fill py-2" onclick="playYoutubeClipCard('${clip.id}')">
+                   <i class="bi bi-play-circle me-1"></i>Putar Klip
+                 </button>
+                 <button type="button" class="btn btn-accent btn-sm fw-bold flex-fill py-2" onclick="openManualEditor('${clip.id}')">
+                   <i class="bi bi-scissors me-1"></i>Edit Manual
+                 </button>
+               </div>
+               <a href="https://youtu.be/${clip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm fw-semibold py-2">
+                 <i class="bi bi-youtube text-danger me-1"></i>Tonton Segmen di YouTube
+               </a>
+             </div>`;
+
+        col.innerHTML = `
+          <article class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white">
+            <div id="clip-fs-host-${clip.id}" class="clip-fs-host">
+              <div class="ratio-9-16">
+                ${mediaHtml}
+                <div class="position-absolute top-0 start-0 m-3" style="pointer-events: none; z-index: 5;">
+                  <span class="badge bg-navy text-white px-3 py-2 rounded-3 shadow-sm font-mono-tabular fs-6">
+                    <i class="bi bi-fire text-warning me-1"></i>Skor ${clip.score}
+                  </span>
+                </div>
+                <div class="position-absolute top-0 end-0 m-3" style="pointer-events: none; z-index: 5;">
+                  <span class="badge bg-dark bg-opacity-75 text-white font-mono-tabular">${clip.duration}</span>
+                </div>
+                <div class="position-absolute start-0 end-0 px-3 text-center" style="bottom: 19%; pointer-events: none; z-index: 7;">
+                  <span
+                    id="card-sub-${clip.id}"
+                    class="d-inline-block px-3 py-1 rounded-3 bg-dark bg-opacity-75 fw-bold text-uppercase shadow anim-pop"
+                    style="font-family: 'Montserrat', sans-serif; font-size: 0.98rem; text-shadow: 0 2px 6px rgba(0,0,0,0.95); color: ${initialSub ? initialSub.color : "#FACC15"}; ${initialSub ? "" : "display:none;"}"
+                  >${initialSub ? escapeHtml(initialSub.text) : ""}</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+              <div class="mb-3">
+                <h3 class="h6 fw-bold text-navy mb-1">${escapeHtml(clip.title)}</h3>
+                <small class="text-secondary font-mono-tabular">Segmen ${clip.range} · Durasi ${clip.duration}</small>
+              </div>
+              <div class="d-grid gap-2 d-sm-flex">
+                ${buttonsHtml}
+              </div>
+            </div>
+          </article>
+        `;
+
+        grid.appendChild(col);
+
+        if (isPlayableMp4) {
+          const videoEl = document.getElementById("card-video-" + clip.id);
+          const subBadge = document.getElementById("card-sub-" + clip.id);
+          const playBtn = document.getElementById("card-play-btn-" + clip.id);
+          const seekSlider = document.getElementById("card-seek-" + clip.id);
+          const timeLabel = document.getElementById("card-time-" + clip.id);
+          let lastRenderedSubText = initialSub ? initialSub.text : "";
+
+          function syncCardUIAtTime(curTime) {
+            const relElapsed = Math.max(0, Math.min(segDur, curTime - clip.start_sec));
+            if (seekSlider) {
+              seekSlider.value = Math.max(clip.start_sec, Math.min(clip.end_sec, curTime));
+            }
+            if (timeLabel) {
+              timeLabel.textContent = formatSeconds(relElapsed) + " / " + formatSeconds(segDur);
+            }
+            const activeSub = clip.subtitles.find(function (s) {
+              return curTime >= s.start_sec && curTime <= s.end_sec;
+            });
+            if (subBadge) {
+              if (activeSub) {
+                subBadge.style.display = "inline-block";
+                if (lastRenderedSubText !== activeSub.text) {
+                  lastRenderedSubText = activeSub.text;
+                  subBadge.classList.remove("anim-pop");
+                  void subBadge.offsetWidth;
+                  subBadge.classList.add("anim-pop");
+                }
+                subBadge.textContent = activeSub.text;
+                subBadge.style.color = activeSub.color;
+              } else {
+                lastRenderedSubText = "";
+                subBadge.style.display = "none";
+              }
+            }
+          }
+
+          if (videoEl) {
+            videoEl.addEventListener("loadedmetadata", function () {
+              videoEl.currentTime = clip.start_sec;
+              syncCardUIAtTime(clip.start_sec);
+            });
+            videoEl.addEventListener("play", function () {
+              if (videoEl.currentTime < clip.start_sec || videoEl.currentTime >= clip.end_sec) {
+                videoEl.currentTime = clip.start_sec;
+              }
+              if (playBtn) playBtn.innerHTML = '<i class="bi bi-pause-fill fs-6"></i>';
+            });
+            videoEl.addEventListener("pause", function () {
+              if (playBtn) playBtn.innerHTML = '<i class="bi bi-play-fill fs-6"></i>';
+            });
+            if (seekSlider) {
+              seekSlider.addEventListener("input", function () {
+                const targetTime = Math.max(clip.start_sec, Math.min(clip.end_sec, Number(this.value) || clip.start_sec));
+                videoEl.currentTime = targetTime;
+                syncCardUIAtTime(targetTime);
+              });
+            }
+            videoEl.addEventListener("timeupdate", function () {
+              if (videoEl.currentTime >= clip.end_sec) {
+                videoEl.currentTime = clip.start_sec;
+                if (!videoEl.paused) {
+                  videoEl.play().catch(function () {});
+                }
+              }
+              syncCardUIAtTime(videoEl.currentTime);
+            });
+          }
+        }
+      });
+    }
+
+    // Mount standard YouTube embed ONLY when user clicks Play, with fallback link visible
+    function playYoutubeClipCard(clipId) {
+      const clip = generatedClips.find(function (c) { return c.id === clipId; });
+      if (!clip || !clip.videoId) return;
+      const wrap = document.getElementById("card-yt-wrap-" + clipId);
+      if (wrap) {
+        const startSec = Math.floor(clip.start_seconds);
+        const endSec = Math.ceil(clip.end_seconds);
+        wrap.innerHTML = `
+          <iframe
+            class="w-100 h-100 border-0"
+            src="https://www.youtube.com/embed/${clip.videoId}?start=${startSec}&end=${endSec}&rel=0"
+            title="${escapeHtml(clip.title)}"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        `;
+      }
+
+      if (youtubeSyncTimers[clipId]) {
+        clearInterval(youtubeSyncTimers[clipId]);
+      }
+
+      const subBadge = document.getElementById("card-sub-" + clipId);
+      const segDur = Math.max(2, clip.end_seconds - clip.start_seconds);
+      let elapsed = 0;
+
+      youtubeSyncTimers[clipId] = setInterval(function () {
+        elapsed += 0.25;
+        if (elapsed > segDur) {
+          clearInterval(youtubeSyncTimers[clipId]);
+          delete youtubeSyncTimers[clipId];
+          return;
+        }
+        const activeSub = clip.subtitles.find(function (s) {
+          return elapsed >= s.start && elapsed <= s.end;
+        });
+        if (subBadge) {
+          if (activeSub) {
+            subBadge.style.display = "inline-block";
+            subBadge.textContent = activeSub.text;
+            subBadge.style.color = activeSub.color;
+          } else {
+            subBadge.style.display = "none";
+          }
+        }
+      }, 250);
+    }
+
+    // Export 9:16 Center-Cropped Video Clip + Burned-in Hormozi Subtitles via <canvas> + MediaRecorder
+    async function downloadLocalClipWithSubtitles(clipId) {
+      const clip = generatedClips.find(function (c) { return c.id === clipId; });
+      if (!clip || !clip.videoUrl) {
+        showToast("Ekspor video MP4 permanen tersedia untuk file MP4 lokal atau stream backend.");
+        return;
+      }
+
+      if (typeof MediaRecorder === "undefined") {
+        showToast("Browser tidak mendukung perekaman MediaRecorder.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-dl-" + clip.id);
+      const originalBtnHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Merender 9:16...';
+      }
+      showToast("Merender klip 9:16 (" + clip.range + ") dengan subtitle permanen...");
+
+      let audioCtx = null;
+      try {
+        const hiddenVideo = document.createElement("video");
+        hiddenVideo.src = clip.videoUrl;
+        hiddenVideo.playsInline = true;
+        hiddenVideo.crossOrigin = "anonymous";
+
+        await new Promise(function (resolve, reject) {
+          hiddenVideo.onloadedmetadata = resolve;
+          hiddenVideo.onerror = function () { reject(new Error("Gagal memuat video sumber.")); };
+        });
+
+        await new Promise(function (resolve) {
+          hiddenVideo.onseeked = resolve;
+          hiddenVideo.currentTime = clip.start_sec;
+        });
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 540;
+        canvas.height = 960;
+        const ctx = canvas.getContext("2d");
+
+        const canvasStream = canvas.captureStream(30);
+
+        // Tangkap audio secara bersih tanpa mengganggu speaker jika memungkinkan
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            audioCtx = new AudioCtx();
+            const sourceNode = audioCtx.createMediaElementSource(hiddenVideo);
+            const destNode = audioCtx.createMediaStreamDestination();
+            sourceNode.connect(destNode);
+            destNode.stream.getAudioTracks().forEach(function (track) {
+              canvasStream.addTrack(track);
+            });
+          } else if (typeof hiddenVideo.captureStream === "function") {
+            hiddenVideo.captureStream().getAudioTracks().forEach(function (track) {
+              canvasStream.addTrack(track);
+            });
+          }
+        } catch (audioErr) {
+          if (typeof hiddenVideo.captureStream === "function") {
+            hiddenVideo.captureStream().getAudioTracks().forEach(function (track) {
+              canvasStream.addTrack(track);
+            });
+          }
+        }
+
+        const mimeCandidates = [
+          "video/mp4;codecs=avc1,mp4a",
+          "video/mp4",
+          "video/webm;codecs=vp9,opus",
+          "video/webm;codecs=vp8,opus",
+          "video/webm"
+        ];
+        const chosenMime = mimeCandidates.find(function (m) { return MediaRecorder.isTypeSupported(m); }) || "";
+        const recorder = chosenMime
+          ? new MediaRecorder(canvasStream, { mimeType: chosenMime, videoBitsPerSecond: 2500000 })
+          : new MediaRecorder(canvasStream);
+
+        const chunks = [];
+        recorder.ondataavailable = function (ev) {
+          if (ev.data && ev.data.size > 0) chunks.push(ev.data);
+        };
+
+        const recordingDone = new Promise(function (resolve) {
+          recorder.onstop = resolve;
+        });
+
+        recorder.start(200);
+        try {
+          await hiddenVideo.play();
+        } catch (playErr) {
+          hiddenVideo.muted = true;
+          await hiddenVideo.play();
+        }
+
+        function renderFrame() {
+          if (hiddenVideo.paused || hiddenVideo.ended || hiddenVideo.currentTime >= clip.end_sec) {
+            hiddenVideo.pause();
+            if (recorder.state !== "inactive") recorder.stop();
+            return;
+          }
+
+          ctx.fillStyle = "#071324";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Center-crop 9:16 (object-fit: cover)
+          const vw = hiddenVideo.videoWidth || 540;
+          const vh = hiddenVideo.videoHeight || 960;
+          const scale = Math.max(canvas.width / vw, canvas.height / vh);
+          const drawW = vw * scale;
+          const drawH = vh * scale;
+          ctx.drawImage(hiddenVideo, (canvas.width - drawW) / 2, (canvas.height - drawH) / 2, drawW, drawH);
+
+          const curTime = hiddenVideo.currentTime;
+          const activeSub = clip.subtitles.find(function (s) {
+            return curTime >= s.start_sec && curTime <= s.end_sec;
+          });
+
+          if (activeSub && activeSub.text) {
+            const subText = activeSub.text.toUpperCase();
+            const animElapsed = Math.max(0, curTime - activeSub.start_sec);
+            const popScale = animElapsed < 0.14 ? 0.88 + (animElapsed / 0.14) * 0.12 : 1;
+            const fontPx = Math.round((activeSub.fontSize || 18) * 1.65);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height * 0.78);
+            ctx.scale(popScale, popScale);
+            ctx.font = "900 " + fontPx + "px Montserrat, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const maxWidth = canvas.width - 64;
+            const words = subText.split(" ");
+            const lines = [];
+            let currentLine = "";
+            words.forEach(function (w) {
+              const testLine = currentLine ? currentLine + " " + w : w;
+              if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = w;
+              } else {
+                currentLine = testLine;
+              }
+            });
+            if (currentLine) lines.push(currentLine);
+
+            const lineHeight = fontPx + 12;
+            const startY = -((lines.length - 1) * lineHeight) / 2;
+            lines.forEach(function (line, i) {
+              const yPos = startY + i * lineHeight;
+              ctx.lineWidth = 9;
+              ctx.lineJoin = "round";
+              ctx.strokeStyle = "#000000";
+              ctx.shadowColor = "rgba(0,0,0,0.85)";
+              ctx.shadowBlur = 10;
+              ctx.strokeText(line, 0, yPos);
+              ctx.shadowBlur = 0;
+              ctx.fillStyle = activeSub.color || "#FACC15";
+              ctx.fillText(line, 0, yPos);
+            });
+            ctx.restore();
+          }
+
+          requestAnimationFrame(renderFrame);
+        }
+
+        requestAnimationFrame(renderFrame);
+        await recordingDone;
+
+        const outMime = chosenMime || "video/webm";
+        const ext = outMime.indexOf("mp4") !== -1 ? "mp4" : "webm";
+        const blob = new Blob(chunks, { type: outMime });
+        const downloadUrl = URL.createObjectURL(blob);
+        const safeName = clip.title.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 40) || clip.id;
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "ClipA_" + safeName + "." + ext;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 3000);
+        showToast("Video klip 9:16 (" + ext.toUpperCase() + ") dengan subtitle permanen berhasil diunduh!");
+      } catch (err) {
+        showToast("Gagal mengekspor video: " + (err && err.message ? err.message : "Error MediaRecorder"));
+      } finally {
+        if (audioCtx && typeof audioCtx.close === "function") {
+          audioCtx.close().catch(function () {});
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHtml;
+        }
+      }
+    }
+
+    // CapCut-Style Timeline Editor (View 5)
+    function openManualEditor(clipId) {
+      const found = generatedClips.find(function (c) { return c.id === clipId; });
+      if (!found) return;
+      activeClip = found;
+      activeSegmentDuration = Math.max(1.5, activeClip.end_sec - activeClip.start_sec);
+      selectedSubtitleId = activeClip.subtitles[0] ? activeClip.subtitles[0].id : null;
+      editorCurrentTime = 0;
+
+      document.getElementById("editorClipTitle").textContent = activeClip.title;
+      document.getElementById("timelineVideoLabel").textContent = activeClip.title + " (" + activeClip.range + ")";
+      document.getElementById("timelineVideoDuration").textContent = formatSeconds(activeSegmentDuration);
+
+      [0, 0.25, 0.5, 0.75, 1].forEach(function (frac, idx) {
+        const tickEl = document.getElementById("rulerTick" + idx);
+        if (tickEl) tickEl.textContent = formatSeconds(activeSegmentDuration * frac);
+      });
+
+      const videoEl = document.getElementById("editorVideoPlayer");
+      const ytWrap = document.getElementById("editorYoutubeWrap");
+
+      if (activeClip.videoUrl) {
+        ytWrap.classList.add("d-none");
+        ytWrap.innerHTML = "";
+        videoEl.classList.remove("d-none");
+        videoEl.src = activeClip.videoUrl;
+        videoEl.onloadedmetadata = function () {
+          videoEl.currentTime = activeClip.start_sec;
+        };
+      } else {
+        videoEl.classList.add("d-none");
+        videoEl.removeAttribute("src");
+        ytWrap.classList.remove("d-none");
+        const startSec = Math.floor(activeClip.start_sec);
+        ytWrap.innerHTML = `
+          <img src="${activeClip.thumbnailUrl}" alt="${escapeHtml(activeClip.title)}" class="thumb-cover" />
+          <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-2 px-2 text-center" style="background: rgba(10, 25, 47, 0.42);">
+            <button type="button" class="btn btn-accent rounded-circle shadow" style="width: 52px; height: 52px;" onclick="mountEditorYoutubeEmbed()" title="Putar Segmen YouTube">
+              <i class="bi bi-play-fill fs-3"></i>
+            </button>
+            <a href="https://youtu.be/${activeClip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3" style="font-size: 0.72rem;">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Tonton Segmen di YouTube
+            </a>
+          </div>
+        `;
+      }
+
+      renderTimelineSubtitles();
+      loadSelectedSubtitleIntoProperties();
+      updateEditorPreviewAtTime(0);
+      switchView("view-editor");
+    }
+
+    function mountEditorYoutubeEmbed(customOffsetSec) {
+      if (!activeClip || !activeClip.videoId) return;
+      const ytWrap = document.getElementById("editorYoutubeWrap");
+      if (!ytWrap) return;
+      const offset = typeof customOffsetSec === "number" ? customOffsetSec : editorCurrentTime;
+      const startSec = Math.floor(activeClip.start_sec + offset);
+      const endSec = Math.ceil(activeClip.end_sec);
+      ytWrap.innerHTML = `
+        <iframe
+          id="editorYoutubePlayer"
+          class="w-100 h-100 border-0"
+          src="https://www.youtube.com/embed/${activeClip.videoId}?start=${startSec}&end=${endSec}&rel=0"
+          title="${escapeHtml(activeClip.title)}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      `;
+    }
+
+    function renderTimelineSubtitles() {
+      if (!activeClip) return;
+      const container = document.getElementById("subtitleTrackContainer");
+      container.innerHTML = "";
+
+      activeClip.subtitles.forEach(function (sub) {
+        const leftPct = Math.max(0, Math.min(100, (sub.start / activeSegmentDuration) * 100));
+        const widthPct = Math.max(6, Math.min(100 - leftPct, ((sub.end - sub.start) / activeSegmentDuration) * 100));
+        const isSelected = sub.id === selectedSubtitleId;
+
+        const block = document.createElement("div");
+        block.className = "timeline-subtitle-block " + (isSelected ? "bg-primary text-white shadow-sm" : "bg-navy text-white opacity-75");
+        block.style.left = leftPct + "%";
+        block.style.width = widthPct + "%";
+        block.textContent = sub.text;
+        block.title = sub.text + " (" + sub.start_sec.toFixed(1) + "s - " + sub.end_sec.toFixed(1) + "s)";
+
+        block.addEventListener("click", function () {
+          selectedSubtitleId = sub.id;
+          seekEditorTime(sub.start);
+          loadSelectedSubtitleIntoProperties();
+          renderTimelineSubtitles();
+        });
+
+        container.appendChild(block);
+      });
+
+      const playhead = document.createElement("div");
+      playhead.id = "subTrackPlayhead";
+      playhead.className = "timeline-playhead";
+      playhead.style.left = ((editorCurrentTime / activeSegmentDuration) * 100) + "%";
+      container.appendChild(playhead);
+    }
+
+    function loadSelectedSubtitleIntoProperties() {
+      if (!activeClip) return;
+      const sub = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; });
+      if (!sub) return;
+      document.getElementById("propSubText").value = sub.text;
+      document.getElementById("propFontFamily").value = sub.fontFamily;
+      document.getElementById("propFontSize").value = sub.fontSize;
+      document.getElementById("propColor").value = sub.color;
+      document.getElementById("propAnimation").value = sub.animation;
+      document.getElementById("propStart").value = sub.start;
+      document.getElementById("propEnd").value = sub.end;
+    }
+
+    function updateSelectedSubtitle() {
+      if (!activeClip) return;
+      const sub = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; });
+      if (!sub) return;
+
+      sub.text = document.getElementById("propSubText").value;
+      sub.fontFamily = document.getElementById("propFontFamily").value;
+      sub.fontSize = Math.max(12, Math.min(48, Number(document.getElementById("propFontSize").value) || 18));
+      sub.color = document.getElementById("propColor").value;
+      sub.animation = document.getElementById("propAnimation").value;
+      sub.start = Math.max(0, Number(document.getElementById("propStart").value) || 0);
+      sub.end = Math.min(activeSegmentDuration, Math.max(sub.start + 0.3, Number(document.getElementById("propEnd").value) || sub.start + 1.5));
+      sub.start_sec = Math.round((activeClip.start_sec + sub.start) * 100) / 100;
+      sub.end_sec = Math.round((activeClip.start_sec + sub.end) * 100) / 100;
+
+      renderTimelineSubtitles();
+      updateEditorPreviewAtTime(editorCurrentTime);
+    }
+
+    function addNewSubtitleBlock() {
+      if (!activeClip) return;
+      const startRel = Math.round(editorCurrentTime * 10) / 10;
+      const endRel = Math.min(activeSegmentDuration, Math.round((startRel + 2.5) * 10) / 10);
+      const safeEndRel = Math.max(startRel + 0.4, endRel);
+      const newSub = {
+        id: "s-" + Date.now(),
+        start: startRel,
+        end: safeEndRel,
+        start_sec: Math.round((activeClip.start_sec + startRel) * 100) / 100,
+        end_sec: Math.round((activeClip.start_sec + safeEndRel) * 100) / 100,
+        text: "TEKS SUBTITLE BARU",
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 18,
+        color: "#FACC15",
+        animation: "pop"
+      };
+      activeClip.subtitles.push(newSub);
+      selectedSubtitleId = newSub.id;
+      loadSelectedSubtitleIntoProperties();
+      renderTimelineSubtitles();
+      updateEditorPreviewAtTime(editorCurrentTime);
+      showToast("Blok subtitle baru ditambahkan pada timeline.");
+    }
+
+    function toggleEditorPlay() {
+      if (!activeClip) return;
+      const videoEl = document.getElementById("editorVideoPlayer");
+      const btn = document.getElementById("btnTogglePlay");
+      if (isEditorPlaying) {
+        stopEditorPlayback();
+      } else {
+        isEditorPlaying = true;
+        btn.innerHTML = '<i class="bi bi-pause-fill me-1"></i> Jeda';
+        if (activeClip.videoUrl && videoEl) {
+          videoEl.currentTime = activeClip.start_sec + editorCurrentTime;
+          videoEl.play().catch(function () {});
+        } else if (!document.getElementById("editorYoutubePlayer")) {
+          mountEditorYoutubeEmbed(editorCurrentTime);
+        }
+        editorTimer = setInterval(function () {
+          editorCurrentTime += 0.1;
+          if (editorCurrentTime >= activeSegmentDuration) {
+            editorCurrentTime = 0;
+            if (activeClip.videoUrl && videoEl) {
+              videoEl.currentTime = activeClip.start_sec;
+            }
+          }
+          updateEditorPreviewAtTime(editorCurrentTime);
+        }, 100);
+      }
+    }
+
+    function stopEditorPlayback() {
+      isEditorPlaying = false;
+      if (editorTimer) {
+        clearInterval(editorTimer);
+        editorTimer = null;
+      }
+      const videoEl = document.getElementById("editorVideoPlayer");
+      if (videoEl) videoEl.pause();
+      const btn = document.getElementById("btnTogglePlay");
+      if (btn) btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Putar';
+    }
+
+    function seekEditorTime(seconds) {
+      if (!activeClip) return;
+      editorCurrentTime = Math.max(0, Math.min(activeSegmentDuration, seconds));
+      const videoEl = document.getElementById("editorVideoPlayer");
+      if (activeClip.videoUrl && videoEl) {
+        videoEl.currentTime = activeClip.start_sec + editorCurrentTime;
+      } else if (!activeClip.videoUrl && isEditorPlaying) {
+        mountEditorYoutubeEmbed(editorCurrentTime);
+      }
+      updateEditorPreviewAtTime(editorCurrentTime);
+    }
+
+    function handleRulerClick(event) {
+      const ruler = document.getElementById("timelineRuler");
+      const rect = ruler.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+      seekEditorTime(ratio * activeSegmentDuration);
+    }
+
+    function updateEditorPreviewAtTime(t) {
+      const pct = Math.min(100, (t / activeSegmentDuration) * 100) + "%";
+      ["rulerPlayhead", "videoTrackPlayhead", "subTrackPlayhead"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.style.left = pct;
+      });
+
+      const formatT = function (val) {
+        const m = Math.floor(val / 60).toString().padStart(2, "0");
+        const s = Math.floor(val % 60).toString().padStart(2, "0");
+        const d = Math.floor((val % 1) * 10);
+        return m + ":" + s + "." + d;
+      };
+      document.getElementById("editorTimeDisplay").textContent = formatT(t) + " / " + formatT(activeSegmentDuration);
+
+      const absTime = (activeClip ? activeClip.start_sec : 0) + t;
+      const activeSub = activeClip ? activeClip.subtitles.find(function (s) {
+        return absTime >= s.start_sec && absTime <= s.end_sec;
+      }) : null;
+      const subSpan = document.getElementById("editorSubtitleText");
+      if (activeSub) {
+        subSpan.style.display = "inline-block";
+        subSpan.textContent = activeSub.text;
+        subSpan.style.fontFamily = activeSub.fontFamily;
+        subSpan.style.fontSize = activeSub.fontSize + "px";
+        subSpan.style.color = activeSub.color;
+        subSpan.className = "d-inline-block px-2 py-1 rounded bg-dark bg-opacity-75 fw-bold text-uppercase " +
+          (activeSub.animation === "fade" ? "anim-fade" : "anim-pop");
+      } else {
+        subSpan.style.display = "none";
+      }
+    }
+
+    function exportEditedClip() {
+      if (!activeClip) return;
+      if (activeClip.videoUrl) {
+        downloadLocalClipWithSubtitles(activeClip.id);
+      } else {
+        const srtContent = activeClip.subtitles.map(function (s, idx) {
+          return (idx + 1) + "\n00:" + formatSeconds(s.start) + ",000 --> 00:" + formatSeconds(s.end) + ",000\n" + s.text + "\n";
+        }).join("\n");
+        const blob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ClipA_Subtitle_" + (activeClip.videoId || "youtube") + ".srt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        showToast("File subtitle (.SRT) hasil editan berhasil diunduh!");
+      }
+    }
+
+    // Pengaturan Endpoint Backend API & Preferensi Studio
+    function getConfiguredBackendEndpoint() {
+      const input = document.getElementById("settingBackendEndpoint");
+      const raw = input && input.value ? input.value.trim() : "";
+      if (raw) return raw;
+      try {
+        const saved = localStorage.getItem("clipa_backend_endpoint");
+        if (saved && saved.trim()) return saved.trim();
+      } catch (e) {}
+      return "/api/auto-clip";
+    }
+
+    function saveStudioSettings() {
+      const endpointInput = document.getElementById("settingBackendEndpoint");
+      const endpoint = endpointInput ? endpointInput.value.trim() || "/api/auto-clip" : "/api/auto-clip";
+      if (endpointInput) endpointInput.value = endpoint;
+      try {
+        localStorage.setItem("clipa_backend_endpoint", endpoint);
+      } catch (e) {}
+      showToast("Pengaturan studio & endpoint Backend API berhasil disimpan.");
+    }
+
+    function resetBackendEndpointSetting() {
+      const endpointInput = document.getElementById("settingBackendEndpoint");
+      if (endpointInput) endpointInput.value = "/api/auto-clip";
+      try {
+        localStorage.setItem("clipa_backend_endpoint", "/api/auto-clip");
+      } catch (e) {}
+      showToast("Endpoint dikembalikan ke /api/auto-clip.");
+    }
+
+    (function initStudioSettings() {
+      try {
+        const savedEndpoint = localStorage.getItem("clipa_backend_endpoint");
+        const endpointInput = document.getElementById("settingBackendEndpoint");
+        if (endpointInput && savedEndpoint && savedEndpoint.trim()) {
+          endpointInput.value = savedEndpoint.trim();
+        }
+      } catch (e) {}
+    })();
+
+    // Helper Notifikasi Toast Bootstrap
+    function showToast(message) {
+      const toastEl = document.getElementById("appToast");
+      document.getElementById("appToastBody").textContent = message;
+      const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 3000 });
+      toast.show();
+    }
+  </script>
+</body>
+</html>

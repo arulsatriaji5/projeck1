@@ -1,445 +1,442 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   X, 
-  Search, 
-  ChevronDown, 
   Download, 
-  Undo2, 
-  Redo2, 
-  Maximize2, 
-  VolumeX, 
-  Scissors, 
-  Image as ImageIcon, 
-  Music, 
-  Type, 
+  RotateCcw, 
   Sparkles, 
+  Code2, 
+  ChevronDown, 
   Layers, 
-  MessageSquareText,
-  Play,
-  Pause,
-  Film,
-  Sliders,
-  Wand2,
-  Lock,
-  Eye,
-  EyeOff,
-  Plus
+  FileVideo 
 } from 'lucide-react';
+import { ManualBlueprint, ManualSubtitleItem } from '../types';
+import { VideoPreviewCanvas } from './manual-editor/VideoPreviewCanvas';
+import { PropertiesInspector } from './manual-editor/PropertiesInspector';
+import { InteractiveTimeline } from './manual-editor/InteractiveTimeline';
+import { CloudExportModal } from './manual-editor/CloudExportModal';
 
 interface ManualEditorViewProps {
   onClose: () => void;
   isVisible?: boolean;
 }
 
-export const ManualEditorView: React.FC<ManualEditorViewProps> = ({ onClose, isVisible = false }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const totalDuration = 18; // 18s sample clip
-  const [activeTool, setActiveTool] = useState<string>('klip-ai');
-  const [isMuted, setIsMuted] = useState(false);
-  const [captionStyle, setCaptionStyle] = useState('hormozi');
+// Default Blueprint yang dihasilkan dari Gemini 2.5 Flash
+const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
+  clip_title: '🔥 Trik Rahasia 3 Detik Pertama FYP TikTok',
+  start_time: 12.0,
+  end_time: 44.5,
+  duration: 32.5,
+  videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  aspectRatio: '9:16',
+  subtitles: [
+    {
+      id: 'sub-1',
+      start: 0.0,
+      end: 2.4,
+      text: 'TERNYATA 90% PENONTON BAKAL SCROLL...',
+      highlight: '90% PENONTON',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 34,
+      color: '#FFFFFF',
+      highlightColor: '#FACC15',
+      strokeColor: '#000000',
+      strokeWidth: 4,
+      shadowBlur: 8,
+      animation: 'pop',
+      yOffsetPercent: 78
+    },
+    {
+      id: 'sub-2',
+      start: 2.4,
+      end: 5.6,
+      text: 'KALAU 3 DETIK AWAL GAK MENARIK!',
+      highlight: '3 DETIK AWAL',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 36,
+      color: '#FACC15',
+      highlightColor: '#FFFFFF',
+      strokeColor: '#000000',
+      strokeWidth: 4.5,
+      shadowBlur: 10,
+      animation: 'pop',
+      yOffsetPercent: 78
+    },
+    {
+      id: 'sub-3',
+      start: 5.6,
+      end: 10.2,
+      text: 'GUNAKAN FORMULA PANCINGAN EMOSI INI!',
+      highlight: 'PANCINGAN EMOSI',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 32,
+      color: '#38BDF8',
+      highlightColor: '#FACC15',
+      strokeColor: '#000000',
+      strokeWidth: 4,
+      shadowBlur: 8,
+      animation: 'karaoke',
+      yOffsetPercent: 78
+    },
+    {
+      id: 'sub-4',
+      start: 10.2,
+      end: 15.5,
+      text: 'POTONG KLIP TANPA JEDA NAFAS SEDETIK PUN.',
+      highlight: 'TANPA JEDA',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 32,
+      color: '#FFFFFF',
+      highlightColor: '#FACC15',
+      strokeColor: '#000000',
+      strokeWidth: 4,
+      shadowBlur: 8,
+      animation: 'pop',
+      yOffsetPercent: 78
+    },
+    {
+      id: 'sub-5',
+      start: 15.5,
+      end: 21.0,
+      text: 'DAN BERIKAN SUBTITLE KUNING NEON TEBAL.',
+      highlight: 'KUNING NEON',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 35,
+      color: '#FACC15',
+      highlightColor: '#38BDF8',
+      strokeColor: '#000000',
+      strokeWidth: 4.5,
+      shadowBlur: 10,
+      animation: 'pop',
+      yOffsetPercent: 78
+    },
+    {
+      id: 'sub-6',
+      start: 21.0,
+      end: 27.5,
+      text: 'VIDEO ANDA SIAP VIRAL DI SEMUA PLATFORM!',
+      highlight: 'SIAP VIRAL',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 36,
+      color: '#4ADE80',
+      highlightColor: '#FACC15',
+      strokeColor: '#000000',
+      strokeWidth: 5,
+      shadowBlur: 12,
+      animation: 'karaoke',
+      yOffsetPercent: 78
+    },
+    {
+      id: 'sub-7',
+      start: 27.5,
+      end: 32.5,
+      text: 'COBA SEKARANG DI CLIPA STUDIO!',
+      highlight: 'COBA SEKARANG',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 38,
+      color: '#F43F5E',
+      highlightColor: '#FACC15',
+      strokeColor: '#000000',
+      strokeWidth: 5,
+      shadowBlur: 12,
+      animation: 'pop',
+      yOffsetPercent: 78
+    }
+  ]
+};
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
-    return `${mins}:${secs}`;
+export const ManualEditorView: React.FC<ManualEditorViewProps> = ({ 
+  onClose, 
+  isVisible = false 
+}) => {
+  // Central Non-Destructive State
+  const [blueprint, setBlueprint] = useState<ManualBlueprint>(DEFAULT_GEMINI_BLUEPRINT);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [selectedSubtitleId, setSelectedSubtitleId] = useState<string | null>('sub-1');
+  const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+
+  // Sync playhead loop within clip duration
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentTime((prev) => {
+          if (prev >= blueprint.duration) {
+            return 0;
+          }
+          return Math.round((prev + 0.1) * 10) / 10;
+        });
+      }, 100);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, blueprint.duration]);
+
+  // Spacebar hotkey to toggle playback
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isVisible) return;
+      if (e.code === 'Space' && (e.target as HTMLElement).tagName !== 'TEXTAREA' && (e.target as HTMLElement).tagName !== 'INPUT') {
+        e.preventDefault();
+        setIsPlaying((p) => !p);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible]);
+
+  // Find currently selected subtitle object
+  const selectedSubtitle = blueprint.subtitles.find(
+    (s) => s.id === selectedSubtitleId
+  ) || null;
+
+  // Subtitle Updates (Non-destructive update to JSON state)
+  const handleUpdateSubtitle = (updated: ManualSubtitleItem) => {
+    setBlueprint((prev) => ({
+      ...prev,
+      subtitles: prev.subtitles.map((s) => (s.id === updated.id ? updated : s))
+    }));
   };
 
-  const playheadPercentage = Math.min(100, Math.max(0, (currentTime / totalDuration) * 100));
+  const handleDeleteSubtitle = (id: string) => {
+    setBlueprint((prev) => ({
+      ...prev,
+      subtitles: prev.subtitles.filter((s) => s.id !== id)
+    }));
+    if (selectedSubtitleId === id) {
+      setSelectedSubtitleId(null);
+    }
+  };
+
+  const handleDuplicateSubtitle = (id: string) => {
+    const original = blueprint.subtitles.find((s) => s.id === id);
+    if (!original) return;
+
+    const newSub: ManualSubtitleItem = {
+      ...original,
+      id: `sub-${Date.now()}`,
+      start: Math.min(blueprint.duration - 1, original.end + 0.2),
+      end: Math.min(blueprint.duration, original.end + (original.end - original.start) + 0.2),
+      text: `${original.text} (Copy)`
+    };
+
+    setBlueprint((prev) => ({
+      ...prev,
+      subtitles: [...prev.subtitles, newSub].sort((a, b) => a.start - b.start)
+    }));
+    setSelectedSubtitleId(newSub.id);
+  };
+
+  const handleAddSubtitleAtPlayhead = () => {
+    const newStart = Math.round(currentTime * 10) / 10;
+    const newEnd = Math.min(blueprint.duration, Math.round((newStart + 2.5) * 10) / 10);
+
+    const newSub: ManualSubtitleItem = {
+      id: `sub-${Date.now()}`,
+      start: newStart,
+      end: newEnd,
+      text: 'TEKS SUBTITLE BARU',
+      fontFamily: 'Montserrat, sans-serif',
+      fontSize: 34,
+      color: '#FACC15',
+      strokeColor: '#000000',
+      strokeWidth: 4,
+      shadowBlur: 8,
+      animation: 'pop',
+      yOffsetPercent: 78
+    };
+
+    setBlueprint((prev) => ({
+      ...prev,
+      subtitles: [...prev.subtitles, newSub].sort((a, b) => a.start - b.start)
+    }));
+    setSelectedSubtitleId(newSub.id);
+  };
+
+  const handleSplitSubtitleAtPlayhead = () => {
+    const active = blueprint.subtitles.find(
+      (s) => currentTime > s.start + 0.3 && currentTime < s.end - 0.3
+    );
+    if (!active) return;
+
+    const splitTime = Math.round(currentTime * 10) / 10;
+    const firstHalf: ManualSubtitleItem = {
+      ...active,
+      end: splitTime
+    };
+
+    const secondHalf: ManualSubtitleItem = {
+      ...active,
+      id: `sub-${Date.now()}`,
+      start: splitTime
+    };
+
+    setBlueprint((prev) => ({
+      ...prev,
+      subtitles: prev.subtitles
+        .map((s) => (s.id === active.id ? firstHalf : s))
+        .concat(secondHalf)
+        .sort((a, b) => a.start - b.start)
+    }));
+    setSelectedSubtitleId(secondHalf.id);
+  };
+
+  // Batch Presets
+  const handleApplyPresetToAll = (presetType: 'hormozi' | 'montserrat' | 'karaoke') => {
+    setBlueprint((prev) => ({
+      ...prev,
+      subtitles: prev.subtitles.map((s) => {
+        if (presetType === 'hormozi') {
+          return {
+            ...s,
+            fontFamily: 'Montserrat, sans-serif',
+            color: '#FACC15',
+            strokeColor: '#000000',
+            strokeWidth: 4.5,
+            shadowBlur: 10,
+            animation: 'pop'
+          };
+        } else if (presetType === 'karaoke') {
+          return {
+            ...s,
+            animation: 'karaoke',
+            highlightColor: '#FACC15'
+          };
+        } else {
+          return {
+            ...s,
+            fontFamily: 'Montserrat, sans-serif'
+          };
+        }
+      })
+    }));
+  };
+
+  const handleResetBlueprint = () => {
+    setBlueprint(DEFAULT_GEMINI_BLUEPRINT);
+    setCurrentTime(0);
+    setSelectedSubtitleId('sub-1');
+  };
 
   return (
     <div 
       id="manualEditorView" 
-      className={`${isVisible ? 'flex' : 'hidden'} w-full h-screen bg-black flex-col font-sans overflow-hidden`}
+      className={`${isVisible ? 'flex' : 'hidden'} fixed inset-0 z-50 bg-[#F8F9FA] text-[#0B1F3A] flex-col font-sans select-none overflow-hidden`}
     >
-      {/* 1. TOP NAVBAR EDITOR */}
-      <div className="w-full h-16 bg-[#111111] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-20">
-        {/* Kiri: Tombol kembali/tutup (X) dan teks judul proyek */}
-        <div className="flex items-center gap-4">
+      
+      {/* Header Studio Manual */}
+      <header className="w-full h-16 bg-[#0B1F3A] text-white flex justify-between items-center px-4 sm:px-6 shrink-0 z-20 shadow-md">
+        
+        {/* Left: Back/Close & Title */}
+        <div className="flex items-center gap-3 min-w-0">
           <button 
+            type="button"
             onClick={onClose}
-            className="p-2 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer flex items-center gap-2 text-xs font-bold border border-zinc-800"
-            title="Tutup / Kembali ke Beranda"
+            className="px-3 py-2 text-slate-200 hover:text-white rounded-xl hover:bg-[#122E56] transition-colors cursor-pointer flex items-center gap-2 text-xs font-bold whitespace-nowrap"
+            title="Tutup / Kembali ke Hasil"
           >
             <X className="w-4 h-4 text-sky-400" />
-            <span className="hidden sm:inline text-zinc-200">Tutup Editor</span>
+            <span className="hidden sm:inline">Tutup Editor</span>
           </button>
           
-          <div className="h-5 w-px bg-zinc-800" />
+          <div className="h-5 w-px bg-white/15 shrink-0" />
           
-          <div className="flex items-center gap-2.5">
-            <img 
-              src="/assets/aistudio/clipA_dae34944.png" 
-              alt="ClipA Logo" 
-              className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(14,165,233,0.5)]" 
-            />
-            <h1 className="text-sm font-black text-white tracking-tight">ClipA Pro Manual Studio</h1>
-            <span className="text-xs text-zinc-500 hidden md:inline font-mono">• Proyek Vertikal 9:16</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-8 h-8 rounded-lg bg-white p-1 shadow-sm flex items-center justify-center shrink-0">
+              <img 
+                src="/assets/aistudio/clipA_dae34944.png" 
+                alt="ClipA Logo" 
+                className="w-full h-full object-contain" 
+              />
+            </span>
+            <h1 className="text-xs sm:text-sm font-extrabold text-white tracking-tight whitespace-nowrap">
+              ClipA Manual Studio
+            </h1>
+            <span className="text-[11px] text-slate-300 hidden md:inline truncate">
+              · {blueprint.clip_title}
+            </span>
           </div>
         </div>
 
-        {/* Kanan: Dropdown resolusi ("UHD AI") dan tombol utama "Ekspor" */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-xl border border-zinc-700/80 text-xs text-zinc-200 font-bold cursor-pointer transition-all">
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-            <span>UHD AI (4K)</span>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
-          </div>
+        {/* Right: Reset AI Blueprint & Prominent Export Button */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleResetBlueprint}
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#122E56] hover:bg-[#1B4278] text-slate-200 hover:text-white text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
+            title="Muat ulang blueprint awal dari Gemini AI"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
+            <span>Reset Blueprint AI</span>
+          </button>
 
+          {/* Export Button */}
           <button 
-            onClick={() => alert('Mengekspor video vertikal UHD AI...')}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs transition-all cursor-pointer shadow-md shadow-sky-500/20"
+            type="button"
+            onClick={() => setIsExportModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#2563EB] text-white font-bold text-xs transition-all duration-150 cursor-pointer shadow-md whitespace-nowrap"
           >
             <Download className="w-4 h-4" />
-            <span>Ekspor Video</span>
+            <span>Export &amp; Download MP4</span>
           </button>
         </div>
-      </div>
 
-      {/* 2. WORKSPACE UTAMA (Grid 3 Kolom Responsif - Full Width Layar Penuh) */}
-      <div className="flex-1 grid grid-cols-12 overflow-hidden">
+      </header>
+
+      {/* Main Workspace Section */}
+      <div className="flex-1 grid grid-cols-12 gap-4 p-4 overflow-hidden min-h-0">
         
-        {/* SIDEBAR KIRI (col-span-3 - Tool Edit Sidebar) */}
-        <div className="col-span-12 md:col-span-3 bg-[#111111] border-r border-zinc-800 p-4 flex flex-col gap-4 overflow-y-auto">
-          <div>
-            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">Menu Alat Edit</h3>
-            <div className="grid grid-cols-2 gap-2">
-              
-              {/* Klip AI (Aktif, Biru Langit Solid) */}
-              <button 
-                onClick={() => setActiveTool('klip-ai')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-bold cursor-pointer ${
-                  activeTool === 'klip-ai'
-                    ? 'bg-sky-500 text-black border-sky-400 shadow-md shadow-sky-500/20'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <Scissors className="w-4 h-4" />
-                <span>Klip AI</span>
-              </button>
-
-              {/* Bisukan */}
-              <button 
-                onClick={() => setIsMuted(!isMuted)}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  isMuted 
-                    ? 'bg-rose-950/80 border-rose-800 text-rose-300' 
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <VolumeX className="w-4 h-4" />
-                <span>{isMuted ? 'Bisu' : 'Bisukan'}</span>
-              </button>
-
-              {/* Sampul */}
-              <button 
-                onClick={() => setActiveTool('sampul')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  activeTool === 'sampul'
-                    ? 'bg-sky-500 text-black border-sky-400 font-bold'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <ImageIcon className="w-4 h-4" />
-                <span>Sampul</span>
-              </button>
-
-              {/* Audio */}
-              <button 
-                onClick={() => setActiveTool('audio')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  activeTool === 'audio'
-                    ? 'bg-sky-500 text-black border-sky-400 font-bold'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <Music className="w-4 h-4" />
-                <span>Audio</span>
-              </button>
-
-              {/* Teks */}
-              <button 
-                onClick={() => setActiveTool('teks')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  activeTool === 'teks'
-                    ? 'bg-sky-500 text-black border-sky-400 font-bold'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <Type className="w-4 h-4" />
-                <span>Teks</span>
-              </button>
-
-              {/* Efek */}
-              <button 
-                onClick={() => setActiveTool('efek')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  activeTool === 'efek'
-                    ? 'bg-sky-500 text-black border-sky-400 font-bold'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Efek</span>
-              </button>
-
-              {/* Overlay */}
-              <button 
-                onClick={() => setActiveTool('overlay')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  activeTool === 'overlay'
-                    ? 'bg-sky-500 text-black border-sky-400 font-bold'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <Layers className="w-4 h-4" />
-                <span>Overlay</span>
-              </button>
-
-              {/* Keterangan */}
-              <button 
-                onClick={() => setActiveTool('keterangan')}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
-                  activeTool === 'keterangan'
-                    ? 'bg-sky-500 text-black border-sky-400 font-bold'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                <MessageSquareText className="w-4 h-4" />
-                <span>Keterangan</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-zinc-800/80">
-            <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Preset Subtitle Viral</h4>
-            <div className="space-y-2">
-              <button 
-                onClick={() => setCaptionStyle('hormozi')}
-                className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all ${
-                  captionStyle === 'hormozi'
-                    ? 'bg-yellow-400/20 border-yellow-400 text-yellow-300'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                }`}
-              >
-                ⚡ Hormozi Style (Teks Kuning)
-              </button>
-              <button 
-                onClick={() => setCaptionStyle('neon')}
-                className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all ${
-                  captionStyle === 'neon'
-                    ? 'bg-sky-500/20 border-sky-400 text-sky-300'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                }`}
-              >
-                💎 Neon Cyber (Sky Blue Glow)
-              </button>
-            </div>
-          </div>
+        {/* Top Left: Video Preview Canvas */}
+        <div className="col-span-12 lg:col-span-7 h-full min-h-0">
+          <VideoPreviewCanvas
+            videoSrc={blueprint.videoSrc}
+            currentTime={currentTime}
+            duration={blueprint.duration}
+            isPlaying={isPlaying}
+            onTogglePlay={() => setIsPlaying(!isPlaying)}
+            onSeek={(t) => setCurrentTime(t)}
+            subtitles={blueprint.subtitles}
+            selectedSubtitleId={selectedSubtitleId}
+            onSelectSubtitle={(id) => setSelectedSubtitleId(id)}
+          />
         </div>
 
-        {/* AREA PREVIEW VIDEO DI TENGAH (col-span-6 - Player Vertikal 9:16) */}
-        <div className="col-span-12 md:col-span-9 lg:col-span-6 bg-black flex flex-col items-center justify-center relative p-4 overflow-hidden select-none">
-          
-          {/* Player Video Vertikal (Rasio 9:16 Proporsional Layar Komputer) */}
-          <div className="relative aspect-[9/16] h-full max-h-[440px] bg-zinc-950 rounded-2xl border-2 border-zinc-800 shadow-2xl flex items-center justify-center group ring-1 ring-zinc-700/50 overflow-hidden">
-            
-            {/* Background Simulated Video Image */}
-            <img 
-              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" 
-              alt="Video Preview"
-              className="w-full h-full object-cover"
-            />
-            
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-            {/* Live Subtitle Overlay Preview */}
-            <div className="absolute bottom-12 inset-x-6 text-center z-10">
-              <span className="inline-block bg-black/85 text-yellow-300 font-extrabold text-sm sm:text-base px-3.5 py-1.5 rounded-xl border-2 border-yellow-400 uppercase tracking-wide shadow-xl">
-                ⚡ Cara Cepat Bikin <span className="text-sky-300 underline font-black">Konten Viral</span> AI!
-              </span>
-            </div>
-
-            {/* Play / Pause Toggle Center Button */}
-            <button 
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
-            >
-              <div className="w-14 h-14 rounded-full bg-zinc-900/90 border-2 border-sky-400 text-sky-400 flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
-                {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}
-              </div>
-            </button>
-          </div>
-
-          {/* Baris Kontrol Waktu & Transport Control */}
-          <div className="w-full max-w-[400px] mt-3 flex items-center justify-between text-xs text-zinc-400 px-2">
-            <button className="p-1.5 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors" title="Layar Penuh">
-              <Maximize2 className="w-4 h-4" />
-            </button>
-
-            <div className="font-mono text-xs font-bold text-zinc-200 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
-              <span className="text-sky-400">{formatTime(currentTime)}</span>
-              <span className="text-zinc-600 mx-1.5">/</span>
-              <span>{formatTime(totalDuration)}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button className="p-1.5 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors" title="Urungkan (Undo)">
-                <Undo2 className="w-4 h-4" />
-              </button>
-              <button className="p-1.5 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors" title="Ulangi (Redo)">
-                <Redo2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        {/* SIDEBAR KANAN / PANEL PROPERTI (col-span-3 - Property Inspector) */}
-        <div className="col-span-3 bg-[#111111] border-l border-zinc-800 p-4 hidden lg:flex flex-col gap-4 overflow-y-auto">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-            <div className="flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-sky-400" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Panel Properti</h3>
-            </div>
-            <span className="text-[10px] text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-400/20 font-mono">Teks Aktif</span>
-          </div>
-
-          <div className="space-y-4 text-xs">
-            {/* Auto Reframe AI */}
-            <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-zinc-200 flex items-center gap-1.5">
-                  <Wand2 className="w-3.5 h-3.5 text-sky-400" /> Auto-Reframe AI
-                </span>
-                <span className="text-[10px] font-bold text-sky-400">Aktif</span>
-              </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Subjek utama dilacak otomatis di tengah bingkai vertikal (9:16).
-              </p>
-            </div>
-
-            {/* Pengaturan Subtitle */}
-            <div className="space-y-2">
-              <label className="text-zinc-400 font-semibold block">Gaya Ukuran Teks</label>
-              <input type="range" min="12" max="32" defaultValue="20" className="w-full accent-sky-400 cursor-pointer" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-zinc-400 font-semibold block">Animasi Subtitle</label>
-              <select className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2 text-zinc-200 font-medium">
-                <option>Pop In Word-by-Word</option>
-                <option>Karaoke Highlight</option>
-                <option>Slide Up Smooth</option>
-              </select>
-            </div>
-
-            <div className="p-3 bg-sky-950/30 border border-sky-500/30 rounded-xl">
-              <p className="text-[11px] text-sky-300 font-semibold">
-                ✨ Tip Studio: Subtitle warna kuning & cyan meningkatkan retention rate hingga +34% di TikTok & Shorts.
-              </p>
-            </div>
-          </div>
+        {/* Top Right: Properties Inspector */}
+        <div className="col-span-12 lg:col-span-5 h-full min-h-0">
+          <PropertiesInspector
+            selectedSubtitle={selectedSubtitle}
+            onUpdateSubtitle={handleUpdateSubtitle}
+            onDeleteSubtitle={handleDeleteSubtitle}
+            onDuplicateSubtitle={handleDuplicateSubtitle}
+            onAddSubtitleAtPlayhead={handleAddSubtitleAtPlayhead}
+            onApplyPresetToAll={handleApplyPresetToAll}
+          />
         </div>
 
       </div>
 
-      {/* 3. TIMELINE MULTI-TRACK DI BAGIAN BAWAH (Memanjang Layar Penuh) */}
-      <div className="w-full h-44 bg-[#0a0a0a] border-t border-zinc-800 flex flex-col p-3 shrink-0 relative overflow-hidden select-none">
-        
-        {/* Timecode Ruler Bar */}
-        <div className="h-6 bg-zinc-950 rounded-lg border border-zinc-800/80 px-4 flex items-center justify-between text-[10px] text-zinc-500 font-mono mb-2 relative">
-          <span>00:00.0</span>
-          <span>00:04.0</span>
-          <span>00:08.0</span>
-          <span>00:12.0</span>
-          <span>00:16.0</span>
-          <span>00:18.0</span>
-
-          {/* Playhead Marker */}
-          <div 
-            className="absolute top-0 bottom-0 w-0.5 bg-sky-400 z-30 pointer-events-none transition-all duration-75"
-            style={{ left: `${playheadPercentage}%` }}
-          >
-            <div className="w-3.5 h-3.5 -ml-1.5 -top-1 absolute bg-sky-400 rotate-45 rounded-xs shadow-md shadow-sky-400/50" />
-          </div>
-        </div>
-
-        {/* Tracks Container */}
-        <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
-          
-          {/* TRACK 1: Video Track */}
-          <div className="h-12 bg-zinc-950 rounded-xl border border-zinc-800 p-1 flex items-center overflow-hidden relative">
-            <div className="w-24 shrink-0 px-2 flex items-center gap-1.5 text-xs font-bold text-sky-400 border-r border-zinc-800">
-              <Film className="w-3.5 h-3.5" /> Track Video
-            </div>
-            
-            <div className="flex-1 h-full ml-2 bg-sky-950/70 border-2 border-sky-400/80 rounded-lg flex items-center justify-between px-2 relative">
-              <div className="w-1.5 h-7 bg-sky-400 rounded-full" />
-              <div className="flex items-center gap-1.5 overflow-hidden mx-2">
-                {Array.from({ length: 12 }).map((_, idx) => (
-                  <div key={idx} className="w-10 h-8 bg-zinc-800 rounded shrink-0 overflow-hidden border border-zinc-700">
-                    <img 
-                      src={`https://picsum.photos/seed/fullclip${idx}/100/150`} 
-                      alt="frame" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="w-1.5 h-7 bg-sky-400 rounded-full" />
-            </div>
-
-            {/* Playhead Overlay Line */}
-            <div 
-              className="absolute top-0 bottom-0 w-0.5 bg-sky-400 z-30 pointer-events-none"
-              style={{ left: `${playheadPercentage}%` }}
-            />
-          </div>
-
-          {/* TRACK 2: Audio Track */}
-          <div className="h-9 bg-zinc-950 rounded-xl border border-zinc-800 p-1 flex items-center overflow-hidden relative">
-            <div className="w-24 shrink-0 px-2 flex items-center gap-1.5 text-xs font-semibold text-zinc-400 border-r border-zinc-800">
-              <Music className="w-3.5 h-3.5" /> Audio
-            </div>
-
-            <div className="flex-1 h-full ml-2 bg-zinc-900 rounded-lg border border-dashed border-zinc-700/80 flex items-center justify-center text-zinc-400 hover:text-white text-xs font-normal gap-1.5 cursor-pointer">
-              <Plus className="w-3.5 h-3.5 text-sky-400" />
-              <span className="text-[11px] font-medium">+ Tambahkan musik latar atau voiceover</span>
-            </div>
-
-            {/* Playhead Overlay Line */}
-            <div 
-              className="absolute top-0 bottom-0 w-0.5 bg-sky-400 z-30 pointer-events-none"
-              style={{ left: `${playheadPercentage}%` }}
-            />
-          </div>
-
-          {/* TRACK 3: Subtitle Track */}
-          <div className="h-9 bg-zinc-950 rounded-xl border border-zinc-800 p-1 flex items-center overflow-hidden relative">
-            <div className="w-24 shrink-0 px-2 flex items-center gap-1.5 text-xs font-semibold text-sky-300 border-r border-zinc-800">
-              <MessageSquareText className="w-3.5 h-3.5 text-sky-400" /> Subtitle
-            </div>
-
-            <div className="flex-1 h-full ml-2 flex items-center gap-1.5">
-              <div className="h-full bg-sky-500 text-black font-extrabold text-[11px] px-3 rounded-lg border border-sky-300 flex items-center truncate">
-                ⚡ Cara Cepat Bikin Konten
-              </div>
-              <div className="h-full bg-zinc-900 text-zinc-200 font-bold text-[11px] px-3 rounded-lg border border-zinc-800 flex items-center truncate">
-                Viral AI Sekarang!
-              </div>
-            </div>
-
-            {/* Playhead Overlay Line */}
-            <div 
-              className="absolute top-0 bottom-0 w-0.5 bg-sky-400 z-30 pointer-events-none"
-              style={{ left: `${playheadPercentage}%` }}
-            />
-          </div>
-
-        </div>
-
+      {/* Bottom Half: Interactive Horizontal Timeline */}
+      <div className="h-44 sm:h-52 px-4 pb-4 shrink-0">
+        <InteractiveTimeline
+          duration={blueprint.duration}
+          currentTime={currentTime}
+          onSeek={(t) => setCurrentTime(t)}
+          isPlaying={isPlaying}
+          onTogglePlay={() => setIsPlaying(!isPlaying)}
+          subtitles={blueprint.subtitles}
+          selectedSubtitleId={selectedSubtitleId}
+          onSelectSubtitle={(id) => setSelectedSubtitleId(id)}
+          onUpdateSubtitle={handleUpdateSubtitle}
+          onAddSubtitleAtPlayhead={handleAddSubtitleAtPlayhead}
+          onSplitSubtitleAtPlayhead={handleSplitSubtitleAtPlayhead}
+        />
       </div>
+
+      {/* Cloud Export Modal */}
+      <CloudExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        blueprint={blueprint}
+      />
 
     </div>
   );

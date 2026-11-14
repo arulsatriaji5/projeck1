@@ -13,100 +13,82 @@ export const ClipCard: React.FC<ClipCardProps> = ({
   clip,
   isSelected,
   onSelect,
-  onOpenAnalysis
+  onOpenAnalysis,
 }) => {
-  // Score badge color helper
-  const getScoreBadgeColor = (score: number) => {
-    if (score >= 95) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
-    if (score >= 90) return 'bg-sky-500/20 text-sky-400 border-sky-500/40';
-    if (score >= 80) return 'bg-amber-500/20 text-amber-400 border-amber-500/40';
-    return 'bg-purple-500/20 text-purple-400 border-purple-500/40';
-  };
-
   return (
-    <div
+    <article
       onClick={() => onSelect(clip)}
-      className={`group relative rounded-xl border p-3.5 transition-all cursor-pointer ${
+      className={`group rounded-xl p-4 border transition-colors cursor-pointer ${
         isSelected
-          ? 'bg-zinc-900 border-sky-400 shadow-lg shadow-sky-500/10 ring-1 ring-sky-400/50'
-          : 'bg-zinc-900/60 hover:bg-zinc-900 border-zinc-800 hover:border-zinc-700'
+          ? 'bg-gray-900 border-emerald-400'
+          : 'bg-gray-950 border-gray-800 hover:border-gray-700'
       }`}
     >
-      {/* Top Bar: Category & Viral Score */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-[11px] font-semibold text-zinc-300 bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-700">
-          {clip.category}
-        </span>
+      <div className="flex items-center justify-between gap-2 text-xs mb-2">
+        <span className="font-semibold text-emerald-400 truncate">{clip.category}</span>
 
-        {/* Viral Score Badge */}
-        <div 
+        <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onOpenAnalysis(clip);
           }}
-          className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full border cursor-pointer hover:scale-105 transition-transform ${getScoreBadgeColor(clip.viralScore)}`}
+          className="flex items-center gap-1 text-xs font-bold text-emerald-400 hover:text-emerald-300 cursor-pointer font-mono tabular-nums"
           title="Klik untuk lihat Analisis Virality AI"
         >
-          <Flame className="w-3.5 h-3.5 fill-current" />
+          <Flame className="w-3.5 h-3.5 text-amber-400 fill-current" />
           <span>{clip.viralScore}/100</span>
-        </div>
+        </button>
       </div>
 
-      {/* Main Title */}
-      <h3 className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors line-clamp-2 leading-snug">
+      <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
         {clip.title}
-      </h3>
+      </h4>
 
-      {/* Hook Line Quote */}
-      <p className="mt-1.5 text-xs text-zinc-400 italic line-clamp-2 bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/80">
-        "{clip.hook}"
+      <p className="mt-2 text-xs text-gray-400 italic line-clamp-2 bg-gray-900 border border-gray-800 p-2.5 rounded-lg leading-relaxed">
+        &ldquo;{clip.hook}&rdquo;
       </p>
 
-      {/* Metadata Footer */}
-      <div className="mt-3 flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800/80">
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 text-zinc-500" />
-          <span>{clip.duration}</span>
+      <div className="mt-3 flex items-center justify-between text-xs text-gray-400 pt-2.5 border-t border-gray-800">
+        <div className="flex items-center gap-2 font-mono tabular-nums">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5 text-gray-500" />
+            <span>{clip.duration}</span>
+          </span>
         </div>
 
-        {clip.viewsEstimate && (
-          <span className="text-[11px] text-sky-400 font-medium">
-            Est. {clip.viewsEstimate}
-          </span>
-        )}
-
-        <div className="flex items-center gap-1">
-          <button 
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onOpenAnalysis(clip);
             }}
-            className="p-1 rounded text-sky-400 hover:text-sky-300 hover:bg-sky-950/40 transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-400 hover:bg-gray-800 transition-colors cursor-pointer"
             title="Analisis AI"
           >
             <Sparkles className="w-3.5 h-3.5" />
           </button>
-          
-          <button
-            className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 transition-all ${
+
+          <span
+            className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 whitespace-nowrap ${
               isSelected
-                ? 'bg-sky-500 text-black font-bold'
-                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                ? 'bg-emerald-500 text-gray-950'
+                : 'bg-gray-900 text-gray-200 border border-gray-800'
             }`}
           >
             {isSelected ? (
               <>
-                <Check className="w-3 h-3" /> Active
+                <Check className="w-3 h-3" /> Aktif
               </>
             ) : (
               <>
-                <Play className="w-3 h-3 fill-current" /> Preview
+                <Play className="w-3 h-3 fill-current" /> Putar
               </>
             )}
-          </button>
+          </span>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
-

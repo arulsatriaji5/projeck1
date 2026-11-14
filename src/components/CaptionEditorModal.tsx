@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ClipItem, CaptionItem } from '../types';
-import { X, Sparkles, Plus, Trash2, Check, Clock, Type, Smile } from 'lucide-react';
+import { X, Sparkles, Plus, Trash2, Check, Clock, Type } from 'lucide-react';
 
 interface CaptionEditorModalProps {
   clip: ClipItem;
@@ -13,9 +13,15 @@ export const CaptionEditorModal: React.FC<CaptionEditorModalProps> = ({
   clip,
   isOpen,
   onClose,
-  onUpdateCaptions
+  onUpdateCaptions,
 }) => {
   const [captions, setCaptions] = useState<CaptionItem[]>(clip.captions || []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCaptions(clip.captions || []);
+    }
+  }, [isOpen, clip]);
 
   if (!isOpen) return null;
 
@@ -28,12 +34,6 @@ export const CaptionEditorModal: React.FC<CaptionEditorModalProps> = ({
   const handleHighlightChange = (id: string, newHighlight: string) => {
     setCaptions((prev) =>
       prev.map((item) => (item.id === id ? { ...item, highlight: newHighlight } : item))
-    );
-  };
-
-  const handleEmojiChange = (id: string, emoji: string) => {
-    setCaptions((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, emoji } : item))
     );
   };
 
@@ -52,7 +52,6 @@ export const CaptionEditorModal: React.FC<CaptionEditorModalProps> = ({
       end: Number(newEnd.toFixed(1)),
       text: 'Tulis subtitle baru di sini...',
       highlight: 'subtitle',
-      emoji: '✨'
     };
     setCaptions([...captions, newItem]);
   };
@@ -63,121 +62,103 @@ export const CaptionEditorModal: React.FC<CaptionEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-        
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-purple-900/40 text-purple-400 border border-purple-500/30">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+      <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-gray-900 border border-gray-800 text-emerald-400">
               <Type className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Editor Subtitle & Highlight AI</h2>
-              <p className="text-xs text-slate-400">Edit teks subtitle per baris, kata kunci tebal, dan emoji</p>
+              <h2 className="text-base font-bold text-white">Editor Subtitle &amp; Highlight AI</h2>
+              <p className="text-xs text-gray-400">Edit teks subtitle per baris dan kata kunci sorotan</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-gray-900 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Modal Body Caption List */}
-        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+        <div className="p-6 overflow-y-auto space-y-3 flex-1 bg-gray-900">
           {captions.map((item, index) => (
             <div
               key={item.id || index}
-              className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center gap-3 hover:border-slate-700 transition-colors"
+              className="p-4 rounded-xl bg-gray-950 border border-gray-800 flex flex-col sm:flex-row items-start sm:items-center gap-3"
             >
-              {/* Timing Badge */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-cyan-400 shrink-0">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 text-xs font-mono tabular-nums text-emerald-400 font-semibold shrink-0">
                 <Clock className="w-3.5 h-3.5" />
-                <span>{item.start}s - {item.end}s</span>
+                <span>
+                  {item.start}s - {item.end}s
+                </span>
               </div>
 
-              {/* Text Input */}
               <div className="flex-1 w-full space-y-2">
                 <input
                   type="text"
                   value={item.text}
                   onChange={(e) => handleTextChange(item.id, e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none"
+                  className="w-full bg-gray-900 border border-gray-800 focus:border-emerald-400 rounded-lg px-3 py-1.5 text-xs text-white font-medium focus:outline-none"
                   placeholder="Teks Subtitle"
                 />
 
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-slate-500 font-medium">Highlight:</span>
+                  <span className="text-gray-400 font-medium">Highlight:</span>
                   <input
                     type="text"
                     value={item.highlight || ''}
                     onChange={(e) => handleHighlightChange(item.id, e.target.value)}
-                    className="bg-slate-900 border border-slate-800 focus:border-yellow-400 rounded px-2 py-0.5 text-[11px] text-yellow-300 focus:outline-none w-36"
-                    placeholder="Kata tebal"
+                    className="bg-gray-900 border border-gray-800 focus:border-emerald-400 rounded-lg px-2 py-1 text-[11px] text-white font-semibold focus:outline-none w-40"
+                    placeholder="Kata sorotan"
                   />
-
-                  {/* Emoji selection */}
-                  <span className="text-slate-500 font-medium ml-2">Emoji:</span>
-                  <select
-                    value={item.emoji || '🔥'}
-                    onChange={(e) => handleEmojiChange(item.id, e.target.value)}
-                    className="bg-slate-900 border border-slate-800 text-xs text-white rounded px-1.5 py-0.5 focus:outline-none cursor-pointer"
-                  >
-                    <option value="🔥">🔥 Fire</option>
-                    <option value="⚡">⚡ Lightning</option>
-                    <option value="💡">💡 Idea</option>
-                    <option value="🚀">🚀 Rocket</option>
-                    <option value="😱">😱 Shock</option>
-                    <option value="📌">📌 Pin</option>
-                  </select>
                 </div>
               </div>
 
-              {/* Action Delete */}
               <button
+                type="button"
                 onClick={() => handleDelete(item.id)}
-                className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors shrink-0"
-                title="Hapus baris"
+                className="p-2 text-gray-500 hover:text-rose-400 hover:bg-gray-900 rounded-lg transition-colors shrink-0 cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
           ))}
 
-          {/* Add Line Button */}
           <button
+            type="button"
             onClick={handleAddCaption}
-            className="w-full py-2.5 rounded-xl border border-dashed border-slate-700 hover:border-purple-500 text-slate-400 hover:text-purple-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+            className="w-full py-3 rounded-xl border border-dashed border-gray-700 hover:border-emerald-400 text-gray-300 hover:text-emerald-400 bg-gray-950 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Tambah Baris Subtitle Baru
           </button>
         </div>
 
-        {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-slate-950">
-          <div className="flex items-center gap-1.5 text-xs text-purple-400">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-800 bg-gray-950">
+          <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>AI Otomatis Menyesuaikan Pacing Teks</span>
+            <span>Otomatis sinkron dengan timeline</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-300 hover:bg-gray-900 cursor-pointer"
             >
               Batal
             </button>
             <button
+              type="button"
               onClick={handleSave}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-purple-600 to-cyan-500 text-slate-950 hover:brightness-110 shadow-md transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-gray-950 cursor-pointer"
             >
               <Check className="w-4 h-4" /> Simpan Subtitle
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

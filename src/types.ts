@@ -25,6 +25,9 @@ export interface ClipItem {
   captions: CaptionItem[];
   viewsEstimate?: string;
   engagementRating?: 'Extremely High' | 'Very High' | 'High' | 'Moderate';
+  videoSrc?: string;
+  mp4Url?: string;
+  thumbnailUrl?: string;
 }
 
 export interface VideoData {
@@ -63,3 +66,52 @@ export interface ReferenceItem {
   createdAt: string;
 }
 
+export interface RecipeStyleConfig {
+  layout: AspectRatioType;
+  autoHook: boolean;
+  subtitleTemplateId: string;
+  subtitleTemplateName: string;
+  customInstructions: string;
+}
+
+export interface ProjectItem {
+  id: string;
+  title: string;
+  sourceUrl: string;
+  sourceType: 'youtube' | 'local';
+  createdAt: string;
+  aspectRatio: AspectRatioType;
+  clipsCount: number;
+  topScore: number;
+  thumbnailUrl: string;
+  videoData: VideoData;
+}
+
+export type SubtitleAnimationType = 'pop' | 'karaoke' | 'fade' | 'none';
+
+export interface ManualSubtitleItem {
+  id: string;
+  start: number;
+  end: number;
+  text: string;
+  highlight?: string;
+  fontFamily: string;
+  fontSize: number;
+  color: string;
+  highlightColor?: string;
+  strokeColor: string;
+  strokeWidth: number;
+  shadowBlur: number;
+  animation: SubtitleAnimationType;
+  yOffsetPercent: number;
+}
+
+export interface ManualBlueprint {
+  clip_title: string;
+  start_time: number;
+  end_time: number;
+  duration: number;
+  videoSrc: string;
+  aspectRatio: AspectRatioType;
+  subtitles: ManualSubtitleItem[];
+}

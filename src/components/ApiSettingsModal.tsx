@@ -68,24 +68,25 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative text-left animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-[#0B1F3A]/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative text-left animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-400/20">
+            <div className="p-2.5 rounded-xl bg-[#EEF2F7] text-[#0B1F3A]">
               <Key className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Pengaturan API</h3>
-              <p className="text-xs text-zinc-400">Konfigurasi kunci API AI & Layanan Eksternal</p>
+              <h3 className="text-lg font-bold text-[#0B1F3A]">Pengaturan API</h3>
+              <p className="text-xs text-slate-500">Konfigurasi kunci API AI &amp; Layanan Eksternal</p>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-[#EEF2F7] hover:bg-slate-200 text-slate-600 hover:text-[#0B1F3A] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -97,10 +98,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           {/* Gemini API Key */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" /> Google Gemini API Key
+              <label className="block text-xs font-bold text-[#0B1F3A] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#1D4ED8]" /> Google Gemini API Key
               </label>
-              <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <span className="text-[11px] font-semibold text-emerald-700">
                 Aktif (Built-in Server)
               </span>
             </div>
@@ -109,70 +110,70 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
               value={geminiApiKey}
               onChange={(e) => setGeminiApiKey(e.target.value)}
               placeholder="AIzaSy... (Opsional jika memakai proxy server bawaan)"
-              className="w-full bg-zinc-950 border border-zinc-800 focus:border-sky-400 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+              className="w-full bg-[#F8F9FA] border border-slate-200 focus:border-[#1D4ED8] rounded-xl px-3.5 py-2.5 text-xs text-[#0B1F3A] placeholder-slate-400 focus:outline-none font-mono"
             />
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-slate-500">
               ClipA Studio menggunakan server proxy bawaan untuk analisis momen viral otomatis. Anda juga dapat memasukkan kunci pribadi jika ingin kuota khusus.
             </p>
           </div>
 
           {/* Model AI */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-sky-400" /> Model AI Analisis Video
+            <label className="block text-xs font-bold text-[#0B1F3A] uppercase tracking-wider flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-[#1D4ED8]" /> Model AI Analisis Video
             </label>
             <select
               value={geminiModel}
               onChange={(e) => setGeminiModel(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-800 focus:border-sky-400 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none cursor-pointer"
+              className="w-full bg-[#F8F9FA] border border-slate-200 focus:border-[#1D4ED8] rounded-xl px-3.5 py-2.5 text-xs text-[#0B1F3A] focus:outline-none cursor-pointer"
             >
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Sangat Cepat & Direkomendasikan)</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Sangat Cepat &amp; Direkomendasikan)</option>
               <option value="gemini-2.5-pro">Gemini 2.5 Pro (Akurasi Analisis Mendalam)</option>
             </select>
           </div>
 
           {/* YouTube Data API Key */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Youtube className="w-3.5 h-3.5 text-rose-400" /> YouTube Data API v3 (Opsional)
+            <label className="block text-xs font-bold text-[#0B1F3A] uppercase tracking-wider flex items-center gap-1.5">
+              <Youtube className="w-3.5 h-3.5 text-rose-600" /> YouTube Data API v3 (Opsional)
             </label>
             <input
               type="password"
               value={youtubeApiKey}
               onChange={(e) => setYoutubeApiKey(e.target.value)}
               placeholder="Masukkan YouTube Data API Key jika ada"
-              className="w-full bg-zinc-950 border border-zinc-800 focus:border-sky-400 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+              className="w-full bg-[#F8F9FA] border border-slate-200 focus:border-[#1D4ED8] rounded-xl px-3.5 py-2.5 text-xs text-[#0B1F3A] placeholder-slate-400 focus:outline-none font-mono"
             />
           </div>
 
           {/* Security Banner */}
-          <div className="p-3 bg-black/60 rounded-xl border border-zinc-800 flex items-start gap-2.5 text-xs text-zinc-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="p-3.5 bg-[#F8F9FA] rounded-xl flex items-start gap-2.5 text-xs text-slate-600">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <p className="text-[11px] leading-relaxed">
-              Kunci API disimpan secara aman di peramban lokal (<span className="text-zinc-300 font-mono">localStorage</span>) Anda dan tidak dibagikan ke pihak ketiga mana pun.
+              Kunci API disimpan secara aman di peramban lokal (<span className="text-[#0B1F3A] font-mono font-semibold">localStorage</span>) Anda dan tidak dibagikan ke pihak ketiga mana pun.
             </p>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100 gap-2 flex-wrap">
             <button
               type="button"
               onClick={handleTestConnection}
-              className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-[#EEF2F7] hover:bg-slate-200 text-[#0B1F3A] text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors"
             >
               {testingStatus === 'testing' ? (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-sky-400" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#1D4ED8]" />
                   <span>Menguji...</span>
                 </>
               ) : testingStatus === 'success' ? (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-300">Koneksi Berhasil!</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-700">Koneksi Berhasil!</span>
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 text-zinc-400" />
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
                   <span>Tes Koneksi</span>
                 </>
               )}
@@ -182,22 +183,22 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#EEF2F7] hover:bg-slate-200 text-[#0B1F3A] text-xs font-bold cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-black cursor-pointer shadow-md shadow-sky-500/20 flex items-center gap-1.5"
+                className="px-5 py-2 rounded-xl bg-[#0B1F3A] hover:bg-[#122E56] text-white text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1.5"
               >
                 {savedSuccess ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-black" />
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>Tersimpan!</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 text-black" />
+                    <Save className="w-4 h-4" />
                     <span>Simpan Pengaturan</span>
                   </>
                 )}

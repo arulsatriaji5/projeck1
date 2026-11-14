@@ -6,9 +6,7 @@ import {
   Film, 
   SlidersHorizontal, 
   ArrowRight, 
-  Wand2, 
-  Sparkles,
-  CheckCircle2
+  Wand2
 } from 'lucide-react';
 
 interface HeroInputProps {
@@ -25,7 +23,7 @@ export const HeroInput: React.FC<HeroInputProps> = ({
   isLoading 
 }) => {
   const [url, setUrl] = useState('https://www.youtube.com/watch?v=LXb3EKWsInQ');
-  const [language, setLanguage] = useState('id');
+  const [language] = useState('id');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,34 +35,32 @@ export const HeroInput: React.FC<HeroInputProps> = ({
   };
 
   return (
-    <section className="relative overflow-hidden bg-black text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8 bg-grid-pattern border-b border-zinc-800/80">
-      
-      {/* Background Soft Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-sky-500/10 blur-[120px] pointer-events-none rounded-full" />
-
-      <div className="max-w-5xl mx-auto text-center relative z-10">
+    /* Hero Section */
+    <section className="bg-[#F8F9FA] bg-grid-navy-light text-[#0B1F3A] py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto text-center">
         
-        {/* Teks Utama (Putih, besar) */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
-          Kreasikan Klip Anda: <span className="text-sky-400 font-black">Pilih Jalan Anda.</span>
+        {/* Hero Headline */}
+        <h1 className="text-3xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight text-[#0B1F3A] leading-[1.15] max-w-3xl mx-auto text-balance">
+          Kreasikan Klip Anda:{' '}
+          <span className="text-[#1D4ED8]">Pilih Jalan Anda.</span>
         </h1>
 
-        {/* Teks Sub-header (Putih, sedang) */}
-        <p className="mt-4 text-base sm:text-xl text-white font-medium max-w-2xl mx-auto leading-relaxed">
-          Studio Video AI Terpadu untuk Kreator Konten.
+        {/* Sub-headline */}
+        <p className="mt-4 text-base sm:text-lg text-slate-600 font-normal max-w-2xl mx-auto leading-relaxed">
+          Studio video AI terpadu untuk mengubah konten panjang menjadi klip vertikal siap tayang secara cepat dan profesional.
         </p>
 
-        {/* Quick Youtube Input Bar */}
-        <form onSubmit={handleSubmit} className="mt-8 max-w-3xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center gap-2 p-2 bg-zinc-900 border border-zinc-800 focus-within:border-sky-400 rounded-2xl shadow-2xl transition-all">
-            <div className="flex items-center gap-3 pl-3 w-full">
-              <Youtube className="w-6 h-6 text-sky-400 shrink-0" />
+        {/* Quick YouTube Input Form */}
+        <form onSubmit={handleSubmit} className="mt-8 sm:mt-10 max-w-3xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-2.5 bg-white rounded-2xl shadow-md focus-within:ring-2 focus-within:ring-[#0B1F3A]/20 transition-shadow">
+            <div className="flex items-center gap-3 pl-3 pr-2 flex-1 min-w-0">
+              <Youtube className="w-6 h-6 text-[#1D4ED8] shrink-0" />
               <input
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Masukkan link YouTube di sini (misal: https://youtube.com/watch?v=...)"
-                className="w-full bg-transparent text-white text-sm sm:text-base placeholder-zinc-500 focus:outline-none py-2"
+                className="w-full bg-transparent text-[#0B1F3A] text-sm sm:text-base placeholder-slate-400 focus:outline-none py-2.5"
                 disabled={isLoading}
               />
             </div>
@@ -72,117 +68,103 @@ export const HeroInput: React.FC<HeroInputProps> = ({
             <button
               type="submit"
               disabled={isLoading || !url.trim()}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-sm transition-all cursor-pointer shrink-0 shadow-lg shadow-sky-500/20"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0B1F3A] hover:bg-[#122E56] text-white font-bold text-sm transition-colors cursor-pointer shrink-0 shadow-sm disabled:opacity-50 whitespace-nowrap"
             >
               {isLoading ? (
                 <>
-                  <Wand2 className="w-4 h-4 animate-spin text-black" />
+                  <Wand2 className="w-4 h-4 animate-spin text-white" />
                   <span>Memproses AI...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-black fill-current" />
                   <span>Proses Video</span>
-                  <ArrowRight className="w-4 h-4 text-black" />
+                  <ArrowRight className="w-4 h-4 text-sky-300" />
                 </>
               )}
             </button>
           </div>
         </form>
 
-        {/* Feature Highlights */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs sm:text-sm text-zinc-300">
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-sky-400" />
-            <span>Otomatis Subtitle 9:16</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-sky-400" />
-            <span>Skor Virality AI</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-sky-400" />
-            <span>Multi-Format Export</span>
-          </div>
+        {/* Unboxed Feature Highlights */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs sm:text-sm font-medium text-slate-500">
+          <span>Otomatis Subtitle 9:16</span>
+          <span aria-hidden="true">·</span>
+          <span>Analisis Momen Viral AI</span>
+          <span aria-hidden="true">·</span>
+          <span>Ekspor MP4 Resolusi Tinggi</span>
         </div>
 
-        {/* Bagian Pilihan (Dua Kartu Sejajar di Desktop, Tumpuk di Mobile) */}
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
+        {/* Mode Selection Cards Section */}
+        <div id="fitur" className="mt-14 sm:mt-16 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto text-left">
           
-          {/* KARTU 1: Klip Otomatis (AI) */}
-          <div className="bg-zinc-900 border border-zinc-800 hover:border-sky-500/50 rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 group shadow-xl">
+          {/* Card 1: Klip Otomatis (AI) */}
+          <article className="bg-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-200">
             <div>
-              {/* Ikon Group (Biru langit solid) */}
-              <div className="flex items-center gap-3 text-sky-400 mb-6">
-                <div className="p-3 bg-sky-500/10 border border-sky-400/30 rounded-xl">
-                  <Youtube className="w-6 h-6 text-sky-400" />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-[#EEF2F7] rounded-xl text-[#0B1F3A]">
+                  <Youtube className="w-5 h-5" />
                 </div>
-                <div className="p-3 bg-sky-500/10 border border-sky-400/30 rounded-xl">
-                  <Scissors className="w-6 h-6 text-sky-400" />
+                <div className="p-3 bg-[#EEF2F7] rounded-xl text-[#1D4ED8]">
+                  <Scissors className="w-5 h-5" />
                 </div>
-                <div className="p-3 bg-sky-500/10 border border-sky-400/30 rounded-xl">
-                  <Cpu className="w-6 h-6 text-sky-400" />
+                <div className="p-3 bg-[#EEF2F7] rounded-xl text-[#0B1F3A]">
+                  <Cpu className="w-5 h-5" />
                 </div>
               </div>
 
-              {/* Teks Judul (Putih) */}
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-sky-400 transition-colors">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-3">
                 Klip Otomatis (AI)
               </h2>
 
-              {/* Teks Deskripsi (Putih) */}
-              <p className="text-sm sm:text-base text-zinc-300 font-normal leading-relaxed mb-8">
-                Otomatis ubah video YouTube panjang Anda menjadi puluhan klip 9:16 viral (TikTok/Reels) dengan subtitle, re-framing, dan skor virality bertenaga AI.
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-8">
+                Otomatis ubah video YouTube panjang atau file MP4 lokal Anda menjadi klip 9:16 siap unggah lengkap dengan subtitle dinamis dan pemotongan hook terbaik.
               </p>
             </div>
 
-            {/* Tombol (Solid biru langit, teks putih/gelap kontras tinggi) */}
             <button
+              type="button"
               onClick={onOpenAutoClipInput}
               disabled={isLoading}
-              className="w-full py-3.5 px-6 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer text-center shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#0B1F3A] hover:bg-[#122E56] text-white font-bold text-sm sm:text-base transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm whitespace-nowrap"
             >
               <span>Mulai Klip Otomatis</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-sky-300" />
             </button>
-          </div>
+          </article>
 
-          {/* KARTU 2: Edit Manual */}
-          <div className="bg-zinc-900 border border-zinc-800 hover:border-sky-500/50 rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 group shadow-xl">
+          {/* Card 2: Edit Manual */}
+          <article className="bg-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-200">
             <div>
-              {/* Ikon Group (Biru langit solid) */}
-              <div className="flex items-center gap-3 text-sky-400 mb-6">
-                <div className="p-3 bg-sky-500/10 border border-sky-400/30 rounded-xl">
-                  <Film className="w-6 h-6 text-sky-400" />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-[#EEF2F7] rounded-xl text-[#0B1F3A]">
+                  <Film className="w-5 h-5" />
                 </div>
-                <div className="p-3 bg-sky-500/10 border border-sky-400/30 rounded-xl">
-                  <Scissors className="w-6 h-6 text-sky-400" />
+                <div className="p-3 bg-[#EEF2F7] rounded-xl text-[#1D4ED8]">
+                  <Scissors className="w-5 h-5" />
                 </div>
-                <div className="p-3 bg-sky-500/10 border border-sky-400/30 rounded-xl">
-                  <SlidersHorizontal className="w-6 h-6 text-sky-400" />
+                <div className="p-3 bg-[#EEF2F7] rounded-xl text-[#0B1F3A]">
+                  <SlidersHorizontal className="w-5 h-5" />
                 </div>
               </div>
 
-              {/* Teks Judul (Putih) */}
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-sky-400 transition-colors">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-3">
                 Edit Manual
               </h2>
 
-              {/* Teks Deskripsi (Putih) */}
-              <p className="text-sm sm:text-base text-zinc-300 font-normal leading-relaxed mb-8">
-                Gunakan editor timeline canggih kami untuk kontrol penuh. Edit, potong, tambahkan subtitle, dan efek sendiri.
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-8">
+                Gunakan ruang kerja timeline multi-track untuk kontrol penuh. Atur posisi teks, warna, gaya animasi subtitle, dan durasi klip sesuai kebutuhan merek Anda.
               </p>
             </div>
 
-            {/* Tombol (Solid biru langit) */}
             <button
+              type="button"
               onClick={onOpenManualEdit}
-              className="w-full py-3.5 px-6 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer text-center shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#EEF2F7] hover:bg-[#0B1F3A] text-[#0B1F3A] hover:text-white font-bold text-sm sm:text-base transition-colors cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
             >
-              <span>Buka Editor</span>
+              <span>Buka Editor Manual</span>
               <ArrowRight className="w-4 h-4" />
             </button>
-          </div>
+          </article>
 
         </div>
 
