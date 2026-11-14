@@ -222,6 +222,8 @@ app.post("/api/auto-clip", async (req, res) => {
       targetDuration,
       momentPrompt,
       referenceInstructions,
+      videoTitle: clientVideoTitle,
+      authorName: clientAuthorName,
     } = req.body || {};
 
     const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
@@ -251,8 +253,10 @@ app.post("/api/auto-clip", async (req, res) => {
     const resolvedStyle = recipe?.subtitleTemplateName || style || "hormozi";
 
     let resolvedVideoId: string | null = null;
-    let videoTitle = fileName ? fileName.replace(/\.[^/.]+$/, "") : "";
-    let authorName = "";
+    let videoTitle = fileName
+      ? fileName.replace(/\.[^/.]+$/, "")
+      : (typeof clientVideoTitle === "string" ? clientVideoTitle.trim() : "");
+    let authorName = typeof clientAuthorName === "string" ? clientAuthorName.trim() : "";
 
     if (isLocalMode) {
       if (!fileName) {
@@ -299,8 +303,8 @@ app.post("/api/auto-clip", async (req, res) => {
       : Math.max(60, Number(sourceEndSeconds) || 300);
 
     const audioOffset = Math.max(0, Number(audioOffsetSeconds) || 0);
-    const rangeStart = Math.max(0, Number(sourceStartSeconds) || 0);
-    const rangeEnd = Math.max(rangeStart + 4, Math.min(safeTotalDuration, Number(sourceEndSeconds) || safeTotalDuration));
+    const rangeStart = 0;
+    const rangeEnd = safeTotalDuration;
 
     let minSeconds = Number(req.body?.minSeconds);
     let maxSeconds = Number(req.body?.maxSeconds);
@@ -322,10 +326,9 @@ app.post("/api/auto-clip", async (req, res) => {
 
     const promptText = isLocalMode
       ? `Anda adalah ahli transkripsi audio dan editor video pendek AI profesional.
-${hasAudioPayload ? "Anda menerima rekaman AUDIO ASLI (mono 16kHz WAV) dari file video MP4 pengguna" : "Anda menerima frame sampel dari file video MP4 lokal pengguna"}:
+${hasAudioPayload ? "Anda menerima rekaman AUDIO ASLI (mono 16kHz WAV) dari seluruh file video MP4 pengguna" : "Anda menerima frame sampel dari file video MP4 lokal pengguna"}:
 - Nama File: ${fileName}
-- Total Durasi Video: ${safeTotalDuration.toFixed(2)} detik
-- Rentang Sumber Dipilih: ${rangeStart.toFixed(2)}s sampai ${rangeEnd.toFixed(2)}s
+- Total Durasi Video Penuh: ${safeTotalDuration.toFixed(2)} detik (mulai 0.00s sampai ${safeTotalDuration.toFixed(2)}s)
 ${hasAudioPayload ? `- Catatan Timeline Audio: Detik 0.0 pada file audio ini berkorespondensi dengan detik ${audioOffset.toFixed(2)} pada timeline video asli.` : ""}
 - Target Durasi Klip: ${durationRule}
 - Rasio Output: ${resolvedRatio}
@@ -337,20 +340,21 @@ ATURAN DURASI WAJIB (CRITICAL):
 Every returned clip MUST have a duration (end_sec - start_sec) strictly between ${minSeconds} and ${maxSeconds} seconds. If the total source video is under 35 seconds, return 1 comprehensive clip lasting ${minSeconds} to ${safeTotalDuration.toFixed(1)} seconds rather than splitting into tiny 6-second fragments.
 
 TUGAS WAJIB (SANGAT KETAT):
-1. ${hasAudioPayload ? "Dengarkan dengan teliti ucapan asli (Bahasa Indonesia atau Inggris) yang terdengar pada audio." : "Analisis visual frame yang dikirimkan."}
-2. Pilih ${safeTotalDuration < 35 ? "1 segmen klip komprehensif terbaik" : "3 sampai 4 segmen klip terbaik"} dengan 'start_sec' dan 'end_sec' (angka desimal/float tepat dalam detik timeline video asli, berada di dalam rentang ${rangeStart.toFixed(2)} sampai ${rangeEnd.toFixed(2)}) dengan panjang (end_sec - start_sec) antara ${minSeconds} sampai ${maxSeconds} detik.
-3. Berikan 'title' hook yang relevan dengan isi ucapan asli dan 'viral_score' (75-99).
+1. ${hasAudioPayload ? "Dengarkan dengan teliti ucapan asli (Bahasa Indonesia atau Inggris) pada seluruh audio." : "Analisis visual frame yang dikirimkan."}
+2. Pilih ${safeTotalDuration < 35 ? "1 segmen klip komprehensif terbaik" : "3 sampai 4 segmen klip terbaik"} dengan 'start_sec' dan 'end_sec' (angka desimal/float tepat dalam detik timeline video asli, berada di dalam rentang 0.00 sampai ${safeTotalDuration.toFixed(2)}) dengan panjang (end_sec - start_sec) antara ${minSeconds} sampai ${maxSeconds} detik.
+3. Berikan 'title' klip, 'hook_headline' (judul hook super singkat 3-6 kata huruf kapital yang memancing rasa penasaran untuk banner 3 detik pertama), dan 'viral_score' (75-99).
 4. TRANSKRIPSI VERBATIM (KATA DEMI KATA): Pecah ucapan NYATA yang benar-benar terdengar di dalam rentang [start_sec, end_sec] menjadi potongan subtitle pendek yang padat (2 sampai 4 kata per baris).
    - JANGAN PERNAH mengarang, menambah, atau berhalusinasi kata yang tidak diucapkan di audio.
-   - Setiap objek subtitle WAJIB memiliki 'start_sec' dan 'end_sec' dalam DETIK TIMELINE VIDEO ASLI (bukan dimulai dari 0 jika klip dimulai di detik ke-15; contoh: jika klip mulai di 15.2s dan berakhir di 32.4s, maka subtitle berada di antara 15.2 dan 32.4 tepat mengikuti momen kata tersebut diucapkan).
-   - Jika pada bagian tertentu tidak ada ucapan (musik/hening), jangan buat teks ucapan palsu.`
+   - Setiap objek subtitle WAJIB memiliki 'start_sec' dan 'end_sec' dalam DETIK TIMELINE VIDEO ASLI (antara start_sec dan end_sec klip tersebut).
+   - Jika pada bagian tertentu tidak ada ucapan (musik/hening), jangan buat teks ucapan palsu.
+5. AI B-ROLL MOMENTS: Untuk setiap klip, buat 1 sampai 2 'broll_moments' pada momen kata kunci penting di dalam rentang [start_sec, end_sec] (masing-masing berdurasi 2.5 - 4.0 detik) berisi: 'start_sec', 'end_sec', 'keyword' (1-2 kata), 'icon_or_emoji' (1 emoji visual relevan seperti 📈, 💡, 🚀, 🎯, 💰), dan 'caption' (ringkasan visual singkat 3-6 kata).`
       : `Anda adalah editor video pendek AI profesional.
 Analisis video YouTube nyata berikut:
 - YouTube URL: ${incomingUrl}
 - Video ID: ${resolvedVideoId}
 ${videoTitle ? `- Judul Video Asli: ${videoTitle}` : ""}
 ${authorName ? `- Channel: ${authorName}` : ""}
-- Rentang Waktu Sumber: ${rangeStart} detik sampai ${rangeEnd} detik
+- Analisis seluruh video dari awal (0s) dengan estimasi rentang ${rangeStart}s sampai ${rangeEnd}s
 - Target Durasi Klip: ${durationRule}
 - Rasio Output: ${resolvedRatio}
 - Gaya Subtitle: ${resolvedStyle}
@@ -363,8 +367,9 @@ Every returned clip MUST have a duration (end_sec - start_sec) strictly between 
 Tugas Wajib:
 1. Analisis topik dan konteks video YouTube tersebut dan hasilkan 3 sampai 4 segmen klip paling berpotensi viral.
 2. Setiap segmen memiliki 'start_sec' dan 'end_sec' di dalam rentang ${rangeStart}..${rangeEnd} sesuai target (${durationRule}).
-3. Semua 'title' dan 'subtitles' WAJIB berbahasa Indonesia yang relevan dengan topik video aslinya dan memiliki 'viral_score' (75-99).
-4. Untuk setiap segmen, buat potongan 'subtitles' (2-4 kata per baris) dengan 'start_sec' dan 'end_sec' dalam detik timeline video asli (di antara start_sec dan end_sec segmen tersebut).`;
+3. Semua 'title', 'hook_headline' (3-6 kata singkat untuk banner hook 3 detik pertama), dan 'subtitles' WAJIB berbahasa Indonesia yang relevan dengan topik video aslinya dan memiliki 'viral_score' (75-99).
+4. Untuk setiap segmen, buat potongan 'subtitles' (2-4 kata per baris) dengan 'start_sec' dan 'end_sec' dalam detik timeline video asli (di antara start_sec dan end_sec segmen tersebut).
+5. Sertakan 1 sampai 2 'broll_moments' per klip di dalam [start_sec, end_sec] berisi 'start_sec', 'end_sec', 'keyword', 'icon_or_emoji', dan 'caption'.`;
 
     const contentParts: Array<any> = [];
     if (isLocalMode && hasAudioPayload) {
@@ -410,6 +415,7 @@ Tugas Wajib:
                 type: Type.OBJECT,
                 properties: {
                   title: { type: Type.STRING },
+                  hook_headline: { type: Type.STRING },
                   viral_score: { type: Type.INTEGER },
                   start_sec: { type: Type.NUMBER },
                   end_sec: { type: Type.NUMBER },
@@ -425,8 +431,22 @@ Tugas Wajib:
                       required: ["start_sec", "end_sec", "text"],
                     },
                   },
+                  broll_moments: {
+                    type: Type.ARRAY,
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        start_sec: { type: Type.NUMBER },
+                        end_sec: { type: Type.NUMBER },
+                        keyword: { type: Type.STRING },
+                        icon_or_emoji: { type: Type.STRING },
+                        caption: { type: Type.STRING },
+                      },
+                      required: ["start_sec", "end_sec", "keyword", "icon_or_emoji", "caption"],
+                    },
+                  },
                 },
-                required: ["title", "viral_score", "start_sec", "end_sec", "subtitles"],
+                required: ["title", "hook_headline", "viral_score", "start_sec", "end_sec", "subtitles", "broll_moments"],
               },
             },
           },
@@ -521,13 +541,66 @@ Tugas Wajib:
             .sort((a: any, b: any) => a.start_sec - b.start_sec)
         : [];
 
+      let cleanBrolls = Array.isArray(c.broll_moments)
+        ? c.broll_moments
+            .map((b: any, bIdx: number) => {
+              let bStart = Number(b.start_sec ?? b.start);
+              let bEnd = Number(b.end_sec ?? b.end);
+              if (isNaN(bStart)) bStart = startSec + Math.min(4, segDur * 0.25);
+              if (isNaN(bEnd) || bEnd <= bStart) bEnd = bStart + 3.0;
+              if (hasAudioPayload && audioOffset > 0 && bStart < startSec - 0.5 && bStart + audioOffset >= startSec - 0.5) {
+                bStart += audioOffset;
+                bEnd += audioOffset;
+              }
+              return {
+                id: `broll-${idx + 1}-${bIdx + 1}`,
+                rawStart: bStart,
+                rawEnd: bEnd,
+                keyword: String(b.keyword || "Highlight").trim(),
+                icon_or_emoji: String(b.icon_or_emoji || "💡").trim(),
+                caption: String(b.caption || b.keyword || "Poin Utama").trim(),
+              };
+            })
+            .filter((b: any) => b.rawEnd > startSec && b.rawStart < endSec)
+            .map((b: any) => {
+              const clampedStart = Math.max(startSec + 0.5, Math.min(endSec - 1.2, b.rawStart));
+              const clampedEnd = Math.min(endSec, Math.max(clampedStart + 1.5, Math.min(clampedStart + 4.5, b.rawEnd)));
+              return {
+                id: b.id,
+                start_sec: Math.round(clampedStart * 100) / 100,
+                end_sec: Math.round(clampedEnd * 100) / 100,
+                keyword: b.keyword,
+                icon_or_emoji: b.icon_or_emoji,
+                caption: b.caption,
+              };
+            })
+            .slice(0, 2)
+        : [];
+
+      if (cleanBrolls.length === 0 && segDur >= 4) {
+        const fallbackStart = Math.round((startSec + Math.min(3.5, segDur * 0.25)) * 100) / 100;
+        const fallbackEnd = Math.round(Math.min(endSec, fallbackStart + 3.0) * 100) / 100;
+        cleanBrolls = [
+          {
+            id: `broll-${idx + 1}-1`,
+            start_sec: fallbackStart,
+            end_sec: fallbackEnd,
+            keyword: "Poin Kunci",
+            icon_or_emoji: "💡",
+            caption: String(c.title || "Momen Penting").slice(0, 36),
+          },
+        ];
+      }
+
       const score = Math.min(99, Math.max(70, Math.round(Number(c.viral_score) || 88)));
+      const hookHeadline = String(c.hook_headline || c.title || "WAJIB TONTON SAMPAI HABIS!").trim();
 
       return {
         id: `clip-${Date.now()}-${idx + 1}`,
         mode: isLocalMode ? "local" : "youtube",
         videoId: resolvedVideoId,
         title: String(c.title || `Klip #${idx + 1}`),
+        hook_headline: hookHeadline,
         viral_score: score,
         score,
         start_sec: startSec,
@@ -536,6 +609,7 @@ Tugas Wajib:
         end_seconds: endSec,
         duration: formatDurationMMSS(segDur),
         subtitles: cleanSubs,
+        broll_moments: cleanBrolls,
       };
     });
 

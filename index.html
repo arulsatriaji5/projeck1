@@ -16,7 +16,7 @@
   <!-- Google Fonts for Clean UI & Subtitle Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@500;700&family=Montserrat:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@700&family=JetBrains+Mono:wght@500;700&family=Montserrat:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet" />
 
   <style>
     :root {
@@ -265,7 +265,7 @@
       transform: translateY(-1px);
     }
 
-    /* Subtitle Animations */
+    /* Subtitle Animations & Style Picker Cards */
     @keyframes subPop {
       0% { transform: scale(0.82); opacity: 0.4; }
       100% { transform: scale(1); opacity: 1; }
@@ -276,12 +276,297 @@
       100% { opacity: 1; }
     }
 
+    @keyframes cardSlideIn {
+      0% { transform: translateY(-10px) scale(0.94); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
     .anim-pop {
       animation: subPop 0.2s ease-out;
     }
 
     .anim-fade {
       animation: subFade 0.35s ease-in;
+    }
+
+    .anim-card-in {
+      animation: cardSlideIn 0.25s ease-out;
+    }
+
+    .subtitle-style-card {
+      cursor: pointer;
+      border: 2px solid transparent !important;
+      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .subtitle-style-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37, 99, 235, 0.4) !important;
+    }
+
+    .subtitle-style-card.selected {
+      border-color: var(--accent-blue) !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 6px 16px rgba(10, 25, 47, 0.12) !important;
+      background-color: #EFF6FF !important;
+    }
+
+    .style-mini-stage {
+      background: linear-gradient(160deg, #071324 0%, #112240 100%);
+      height: 76px;
+      border-radius: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.35rem 0.5rem;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .sub-render-mozi_pop {
+      font-family: "Montserrat", sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      text-shadow:
+        -2px -2px 0 #000000,
+         2px -2px 0 #000000,
+        -2px  2px 0 #000000,
+         2px  2px 0 #000000,
+         0px  3px 8px rgba(0, 0, 0, 0.95);
+      background: transparent !important;
+    }
+
+    .sub-render-simple_clean {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-weight: 800;
+      color: #FFFFFF;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.85);
+      background: rgba(7, 19, 36, 0.35);
+      border-radius: 0.4rem;
+    }
+
+    .sub-render-handwritten_glow {
+      font-family: "Caveat", cursive;
+      font-weight: 700;
+      font-style: italic;
+      color: #FDE047;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+      text-shadow: 0 0 12px rgba(250, 204, 21, 0.78), 0 2px 5px rgba(0, 0, 0, 0.95);
+      background: transparent !important;
+    }
+
+    .sub-render-karaoke_pill {
+      font-family: "Montserrat", sans-serif;
+      font-weight: 800;
+      color: #FFFFFF;
+      background: linear-gradient(135deg, #0A192F 0%, #2563EB 100%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(10, 25, 47, 0.65);
+    }
+
+    .hook-banner-overlay {
+      position: absolute;
+      top: 13%;
+      left: 8%;
+      right: 8%;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .broll-card-overlay {
+      position: absolute;
+      top: 25%;
+      left: 10%;
+      right: 10%;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .clip-video-viewport {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .clip-video-viewport video {
+      transition: filter 0.2s ease;
+      transform-origin: center center;
+      will-change: transform;
+    }
+
+    /* CapCut-Inspired Manual Editor Styles */
+    .editor-tool-rail {
+      background-color: var(--navy-deep);
+      border-radius: 0.9rem;
+    }
+
+    .editor-tool-btn {
+      color: rgba(255, 255, 255, 0.75);
+      border: 0;
+      background: transparent;
+      border-radius: 0.7rem;
+      padding: 0.65rem 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .editor-tool-btn:hover {
+      background-color: var(--navy-light);
+      color: #FFFFFF;
+    }
+
+    .editor-tool-btn.active {
+      background-color: var(--accent-blue);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .editor-overlay-draggable {
+      cursor: ns-resize;
+      user-select: none;
+      touch-action: none;
+      transition: outline 0.12s ease;
+    }
+
+    .editor-overlay-draggable:hover,
+    .editor-overlay-draggable.is-dragging {
+      outline: 2px dashed rgba(37, 99, 235, 0.9);
+      outline-offset: 4px;
+      border-radius: 0.5rem;
+    }
+
+    .editor-blur-bg-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(18px) brightness(0.65);
+      transform: scale(1.18);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .editor-fg-video {
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-scroll-wrap {
+      overflow-x: auto;
+      position: relative;
+      background-color: #F8FAFC;
+      border-radius: 0.85rem;
+      padding: 0.75rem;
+    }
+
+    .timeline-zoom-inner {
+      position: relative;
+      min-width: 100%;
+    }
+
+    .timeline-playhead-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: #2563EB;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .timeline-playhead-handle {
+      position: absolute;
+      top: -2px;
+      left: -7px;
+      width: 16px;
+      height: 18px;
+      background-color: #2563EB;
+      border-radius: 4px 4px 8px 8px;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.45);
+      cursor: ew-resize;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    .timeline-block-subtitle {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+      color: #FFFFFF;
+      border-radius: 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0 0.5rem;
+      display: flex;
+      align-items: center;
+      cursor: grab;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: none;
+      touch-action: none;
+      border: 2px solid transparent;
+    }
+
+    .timeline-block-subtitle.selected {
+      border-color: #0A192F;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
+    }
+
+    .timeline-block-video {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      background: linear-gradient(135deg, #0A192F 0%, #1E3A8A 65%, #2563EB 100%);
+      color: #FFFFFF;
+      border-radius: 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+
+    .timeline-block-video.selected {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
+    }
+
+    .timeline-block-audio {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      border-radius: 0.45rem;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.36) 0px,
+          rgba(255, 255, 255, 0.36) 2px,
+          transparent 2px,
+          transparent 6px
+        ),
+        linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+      background-size: 100% 58%, 100% 100%;
+      background-position: center, center;
+      background-repeat: repeat-x, no-repeat;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      padding: 0 0.65rem;
+      font-size: 0.72rem;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -461,46 +746,158 @@
             </div>
           </article>
 
-          <!-- Range & Recipe Controls -->
+          <!-- Range, Subtitle Visual Cards & Dynamic Effects Controls -->
           <article class="card border-0 shadow-sm rounded-4 bg-light p-4">
             <h3 class="h6 fw-bold text-navy mb-3"><i class="bi bi-sliders2 me-2 text-primary"></i>Pengaturan Pemotongan &amp; Gaya</h3>
 
-            <!-- Rentang Waktu Sumber -->
-            <div class="mb-3">
-              <label class="form-label small fw-bold text-navy">Rentang Waktu Sumber (MM:SS)</label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <div class="input-group shadow-sm rounded-3 overflow-hidden">
-                    <span class="input-group-text bg-white border-0 small text-secondary">Mulai</span>
-                    <input type="text" id="configStartTime" class="form-control border-0 bg-white font-mono-tabular" value="00:00" placeholder="00:00" oninput="syncConfigSummary()" onblur="sanitizeTimeInput(this, '00:00')" />
+            <!-- Single Clean Clip Duration Control -->
+            <div class="mb-4">
+              <label for="configTargetDuration" class="form-label small fw-bold text-navy">Target Durasi Klip</label>
+              <select id="configTargetDuration" class="form-select border-0 shadow-sm" onchange="syncConfigSummary()">
+                <option value="15_30" selected>15 - 30 detik</option>
+                <option value="30_60">30 - 60 detik</option>
+                <option value="60_90">60 - 90 detik</option>
+              </select>
+              <div class="form-text small text-secondary">AI otomatis memindai seluruh durasi video sumber (awal hingga akhir) dan memotong klip sesuai rentang ini.</div>
+            </div>
+
+            <!-- Visual Subtitle Style Picker Cards (OpusClip Style) -->
+            <div class="mb-4">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label class="form-label small fw-bold text-navy mb-0">Gaya Subtitle Visual</label>
+                <span class="small text-secondary">Klik kartu untuk memilih gaya</span>
+              </div>
+              <div class="row row-cols-2 row-cols-md-4 g-2" id="subtitleStylePickerGrid">
+                <!-- Card 1: Mozi Pop -->
+                <div class="col">
+                  <div class="card bg-white rounded-3 p-2 h-100 shadow-sm subtitle-style-card selected" data-sub-style="mozi_pop" onclick="selectSubtitleStyle('mozi_pop')">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-navy" style="font-size: 0.72rem;">Mozi Pop</span>
+                      <span class="badge bg-primary text-white style-selected-badge" style="font-size: 0.62rem;">Selected</span>
+                    </div>
+                    <div class="style-mini-stage">
+                      <span class="sub-render-mozi_pop" style="font-size: 0.85rem; line-height: 1.15;">
+                        RAHASIA <span style="color: #FACC15;">VIRAL!</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div class="col-6">
-                  <div class="input-group shadow-sm rounded-3 overflow-hidden">
-                    <span class="input-group-text bg-white border-0 small text-secondary">Selesai</span>
-                    <input type="text" id="configEndTime" class="form-control border-0 bg-white font-mono-tabular" value="05:00" placeholder="05:00" oninput="syncConfigSummary()" onblur="sanitizeTimeInput(this, '05:00')" />
+
+                <!-- Card 2: Simple Clean -->
+                <div class="col">
+                  <div class="card bg-white rounded-3 p-2 h-100 shadow-sm subtitle-style-card" data-sub-style="simple_clean" onclick="selectSubtitleStyle('simple_clean')">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-navy" style="font-size: 0.72rem;">Simple Clean</span>
+                      <span class="badge bg-primary text-white style-selected-badge d-none" style="font-size: 0.62rem;">Selected</span>
+                    </div>
+                    <div class="style-mini-stage">
+                      <span class="sub-render-simple_clean px-2 py-1" style="font-size: 0.8rem; line-height: 1.2;">
+                        Strategi Konten
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 3: Handwritten Glow -->
+                <div class="col">
+                  <div class="card bg-white rounded-3 p-2 h-100 shadow-sm subtitle-style-card" data-sub-style="handwritten_glow" onclick="selectSubtitleStyle('handwritten_glow')">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-navy" style="font-size: 0.7rem;">Handwritten</span>
+                      <span class="badge bg-primary text-white style-selected-badge d-none" style="font-size: 0.62rem;">Selected</span>
+                    </div>
+                    <div class="style-mini-stage">
+                      <span class="sub-render-handwritten_glow" style="font-size: 1.05rem; line-height: 1.15;">
+                        Ide Konten!
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 4: Karaoke Pill -->
+                <div class="col">
+                  <div class="card bg-white rounded-3 p-2 h-100 shadow-sm subtitle-style-card" data-sub-style="karaoke_pill" onclick="selectSubtitleStyle('karaoke_pill')">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-navy" style="font-size: 0.72rem;">Karaoke Pill</span>
+                      <span class="badge bg-primary text-white style-selected-badge d-none" style="font-size: 0.62rem;">Selected</span>
+                    </div>
+                    <div class="style-mini-stage">
+                      <span class="sub-render-karaoke_pill px-2 py-1" style="font-size: 0.76rem; line-height: 1.2;">
+                        Kunci Sukses
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Target Durasi Klip & Referensi Gaya -->
-            <div class="row g-3 mb-3">
-              <div class="col-12 col-sm-6">
-                <label for="configTargetDuration" class="form-label small fw-bold text-navy">Target Durasi Klip</label>
-                <select id="configTargetDuration" class="form-select border-0 shadow-sm" onchange="syncConfigSummary()">
-                  <option value="15_30" selected>15 - 30 detik</option>
-                  <option value="30_60">30 - 60 detik</option>
-                  <option value="60_90">60 - 90 detik</option>
-                </select>
-              </div>
-              <div class="col-12 col-sm-6">
-                <label for="configStyleRef" class="form-label small fw-bold text-navy">Pilih Referensi Gaya</label>
-                <select id="configStyleRef" class="form-select border-0 shadow-sm" onchange="syncConfigSummary()">
-                  <option value="hormozi" selected>Hormozi Pop (Kuning Neon)</option>
-                  <option value="karaoke">Highlight Karaoke (Edukasi)</option>
-                  <option value="fade">Minimalis Fade Lembut (Podcast)</option>
-                </select>
+            <!-- Dynamic Editing Toggles ("Efek & Dinamika Klip") -->
+            <div class="mb-4">
+              <label class="form-label small fw-bold text-navy mb-2"><i class="bi bi-stars me-1 text-primary"></i>Efek &amp; Dinamika Klip (Aktif di Pratinjau &amp; Ekspor)</label>
+              <div class="bg-white rounded-3 p-3 shadow-sm d-flex flex-column gap-3">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-zoom-in text-primary fs-5 mt-1"></i>
+                    <div>
+                      <label for="toggleAutoZoom" class="fw-bold text-navy small mb-0 d-block" style="cursor: pointer;">Auto Zoom (Zoom In / Zoom Out Dinamis)</label>
+                      <small class="text-secondary" style="font-size: 0.75rem;">Animasi zoom halus 1.0x ke 1.12x secara berkala agar pembicara tampak dinamis.</small>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch m-0 pt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggleAutoZoom" checked onchange="syncConfigSummary()" />
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-start justify-content-between gap-3 border-top pt-2">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-volume-up-fill text-primary fs-5 mt-1"></i>
+                    <div>
+                      <label for="toggleAutoSfx" class="fw-bold text-navy small mb-0 d-block" style="cursor: pointer;">Auto SFX (Efek Suara Transisi)</label>
+                      <small class="text-secondary" style="font-size: 0.75rem;">Sintesis suara whoosh &amp; pop otomatis via Web Audio API saat transisi dan ekspor.</small>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch m-0 pt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggleAutoSfx" checked onchange="syncConfigSummary()" />
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-start justify-content-between gap-3 border-top pt-2">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-images text-primary fs-5 mt-1"></i>
+                    <div>
+                      <label for="toggleAiBroll" class="fw-bold text-navy small mb-0 d-block" style="cursor: pointer;">AI B-Roll / Visual Card Overlay</label>
+                      <small class="text-secondary" style="font-size: 0.75rem;">Kartu visual &amp; emoji kontekstual dari AI muncul di paruh atas layar pada momen kunci.</small>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch m-0 pt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggleAiBroll" checked onchange="syncConfigSummary()" />
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-start justify-content-between gap-3 border-top pt-2">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-lightning-charge-fill text-primary fs-5 mt-1"></i>
+                    <div>
+                      <label for="toggleAutoHook" class="fw-bold text-navy small mb-0 d-block" style="cursor: pointer;">Auto Hook Headline (3 Detik Pertama)</label>
+                      <small class="text-secondary" style="font-size: 0.75rem;">Banner judul hook kontras tinggi di bagian atas video pada 3 detik pembuka.</small>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch m-0 pt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggleAutoHook" checked onchange="syncConfigSummary()" />
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-start justify-content-between gap-3 border-top pt-2">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-palette-fill text-primary fs-5 mt-1"></i>
+                    <div>
+                      <label for="toggleAutoColor" class="fw-bold text-navy small mb-0 d-block" style="cursor: pointer;">Auto Color &amp; Sharpness</label>
+                      <small class="text-secondary" style="font-size: 0.75rem;">Tingkatkan kontras &amp; kejernihan warna video (contrast 1.08, saturate 1.12).</small>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch m-0 pt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggleAutoColor" checked onchange="syncConfigSummary()" />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -532,16 +929,22 @@
                 <span class="fw-bold text-navy">9:16 Vertikal</span>
               </li>
               <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
-                <span class="text-secondary">Rentang Sumber</span>
-                <span class="fw-bold text-navy font-mono-tabular" id="summaryRangeText">00:00 - 05:00</span>
+                <span class="text-secondary">Pemindaian Sumber</span>
+                <span class="fw-bold text-navy">Video Penuh (0s - Selesai)</span>
               </li>
               <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
                 <span class="text-secondary">Target Durasi Klip</span>
                 <span class="fw-bold text-navy" id="summaryDurationText">15 - 30 detik</span>
               </li>
               <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
-                <span class="text-secondary">Referensi Gaya</span>
-                <span class="fw-bold text-navy" id="summaryStyleText">Hormozi Pop (Kuning Neon)</span>
+                <span class="text-secondary">Gaya Subtitle</span>
+                <span class="fw-bold text-primary" id="summaryStyleText">Mozi Pop</span>
+              </li>
+              <li class="list-group-item bg-transparent px-0">
+                <div class="text-secondary mb-2">Efek &amp; Dinamika Aktif</div>
+                <div class="d-flex flex-wrap gap-1" id="summaryEffectsBadges">
+                  <!-- Badges injected dynamically -->
+                </div>
               </li>
               <li class="list-group-item bg-transparent px-0">
                 <div class="text-secondary mb-1">Fokus Momen</div>
@@ -613,185 +1016,453 @@
       </div>
     </section>
 
-    <!-- View 5: Editor View (CapCut Style) -->
+    <!-- View 5: Editor View (Clean CapCut-Inspired Studio) -->
     <section id="view-editor" class="workspace-view d-none">
-      <!-- Editor Top Toolbar -->
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
-        <div class="d-flex align-items-center gap-3">
-          <button type="button" class="btn btn-sm btn-light text-navy fw-bold shadow-sm" onclick="switchView('view-results')">
-            <i class="bi bi-arrow-left me-1"></i> Kembali ke Hasil
-          </button>
-          <div>
-            <h2 class="h5 fw-bold text-navy mb-0" id="editorClipTitle">Edit Manual Timeline</h2>
-            <small class="text-secondary">Klik blok subtitle pada timeline untuk mengubah teks dan gaya secara langsung</small>
+      <!-- Top Editor Toolbar -->
+      <header class="card border-0 shadow-sm rounded-4 bg-white p-3 mb-3">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1" style="min-width: 240px;">
+            <button type="button" class="btn btn-sm btn-light text-navy fw-bold shadow-sm px-3" onclick="returnToResultsFromEditor()">
+              &larr; Kembali
+            </button>
+            <input
+              type="text"
+              id="editorClipTitleInput"
+              class="form-control form-control-sm border bg-light fw-bold text-navy"
+              style="max-width: 280px;"
+              aria-label="Judul Klip"
+              placeholder="Judul klip..."
+              oninput="updateEditorClipTitle(this.value)"
+              onchange="pushEditorHistorySnapshot()"
+            />
+            <div class="btn-group btn-group-sm" role="group" aria-label="Riwayat Edit">
+              <button type="button" id="btnEditorUndo" class="btn btn-outline-secondary" onclick="undoEditorAction()" title="Urungkan (Undo)" disabled>
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+              <button type="button" id="btnEditorRedo" class="btn btn-outline-secondary" onclick="redoEditorAction()" title="Ulangi (Redo)" disabled>
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-navy text-white px-3 py-2 rounded-3 font-mono-tabular">
+              9:16 TikTok/Reels
+            </span>
+            <button type="button" class="btn btn-accent fw-bold px-4 rounded-3 shadow-sm" onclick="exportEditedClip()">
+              <i class="bi bi-cloud-arrow-down-fill me-2"></i>Ekspor Video
+            </button>
           </div>
         </div>
-        <button type="button" class="btn btn-accent fw-bold px-4 rounded-3 shadow-sm" onclick="exportEditedClip()">
-          <i class="bi bi-cloud-arrow-down-fill me-2"></i>Ekspor &amp; Unduh
-        </button>
-      </div>
+      </header>
 
-      <!-- Editor Top Half: Video Preview & Properties Panel -->
-      <div class="row g-4 mb-4">
-        <!-- Video Preview Canvas -->
-        <div class="col-12 col-lg-7">
-          <article class="card border-0 shadow-sm rounded-4 bg-light p-3 p-md-4 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="small fw-bold text-navy"><i class="bi bi-phone me-1 text-primary"></i>Pratinjau Kanvas 9:16</span>
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-navy font-mono-tabular" id="editorTimeDisplay">00:00.0 / 00:30.0</span>
-                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="toggleElementFullscreen('editor-fs-host')" title="Layar Penuh 9:16">
-                  <i class="bi bi-fullscreen"></i>
-                </button>
+      <!-- Main Studio Row: Left Tool Rail + Compact Drawer | Center 9:16 Stage | Right Contextual Properties -->
+      <div class="row g-3 mb-3 align-items-stretch">
+        <!-- Left Tool Rail + Compact Drawer (3 Tabs Only) -->
+        <div class="col-12 col-lg-4 col-xl-3">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-2 h-100">
+            <div class="row g-2 h-100">
+              <!-- Compact Vertical Rail -->
+              <div class="col-4 col-sm-3 col-lg-4">
+                <div class="editor-tool-rail p-2 d-flex flex-column gap-2 h-100" role="tablist" aria-label="Alat Editor">
+                  <button type="button" class="editor-tool-btn active d-flex flex-column align-items-center gap-1 text-center" data-editor-tab="text" onclick="switchEditorToolTab('text')">
+                    <i class="bi bi-fonts fs-5"></i>
+                    <span>Teks &amp; Subtitle</span>
+                  </button>
+                  <button type="button" class="editor-tool-btn d-flex flex-column align-items-center gap-1 text-center" data-editor-tab="audio" onclick="switchEditorToolTab('audio')">
+                    <i class="bi bi-music-note-beamed fs-5"></i>
+                    <span>Audio &amp; SFX</span>
+                  </button>
+                  <button type="button" class="editor-tool-btn d-flex flex-column align-items-center gap-1 text-center" data-editor-tab="visual" onclick="switchEditorToolTab('visual')">
+                    <i class="bi bi-sliders2 fs-5"></i>
+                    <span>Visual &amp; Filter</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Compact Drawer Content -->
+              <div class="col-8 col-sm-9 col-lg-8">
+                <div class="bg-white rounded-3 p-3 h-100 shadow-sm">
+                  <!-- Tab 1: Teks & Subtitle -->
+                  <div id="editorDrawer-text" class="editor-drawer-pane">
+                    <h3 class="h6 fw-bold text-navy mb-2">Teks &amp; Subtitle</h3>
+                    <div class="d-grid gap-2 mb-3">
+                      <button type="button" class="btn btn-sm btn-navy fw-bold text-start" onclick="addHookBannerAction()">
+                        <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Tambah Judul Hook
+                      </button>
+                      <button type="button" class="btn btn-sm btn-accent fw-bold text-start" onclick="addNewSubtitleBlock()">
+                        <i class="bi bi-plus-circle-fill me-1"></i>Tambah Subtitle
+                      </button>
+                    </div>
+
+                    <div class="small fw-bold text-navy mb-2">Preset Gaya Visual</div>
+                    <div class="row row-cols-2 g-2 mb-3" id="editorPresetGrid">
+                      <div class="col">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-bold py-2 editor-style-preset" data-preset="mozi_pop" onclick="applyEditorStylePreset('mozi_pop')" style="font-size: 0.72rem;">
+                          Mozi Pop
+                        </button>
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-bold py-2 editor-style-preset" data-preset="simple_clean" onclick="applyEditorStylePreset('simple_clean')" style="font-size: 0.72rem;">
+                          Simple Clean
+                        </button>
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-bold py-2 editor-style-preset" data-preset="karaoke_pill" onclick="applyEditorStylePreset('karaoke_pill')" style="font-size: 0.72rem;">
+                          Karaoke Pill
+                        </button>
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-bold py-2 editor-style-preset" data-preset="handwritten_glow" onclick="applyEditorStylePreset('handwritten_glow')" style="font-size: 0.72rem;">
+                          Handwritten
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-check form-switch bg-light rounded-3 p-2 ps-5 mb-0">
+                      <input class="form-check-input" type="checkbox" role="switch" id="editorBatchStyleSwitch" checked onchange="handleBatchStyleToggle(this.checked)" />
+                      <label class="form-check-label small fw-semibold text-navy" for="editorBatchStyleSwitch" style="font-size: 0.74rem; cursor: pointer;">
+                        Terapkan Gaya ke Semua Subtitle
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Tab 2: Audio & SFX -->
+                  <div id="editorDrawer-audio" class="editor-drawer-pane d-none">
+                    <h3 class="h6 fw-bold text-navy mb-3">Audio &amp; SFX</h3>
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="editorVolumeSlider" class="form-label small fw-bold text-navy mb-0">Volume Video Sumber</label>
+                        <span id="editorVolumeValue" class="badge bg-navy font-mono-tabular">100%</span>
+                      </div>
+                      <input
+                        type="range"
+                        id="editorVolumeSlider"
+                        class="form-range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value="100"
+                        oninput="updateEditorVolume(this.value)"
+                        onchange="pushEditorHistorySnapshot()"
+                      />
+                    </div>
+
+                    <div class="small fw-bold text-navy mb-2">Efek Suara Transisi (Web Audio)</div>
+                    <div class="d-grid gap-2 mb-2">
+                      <button type="button" class="btn btn-sm btn-outline-primary fw-bold text-start" onclick="insertAndPlayEditorSfx('whoosh')">
+                        <i class="bi bi-wind me-1"></i> + Whoosh Transisi
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary fw-bold text-start" onclick="insertAndPlayEditorSfx('pop')">
+                        <i class="bi bi-circle-fill me-1"></i> + Pop Penekanan
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary fw-bold text-start" onclick="insertAndPlayEditorSfx('ding')">
+                        <i class="bi bi-bell-fill me-1"></i> + Ding Sorotan
+                      </button>
+                    </div>
+                    <small class="text-secondary d-block" style="font-size: 0.72rem;" id="editorSfxStatusText">Klik tombol SFX untuk memutar &amp; menambahkan penanda di posisi playhead.</small>
+                  </div>
+
+                  <!-- Tab 3: Visual & Filter -->
+                  <div id="editorDrawer-visual" class="editor-drawer-pane d-none">
+                    <h3 class="h6 fw-bold text-navy mb-3">Visual &amp; Filter</h3>
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="editorBrightnessSlider" class="form-label small fw-bold text-navy mb-0">Kecerahan (Brightness)</label>
+                        <span id="editorBrightnessValue" class="badge bg-light text-navy border font-mono-tabular">100%</span>
+                      </div>
+                      <input type="range" id="editorBrightnessSlider" class="form-range" min="60" max="150" step="2" value="100" oninput="updateEditorVisualFilter()" onchange="pushEditorHistorySnapshot()" />
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="editorContrastSlider" class="form-label small fw-bold text-navy mb-0">Kontras (Contrast)</label>
+                        <span id="editorContrastValue" class="badge bg-light text-navy border font-mono-tabular">108%</span>
+                      </div>
+                      <input type="range" id="editorContrastSlider" class="form-range" min="60" max="150" step="2" value="108" oninput="updateEditorVisualFilter()" onchange="pushEditorHistorySnapshot()" />
+                    </div>
+
+                    <div class="form-check form-switch bg-light rounded-3 p-2 ps-5 mb-3">
+                      <input class="form-check-input" type="checkbox" role="switch" id="editorToggleZoom" onchange="updateEditorEffectToggles(true)" />
+                      <label class="form-check-label small fw-bold text-navy" for="editorToggleZoom" style="cursor: pointer;">Auto Zoom Dinamis</label>
+                    </div>
+
+                    <div class="small fw-bold text-navy mb-2">Latar Video Sumber 16:9</div>
+                    <div class="btn-group w-100 btn-group-sm" role="group" aria-label="Mode Latar 9:16">
+                      <button type="button" id="btnBgCrop" class="btn btn-navy fw-semibold" onclick="setEditorBgMode('crop')">
+                        Crop 9:16
+                      </button>
+                      <button type="button" id="btnBgBlur" class="btn btn-outline-secondary fw-semibold" onclick="setEditorBgMode('blur')">
+                        Blur Fill
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </article>
+        </div>
 
-            <div class="d-flex justify-content-center align-items-center bg-white rounded-3 p-3 shadow-sm">
+        <!-- Center 9:16 Preview Stage -->
+        <div class="col-12 col-lg-4 col-xl-5">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-3 h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small fw-bold text-navy"><i class="bi bi-phone me-1 text-primary"></i>Kanvas Pratinjau 9:16</span>
+              <small class="text-secondary" style="font-size: 0.72rem;">Seret subtitle ke atas/bawah untuk atur posisi</small>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center bg-white rounded-3 p-3 shadow-sm flex-grow-1">
               <div id="editor-fs-host" class="clip-fs-host rounded-4 overflow-hidden" style="max-width: 245px;">
-                <div class="ratio-9-16 rounded-4 shadow">
-                  <video
-                    id="editorVideoPlayer"
-                    class="video-contain d-none"
-                    playsinline
-                  ></video>
-                  <div id="editorYoutubeWrap" class="w-100 h-100 position-relative d-none"></div>
+                <div class="ratio-9-16 rounded-4 shadow" id="editorStageBox">
+                  <div class="clip-video-viewport">
+                    <video
+                      id="editorBgBlurVideo"
+                      class="editor-blur-bg-video d-none"
+                      muted
+                      playsinline
+                    ></video>
+                    <video
+                      id="editorVideoPlayer"
+                      class="thumb-cover editor-fg-video d-none"
+                      playsinline
+                    ></video>
+                    <div id="editorYoutubeWrap" class="w-100 h-100 position-relative d-none" style="z-index: 2;"></div>
+                  </div>
 
-                  <!-- Dynamic Real-Time Subtitle Overlay -->
+                  <!-- Auto Hook Headline Banner (Vertically Draggable) -->
+                  <div id="editorHookOverlay" class="hook-banner-overlay editor-overlay-draggable text-center d-none" style="top: 13%;">
+                    <div class="bg-navy text-white border border-warning border-2 rounded-3 px-2 py-1 shadow anim-pop">
+                      <span id="editorHookText" class="fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #FACC15;"></span>
+                    </div>
+                  </div>
+
+                  <!-- AI B-Roll Visual Card Overlay -->
+                  <div id="editorBrollOverlay" class="broll-card-overlay d-none">
+                    <div class="bg-white bg-opacity-95 border border-primary rounded-3 p-2 shadow anim-card-in d-flex align-items-center gap-2 text-start">
+                      <div id="editorBrollIcon" class="bg-navy text-white rounded-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 1.15rem;">💡</div>
+                      <div class="overflow-hidden">
+                        <span id="editorBrollKeyword" class="badge bg-primary text-white text-uppercase mb-1" style="font-size: 0.58rem;">Keyword</span>
+                        <div id="editorBrollCaption" class="fw-bold text-navy text-truncate" style="font-size: 0.72rem;">Caption visual</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Dynamic Real-Time Subtitle Overlay (Vertically Draggable) -->
                   <div
                     id="editorSubtitleOverlay"
-                    class="position-absolute start-0 end-0 px-3 text-center"
-                    style="bottom: 18%; pointer-events: none; z-index: 6;"
+                    class="position-absolute start-0 end-0 px-3 text-center editor-overlay-draggable"
+                    style="top: 78%; transform: translateY(-50%); z-index: 7;"
                   >
-                    <span id="editorSubtitleText" class="d-inline-block px-2 py-1 rounded bg-dark bg-opacity-75 fw-bold text-uppercase" style="display: none;"></span>
+                    <span id="editorSubtitleText" class="d-inline-block px-2 py-1 fw-bold" style="display: none;"></span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Video Transport Controls -->
-            <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
-              <button type="button" class="btn btn-sm btn-light shadow-sm text-navy" onclick="seekEditorTime(0)" title="Ulang dari Awal">
-                <i class="bi bi-skip-backward-fill"></i>
-              </button>
-              <button type="button" class="btn btn-sm btn-accent fw-bold px-4" id="btnTogglePlay" onclick="toggleEditorPlay()">
-                <i class="bi bi-play-fill me-1"></i> Putar
+            <!-- Transport Controls -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 px-1">
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-light shadow-sm text-navy" onclick="seekEditorTime(0)" title="Ulang dari Awal">
+                  <i class="bi bi-skip-backward-fill"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-accent fw-bold px-3" id="btnTogglePlay" onclick="toggleEditorPlay()">
+                  <i class="bi bi-play-fill me-1"></i> Putar
+                </button>
+              </div>
+              <span class="badge bg-navy font-mono-tabular py-2 px-3" id="editorTimeDisplay">00:00 / 00:30</span>
+              <button type="button" data-fs-btn="editor-fs-host" class="btn btn-sm btn-outline-secondary fw-semibold" onclick="toggleElementFullscreen('editor-fs-host')" title="Fullscreen 9:16">
+                <i class="bi bi-fullscreen me-1"></i>Fullscreen 9:16
               </button>
             </div>
           </article>
         </div>
 
-        <!-- Properties Panel -->
-        <div class="col-12 col-lg-5">
-          <article class="card border-0 shadow-sm rounded-4 bg-light p-4 h-100">
+        <!-- Right Contextual Properties Panel -->
+        <div class="col-12 col-lg-4 col-xl-4">
+          <article class="card border-0 shadow-sm rounded-4 bg-light p-3 p-md-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-              <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-sliders me-2 text-primary"></i>Panel Properti Subtitle</h3>
-              <button type="button" class="btn btn-sm btn-navy" onclick="addNewSubtitleBlock()">
-                <i class="bi bi-plus-lg me-1"></i>Tambah Teks
-              </button>
+              <h3 class="h6 fw-bold text-navy mb-0" id="editorPropsHeading">
+                <i class="bi bi-sliders me-2 text-primary"></i>Properti Subtitle
+              </h3>
+              <span class="badge bg-white text-navy border shadow-sm" id="editorPropsTargetBadge">Teks Terpilih</span>
             </div>
 
-            <div id="propertiesFormContainer">
+            <!-- Subtitle Context Panel -->
+            <div id="propContextSubtitle">
               <div class="mb-3">
                 <label for="propSubText" class="form-label small fw-bold text-navy">Teks Subtitle</label>
-                <textarea id="propSubText" rows="2" class="form-control border-0 shadow-sm fw-bold" oninput="updateSelectedSubtitle()"></textarea>
+                <textarea id="propSubText" rows="2" class="form-control border-0 shadow-sm fw-bold" oninput="updateSelectedSubtitle()" onchange="pushEditorHistorySnapshot()"></textarea>
               </div>
 
-              <div class="row g-3 mb-3">
-                <div class="col-7">
-                  <label for="propFontFamily" class="form-label small fw-bold text-navy">Jenis Font</label>
-                  <select id="propFontFamily" class="form-select border-0 shadow-sm" onchange="updateSelectedSubtitle()">
-                    <option value="'Montserrat', sans-serif">Montserrat Bold</option>
-                    <option value="'Poppins', sans-serif">Poppins ExtraBold</option>
-                    <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
-                  </select>
-                </div>
-                <div class="col-5">
-                  <label for="propFontSize" class="form-label small fw-bold text-navy">Ukuran (px)</label>
-                  <input type="number" id="propFontSize" min="14" max="42" value="18" class="form-control border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" />
-                </div>
-              </div>
-
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label for="propColor" class="form-label small fw-bold text-navy">Warna Teks</label>
-                  <input type="color" id="propColor" value="#FACC15" class="form-control form-control-color w-100 border-0 shadow-sm" onchange="updateSelectedSubtitle()" />
-                </div>
-                <div class="col-6">
-                  <label for="propAnimation" class="form-label small fw-bold text-navy">Gaya Animasi</label>
-                  <select id="propAnimation" class="form-select border-0 shadow-sm" onchange="updateSelectedSubtitle()">
-                    <option value="pop">Pop Hormozi</option>
-                    <option value="karaoke">Highlight Karaoke</option>
-                    <option value="fade">Fade Lembut</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row g-3">
+              <div class="row g-2 mb-3">
                 <div class="col-6">
                   <label for="propStart" class="form-label small fw-bold text-navy">Mulai (detik)</label>
-                  <input type="number" step="0.5" min="0" id="propStart" class="form-control border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" />
+                  <input type="number" step="0.1" min="0" id="propStart" class="form-control form-control-sm border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" onchange="pushEditorHistorySnapshot()" />
                 </div>
                 <div class="col-6">
                   <label for="propEnd" class="form-label small fw-bold text-navy">Selesai (detik)</label>
-                  <input type="number" step="0.5" min="0.5" id="propEnd" class="form-control border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" />
+                  <input type="number" step="0.1" min="0.2" id="propEnd" class="form-control form-control-sm border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" onchange="pushEditorHistorySnapshot()" />
                 </div>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="propFontSize" class="form-label small fw-bold text-navy">Ukuran Font (px)</label>
+                  <input type="number" id="propFontSize" min="12" max="42" value="18" class="form-control form-control-sm border-0 shadow-sm font-mono-tabular" oninput="updateSelectedSubtitle()" onchange="pushEditorHistorySnapshot()" />
+                </div>
+                <div class="col-6">
+                  <label for="propAnimation" class="form-label small fw-bold text-navy">Animasi</label>
+                  <select id="propAnimation" class="form-select form-select-sm border-0 shadow-sm" onchange="updateSelectedSubtitle(); pushEditorHistorySnapshot();">
+                    <option value="pop">Pop</option>
+                    <option value="fade">Fade</option>
+                    <option value="none">None</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="propColor" class="form-label small fw-bold text-navy">Warna Teks</label>
+                  <input type="color" id="propColor" value="#FFFFFF" class="form-control form-control-color w-100 border-0 shadow-sm" oninput="updateSelectedSubtitle()" onchange="pushEditorHistorySnapshot()" />
+                </div>
+                <div class="col-6">
+                  <label for="propHighlightColor" class="form-label small fw-bold text-navy">Warna Highlight</label>
+                  <input type="color" id="propHighlightColor" value="#FACC15" class="form-control form-control-color w-100 border-0 shadow-sm" oninput="updateSelectedSubtitle()" onchange="pushEditorHistorySnapshot()" />
+                </div>
+              </div>
+
+              <div class="mb-0">
+                <label for="propFontFamily" class="form-label small fw-bold text-navy">Jenis Font</label>
+                <select id="propFontFamily" class="form-select form-select-sm border-0 shadow-sm" onchange="updateSelectedSubtitle(); pushEditorHistorySnapshot();">
+                  <option value="'Montserrat', sans-serif">Montserrat Bold</option>
+                  <option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans Bold</option>
+                  <option value="'Caveat', cursive">Caveat Handwritten</option>
+                  <option value="'Poppins', sans-serif">Poppins ExtraBold</option>
+                  <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Video Track Context Panel -->
+            <div id="propContextVideo" class="d-none">
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-navy">Kecepatan Putar Video</label>
+                <div class="btn-group w-100" role="group" aria-label="Kecepatan Video">
+                  <button type="button" class="btn btn-sm btn-outline-secondary fw-bold speed-opt-btn" data-speed="0.75" onclick="setEditorVideoSpeed(0.75)">0.75x</button>
+                  <button type="button" class="btn btn-sm btn-navy fw-bold speed-opt-btn" data-speed="1" onclick="setEditorVideoSpeed(1.0)">1.0x</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary fw-bold speed-opt-btn" data-speed="1.25" onclick="setEditorVideoSpeed(1.25)">1.25x</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary fw-bold speed-opt-btn" data-speed="1.5" onclick="setEditorVideoSpeed(1.5)">1.5x</button>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="editorHookInput" class="form-label small fw-bold text-navy">Judul Hook Banner (3 Detik Pertama)</label>
+                <input type="text" id="editorHookInput" class="form-control form-control-sm border-0 shadow-sm fw-semibold" oninput="updateEditorHookText(this.value)" onchange="pushEditorHistorySnapshot()" />
+              </div>
+
+              <div class="bg-white rounded-3 p-3 shadow-sm d-flex flex-column gap-2 mb-3">
+                <label class="form-check form-switch m-0 d-flex align-items-center justify-content-between" style="cursor: pointer;">
+                  <span class="small fw-semibold text-navy">Tampilkan Hook 3 Detik Awal</span>
+                  <input class="form-check-input m-0" type="checkbox" id="editorToggleHook" onchange="updateEditorEffectToggles(true)" />
+                </label>
+                <label class="form-check form-switch m-0 d-flex align-items-center justify-content-between border-top pt-2" style="cursor: pointer;">
+                  <span class="small fw-semibold text-navy">Kartu Visual AI B-Roll</span>
+                  <input class="form-check-input m-0" type="checkbox" id="editorToggleBroll" onchange="updateEditorEffectToggles(true)" />
+                </label>
+                <label class="form-check form-switch m-0 d-flex align-items-center justify-content-between border-top pt-2" style="cursor: pointer;">
+                  <span class="small fw-semibold text-navy">Auto SFX Otomatis</span>
+                  <input class="form-check-input m-0" type="checkbox" id="editorToggleSfx" onchange="updateEditorEffectToggles(true)" />
+                </label>
+              </div>
+
+              <div class="bg-white rounded-3 p-3 shadow-sm small text-secondary" id="editorVideoSegmentInfo">
+                Klik blok subtitle oranye pada timeline untuk menyunting teks atau animasi.
               </div>
             </div>
           </article>
         </div>
       </div>
 
-      <!-- Editor Bottom Half: Horizontal Timeline Component -->
+      <!-- Bottom Multi-Track Interactive Timeline -->
       <article class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4">
+        <!-- Timeline Toolbar -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-          <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-soundwave me-2 text-primary"></i>Timeline Interaktif</h3>
-          <span class="small text-secondary">Klik ruler waktu untuk menggeser playhead atau klik blok subtitle</span>
-        </div>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-navy fw-bold" onclick="splitActiveTimelineItem()">
+              <i class="bi bi-scissors me-1"></i>Bagi (Split)
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary fw-bold" onclick="duplicateSelectedTimelineItem()">
+              <i class="bi bi-copy me-1"></i>Duplikat
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger fw-bold" onclick="deleteSelectedTimelineItem()">
+              <i class="bi bi-trash3 me-1"></i>Hapus
+            </button>
+          </div>
 
-        <!-- Time Ruler -->
-        <div class="row g-2 align-items-center mb-2">
-          <div class="col-3 col-md-2 small fw-bold text-secondary">Waktu</div>
-          <div class="col-9 col-md-10">
-            <div
-              id="timelineRuler"
-              onclick="handleRulerClick(event)"
-              class="bg-light rounded-3 px-3 py-2 d-flex justify-content-between small font-mono-tabular text-secondary position-relative"
-              style="cursor: pointer;"
-            >
-              <span id="rulerTick0">00:00</span>
-              <span id="rulerTick1">00:08</span>
-              <span id="rulerTick2">00:15</span>
-              <span id="rulerTick3">00:22</span>
-              <span id="rulerTick4">00:30</span>
-              <div id="rulerPlayhead" class="timeline-playhead" style="left: 0%;"></div>
-            </div>
+          <div class="d-flex align-items-center gap-2" style="min-width: 200px;">
+            <i class="bi bi-zoom-out text-secondary small"></i>
+            <input type="range" id="timelineZoomSlider" class="form-range mb-0" min="100" max="300" step="20" value="100" oninput="setTimelineZoom(this.value)" aria-label="Zoom Timeline" />
+            <i class="bi bi-zoom-in text-secondary small"></i>
+            <span id="timelineZoomBadge" class="badge bg-light text-navy border font-mono-tabular">100%</span>
           </div>
         </div>
 
-        <!-- Track 1: Main Video -->
-        <div class="row g-2 align-items-center mb-2">
-          <div class="col-3 col-md-2 small fw-bold text-navy">
-            <i class="bi bi-film text-primary me-1"></i> Video 9:16
-          </div>
-          <div class="col-9 col-md-10">
-            <div class="timeline-track-bar p-1">
-              <div class="bg-navy text-white h-100 rounded-2 px-3 d-flex align-items-center justify-content-between small fw-semibold">
-                <span id="timelineVideoLabel" class="text-truncate">Klip Utama</span>
-                <span id="timelineVideoDuration" class="font-mono-tabular text-info ms-2">00:30</span>
+        <!-- 3-Track Scrollable Timeline -->
+        <div class="timeline-scroll-wrap">
+          <div class="row g-2 flex-nowrap">
+            <!-- Fixed Track Labels Column -->
+            <div class="col-auto d-flex flex-column gap-2" style="width: 132px; flex-shrink: 0;">
+              <div class="px-2 py-2 small fw-bold text-secondary d-flex align-items-center" style="height: 36px;">
+                Waktu
               </div>
-              <div id="videoTrackPlayhead" class="timeline-playhead" style="left: 0%;"></div>
+              <div class="small fw-bold text-navy d-flex align-items-center" style="height: 46px;">
+                <i class="bi bi-chat-square-text-fill text-warning me-1"></i> Teks/Subtitle
+              </div>
+              <div class="small fw-bold text-navy d-flex align-items-center" style="height: 46px;">
+                <i class="bi bi-film text-primary me-1"></i> Track Video
+              </div>
+              <div class="small fw-bold text-navy d-flex align-items-center" style="height: 46px;">
+                <i class="bi bi-soundwave text-success me-1"></i> Track Audio
+              </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Track 2: Subtitles -->
-        <div class="row g-2 align-items-center">
-          <div class="col-3 col-md-2 small fw-bold text-navy">
-            <i class="bi bi-chat-square-text-fill text-primary me-1"></i> Subtitle
-          </div>
-          <div class="col-9 col-md-10">
-            <div class="timeline-track-bar" id="subtitleTrackContainer">
-              <!-- Subtitle blocks injected dynamically -->
+            <!-- Horizontally Zoomable Tracks & Playhead Column -->
+            <div class="col overflow-x-auto">
+              <div class="timeline-zoom-inner d-flex flex-column gap-2 position-relative" id="timelineZoomInner">
+                <!-- Single Draggable Blue Playhead Line Across All Tracks -->
+                <div id="timelineMasterPlayhead" class="timeline-playhead-line" style="left: 0%;">
+                  <div id="playheadDragHandle" class="timeline-playhead-handle" title="Geser Playhead"></div>
+                </div>
+
+                <!-- Ruler -->
+                <div
+                  id="timelineRuler"
+                  onclick="handleRulerClick(event)"
+                  class="bg-white border rounded-3 px-2 d-flex align-items-center justify-content-between small font-mono-tabular text-secondary position-relative"
+                  style="height: 36px; cursor: pointer;"
+                >
+                  <span id="rulerTick0">00:00</span>
+                  <span id="rulerTick1">00:08</span>
+                  <span id="rulerTick2">00:15</span>
+                  <span id="rulerTick3">00:22</span>
+                  <span id="rulerTick4">00:30</span>
+                </div>
+
+                <!-- Track 1: Teks / Subtitle (Orange) -->
+                <div class="timeline-track-bar bg-white border" id="subtitleTrackContainer">
+                  <!-- Orange subtitle blocks injected dynamically -->
+                </div>
+
+                <!-- Track 2: Video (Navy/Blue) -->
+                <div class="timeline-track-bar bg-white border" id="videoTrackContainer">
+                  <!-- Navy/Blue video bar segments injected dynamically -->
+                </div>
+
+                <!-- Track 3: Audio (Teal Waveform) -->
+                <div class="timeline-track-bar p-1 bg-white border" id="audioTrackContainer">
+                  <!-- Teal waveform bar + SFX markers injected dynamically -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -904,6 +1575,9 @@
     let activeClip = null;
     let activeSegmentDuration = 30;
     let selectedSubtitleId = null;
+    let editorSelectedTarget = "subtitle"; // 'subtitle' | 'video' | 'audio'
+    let selectedVideoSegmentId = null;
+    let selectedSfxId = null;
     let editorCurrentTime = 0;
     let isEditorPlaying = false;
     let editorTimer = null;
@@ -911,6 +1585,166 @@
     let localUploadedFile = null;
     let youtubeSyncTimers = {};
     let activeRenderJobs = {};
+    let selectedSubtitleStyle = "mozi_pop";
+    let sharedPreviewAudioCtx = null;
+    let editorUndoStack = [];
+    let editorRedoStack = [];
+    let editorTimelineZoom = 100;
+    let editorBatchApplyStyle = true;
+    let editorTriggeredSfxIds = {};
+
+    const SUBTITLE_STYLE_META = {
+      mozi_pop: {
+        label: "Mozi Pop",
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 19,
+        color: "#FFFFFF",
+        highlightColor: "#FACC15",
+        animation: "pop"
+      },
+      simple_clean: {
+        label: "Simple Clean",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        fontSize: 17,
+        color: "#FFFFFF",
+        highlightColor: "#38BDF8",
+        animation: "fade"
+      },
+      handwritten_glow: {
+        label: "Handwritten Glow",
+        fontFamily: "'Caveat', cursive",
+        fontSize: 23,
+        color: "#FDE047",
+        highlightColor: "#FACC15",
+        animation: "pop"
+      },
+      karaoke_pill: {
+        label: "Karaoke Pill",
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 17,
+        color: "#FFFFFF",
+        highlightColor: "#93C5FD",
+        animation: "pop"
+      }
+    };
+
+    // Web Audio API Synthesizer untuk Auto SFX (Whoosh, Pop & Ding) — Zero External URLs
+    function triggerSfxAtNode(audioCtx, destNode, sfxType, whenOffsetSec) {
+      if (!audioCtx || !destNode) return;
+      const startAt = audioCtx.currentTime + Math.max(0, whenOffsetSec || 0);
+      try {
+        if (sfxType === "pop") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(520, startAt);
+          osc.frequency.exponentialRampToValueAtTime(160, startAt + 0.11);
+          gain.gain.setValueAtTime(0.001, startAt);
+          gain.gain.linearRampToValueAtTime(0.24, startAt + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, startAt + 0.12);
+          osc.connect(gain);
+          gain.connect(destNode);
+          osc.start(startAt);
+          osc.stop(startAt + 0.14);
+        } else if (sfxType === "ding") {
+          [880, 1320].forEach(function (freq, i) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = i === 0 ? "sine" : "triangle";
+            osc.frequency.setValueAtTime(freq, startAt);
+            gain.gain.setValueAtTime(0.001, startAt);
+            gain.gain.linearRampToValueAtTime(i === 0 ? 0.22 : 0.1, startAt + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, startAt + 0.45);
+            osc.connect(gain);
+            gain.connect(destNode);
+            osc.start(startAt);
+            osc.stop(startAt + 0.48);
+          });
+        } else if (sfxType === "whoosh") {
+          const dur = 0.36;
+          const sampleCount = Math.floor(audioCtx.sampleRate * dur);
+          const noiseBuf = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+          const data = noiseBuf.getChannelData(0);
+          for (let i = 0; i < sampleCount; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const src = audioCtx.createBufferSource();
+          src.buffer = noiseBuf;
+
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.Q.setValueAtTime(1.8, startAt);
+          filter.frequency.setValueAtTime(260, startAt);
+          filter.frequency.exponentialRampToValueAtTime(1650, startAt + dur * 0.45);
+          filter.frequency.exponentialRampToValueAtTime(340, startAt + dur);
+
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.001, startAt);
+          gain.gain.linearRampToValueAtTime(0.16, startAt + dur * 0.45);
+          gain.gain.exponentialRampToValueAtTime(0.001, startAt + dur);
+
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(destNode);
+          src.start(startAt);
+          src.stop(startAt + dur + 0.02);
+        }
+      } catch (e) {}
+    }
+
+    function playLivePreviewSfx(sfxType) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!sharedPreviewAudioCtx) {
+          sharedPreviewAudioCtx = new AudioCtx();
+        }
+        if (sharedPreviewAudioCtx.state === "suspended") {
+          sharedPreviewAudioCtx.resume().catch(function () {});
+        }
+        triggerSfxAtNode(sharedPreviewAudioCtx, sharedPreviewAudioCtx.destination, sfxType, 0);
+      } catch (e) {}
+    }
+
+    function computeDynamicZoomScale(relElapsed, autoZoomEnabled) {
+      if (!autoZoomEnabled) return 1.0;
+      const cycleSec = 4.0;
+      const phase = ((relElapsed % cycleSec) / cycleSec) * Math.PI * 2;
+      const wave = (Math.sin(phase - Math.PI / 2) + 1) / 2;
+      return 1.0 + wave * 0.12;
+    }
+
+    function formatSubtitleDomHtml(text, styleKey, highlightColor) {
+      const safeText = escapeHtml(text || "");
+      const meta = SUBTITLE_STYLE_META[styleKey] || SUBTITLE_STYLE_META.mozi_pop;
+      const hl = /^#[0-9A-Fa-f]{6}$/.test(highlightColor || "") ? highlightColor : meta.highlightColor;
+      if (styleKey === "mozi_pop" || styleKey === "karaoke_pill") {
+        const words = safeText.split(/\s+/).filter(Boolean);
+        if (words.length <= 1) {
+          return '<span style="color:' + hl + ';">' + safeText + "</span>";
+        }
+        const accentIdx = words.length - 1;
+        return words.map(function (w, i) {
+          return i === accentIdx
+            ? '<span style="color:' + hl + ';">' + w + "</span>"
+            : w;
+        }).join(" ");
+      }
+      return safeText;
+    }
+
+    function applySubtitleBadgeStyle(badgeEl, text, styleKey, customColor, highlightColor, animType) {
+      if (!badgeEl) return;
+      const resolvedKey = SUBTITLE_STYLE_META[styleKey] ? styleKey : "mozi_pop";
+      const meta = SUBTITLE_STYLE_META[resolvedKey];
+      const anim = animType || meta.animation;
+      const animClass = anim === "none" ? "" : (anim === "fade" ? " anim-card-in" : " anim-pop");
+      badgeEl.className = "d-inline-block px-3 py-1 sub-render-" + resolvedKey + animClass;
+      badgeEl.style.fontFamily = meta.fontFamily;
+      badgeEl.style.fontSize = (resolvedKey === "handwritten_glow" ? "1.22rem" : "0.96rem");
+      badgeEl.style.color = customColor || meta.color;
+      badgeEl.innerHTML = formatSubtitleDomHtml(text, resolvedKey, highlightColor);
+    }
 
     // Listener Upload File Lokal & Input YouTube (Saling Membersihkan agar Tidak Bentrok)
     document.getElementById("localFileInput").addEventListener("change", function (e) {
@@ -1003,50 +1837,32 @@
       return m + ":" + s;
     }
 
-    function parseTimeToSeconds(val, fallbackSec) {
-      const safeFallback = Number.isFinite(Number(fallbackSec)) && Number(fallbackSec) >= 0 ? Number(fallbackSec) : 0;
-      const text = String(val || "").trim();
-      if (!text) return safeFallback;
-      if (text.includes(":")) {
-        const parts = text.split(":").map(function (p) {
-          const digits = p.replace(/[^\d]/g, "");
-          return digits === "" ? 0 : parseInt(digits, 10);
-        });
-        if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
-          return Math.max(0, parts[0] * 60 + Math.min(59, parts[1]));
-        }
-        if (parts.length >= 3 && Number.isFinite(parts[0]) && Number.isFinite(parts[1]) && Number.isFinite(parts[2])) {
-          return Math.max(0, parts[0] * 3600 + Math.min(59, parts[1]) * 60 + Math.min(59, parts[2]));
-        }
-        return safeFallback;
-      }
-      const digitsOnly = text.replace(/[^\d.]/g, "");
-      if (!digitsOnly) return safeFallback;
-      const num = Number(digitsOnly);
-      return Number.isFinite(num) && num >= 0 ? num : safeFallback;
-    }
-
-    function sanitizeTimeInput(inputEl, fallbackStr) {
-      if (!inputEl) return 0;
-      const raw = String(inputEl.value || "").trim();
-      const defaultSec = parseTimeToSeconds(fallbackStr, 0);
-      if (!raw || /^\d{1,3}:$/.test(raw) || /^:\d{0,2}$/.test(raw) || raw === ":") {
-        const prefixNum = raw.replace(/[^\d]/g, "");
-        const normalizedSec = raw.endsWith(":") && prefixNum ? parseInt(prefixNum, 10) * 60 : 0;
-        inputEl.value = formatSeconds(normalizedSec);
-        syncConfigSummary();
-        return normalizedSec;
-      }
-      const parsed = parseTimeToSeconds(raw, defaultSec);
-      inputEl.value = formatSeconds(parsed);
-      syncConfigSummary();
-      return parsed;
-    }
-
     function getDurationPresetBounds(presetValue) {
       if (presetValue === "30_60") return { minSeconds: 30, maxSeconds: 60 };
       if (presetValue === "60_90") return { minSeconds: 60, maxSeconds: 90 };
       return { minSeconds: 15, maxSeconds: 30 };
+    }
+
+    function selectSubtitleStyle(styleKey) {
+      if (!SUBTITLE_STYLE_META[styleKey]) return;
+      selectedSubtitleStyle = styleKey;
+      document.querySelectorAll("#subtitleStylePickerGrid .subtitle-style-card").forEach(function (card) {
+        const isMatch = card.getAttribute("data-sub-style") === styleKey;
+        card.classList.toggle("selected", isMatch);
+        const badge = card.querySelector(".style-selected-badge");
+        if (badge) badge.classList.toggle("d-none", !isMatch);
+      });
+      syncConfigSummary();
+    }
+
+    function getActiveConfigEffects() {
+      return {
+        autoZoom: Boolean(document.getElementById("toggleAutoZoom") && document.getElementById("toggleAutoZoom").checked),
+        autoSfx: Boolean(document.getElementById("toggleAutoSfx") && document.getElementById("toggleAutoSfx").checked),
+        aiBroll: Boolean(document.getElementById("toggleAiBroll") && document.getElementById("toggleAiBroll").checked),
+        autoHook: Boolean(document.getElementById("toggleAutoHook") && document.getElementById("toggleAutoHook").checked),
+        autoColor: Boolean(document.getElementById("toggleAutoColor") && document.getElementById("toggleAutoColor").checked)
+      };
     }
 
     // Ekstrak YouTube Video ID (watch?v=, youtu.be/, shorts/, live/)
@@ -1180,16 +1996,12 @@
         vid.addEventListener("loadedmetadata", function () {
           if (vid.duration && isFinite(vid.duration)) {
             pendingSource.duration = vid.duration;
-            document.getElementById("configStartTime").value = "00:00";
-            document.getElementById("configEndTime").value = formatSeconds(vid.duration);
             document.getElementById("configVideoSubtitle").textContent =
               pendingSource.author + " · Durasi " + formatSeconds(vid.duration);
             syncConfigSummary();
           }
         });
         previewContainer.appendChild(vid);
-        document.getElementById("configStartTime").value = "00:00";
-        document.getElementById("configEndTime").value = "00:30";
       } else {
         previewContainer.innerHTML = `
           <img id="configYoutubeThumb" src="${pendingSource.thumbnailUrl}" alt="${escapeHtml(pendingSource.title)}" class="thumb-cover" />
@@ -1198,12 +2010,10 @@
               <i class="bi bi-play-fill fs-2"></i>
             </button>
             <a href="https://youtu.be/${pendingSource.videoId}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3">
-              <i class="bi bi-box-arrow-up-right me-1"></i>Tonton di YouTube
+              <i class="bi bi-box-arrow-up-right me-1"></i>Buka di YouTube
             </a>
           </div>
         `;
-        document.getElementById("configStartTime").value = "00:00";
-        document.getElementById("configEndTime").value = "05:00";
       }
 
       updateConfigMetadataUI();
@@ -1225,16 +2035,27 @@
     }
 
     function syncConfigSummary() {
-      const startText = document.getElementById("configStartTime").value.trim() || "00:00";
-      const endText = document.getElementById("configEndTime").value.trim() || "05:00";
       const durSelect = document.getElementById("configTargetDuration");
-      const styleSelect = document.getElementById("configStyleRef");
       const momentText = document.getElementById("configMomentPrompt").value.trim();
+      const styleMeta = SUBTITLE_STYLE_META[selectedSubtitleStyle] || SUBTITLE_STYLE_META.mozi_pop;
+      const effects = getActiveConfigEffects();
 
-      document.getElementById("summaryRangeText").textContent = startText + " - " + endText;
       document.getElementById("summaryDurationText").textContent = durSelect.options[durSelect.selectedIndex].text;
-      document.getElementById("summaryStyleText").textContent = styleSelect.options[styleSelect.selectedIndex].text;
+      document.getElementById("summaryStyleText").textContent = styleMeta.label;
       document.getElementById("summaryMomentText").textContent = momentText || "Semua momen berpotensi viral";
+
+      const badgesEl = document.getElementById("summaryEffectsBadges");
+      if (badgesEl) {
+        const activeBadges = [];
+        if (effects.autoZoom) activeBadges.push('<span class="badge bg-navy text-white"><i class="bi bi-zoom-in me-1"></i>Auto Zoom</span>');
+        if (effects.autoSfx) activeBadges.push('<span class="badge bg-primary text-white"><i class="bi bi-volume-up-fill me-1"></i>Auto SFX</span>');
+        if (effects.aiBroll) activeBadges.push('<span class="badge bg-navy text-white"><i class="bi bi-images me-1"></i>AI B-Roll</span>');
+        if (effects.autoHook) activeBadges.push('<span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge-fill me-1"></i>Hook 3s</span>');
+        if (effects.autoColor) activeBadges.push('<span class="badge bg-success text-white"><i class="bi bi-palette-fill me-1"></i>Color+</span>');
+        badgesEl.innerHTML = activeBadges.length > 0
+          ? activeBadges.join(" ")
+          : '<span class="badge bg-secondary text-white">Tanpa Efek Tambahan</span>';
+      }
     }
 
     // Konversi Float32Array Mono 16kHz menjadi Byte Buffer WAV 16-bit PCM & Base64
@@ -1400,25 +2221,17 @@
         return;
       }
 
-      const startInput = document.getElementById("configStartTime");
-      const endInput = document.getElementById("configEndTime");
-      const defaultEndStr = pendingSource.mode === "local" ? formatSeconds(pendingSource.duration) : "05:00";
-
-      const startSec = sanitizeTimeInput(startInput, "00:00");
-      let endSec = sanitizeTimeInput(endInput, defaultEndStr);
-      if (endSec <= startSec) {
-        endSec = pendingSource.mode === "local"
-          ? Math.max(startSec + 4, Math.round(pendingSource.duration || 30))
-          : startSec + 300;
-        if (endInput) endInput.value = formatSeconds(endSec);
-        syncConfigSummary();
-      }
+      const startSec = 0;
+      const endSec = pendingSource.mode === "local"
+        ? Math.max(4, Number(pendingSource.duration) || 30)
+        : 300;
 
       const targetDuration = document.getElementById("configTargetDuration").value;
       const durationBounds = getDurationPresetBounds(targetDuration);
       const minSeconds = durationBounds.minSeconds;
       const maxSeconds = durationBounds.maxSeconds;
-      const selectedStyle = document.getElementById("configStyleRef").value;
+      const selectedStyle = selectedSubtitleStyle || "mozi_pop";
+      const activeEffects = getActiveConfigEffects();
       const momentPrompt = document.getElementById("configMomentPrompt").value.trim();
 
       const projectId = "proj-" + Date.now();
@@ -1440,7 +2253,8 @@
         progress: 14,
         clips: [],
         errorMessage: null,
-        style: selectedStyle
+        style: selectedStyle,
+        effects: activeEffects
       };
 
       projectsList.unshift(newProject);
@@ -1472,19 +2286,19 @@
           newProject.progress = Math.max(newProject.progress, 48);
           updateProjectCardProgressUI(newProject);
 
-          let knownSourceDuration = extractedFrames.duration;
+          const knownSourceDuration = extractedFrames.duration;
           requestPayload = {
             mode: "local",
             fileName: newProject.fileName,
-            videoDuration: extractedFrames.duration,
+            videoDuration: knownSourceDuration,
             audioBase64: extractedAudio ? extractedAudio.audioBase64 : "",
             audioMimeType: extractedAudio ? extractedAudio.audioMimeType : "audio/wav",
             audioOffsetSeconds: extractedAudio ? extractedAudio.audioOffsetSeconds : 0,
             frames: extractedFrames.frames,
             ratio: "9:16",
             style: selectedStyle,
-            sourceStartSeconds: startSec,
-            sourceEndSeconds: Math.min(extractedFrames.duration, Math.max(startSec + 4, endSec)),
+            sourceStartSeconds: 0,
+            sourceEndSeconds: knownSourceDuration,
             targetDuration: targetDuration,
             minSeconds: minSeconds,
             maxSeconds: maxSeconds,
@@ -1492,15 +2306,17 @@
           };
           newProject.sourceDuration = knownSourceDuration;
         } else {
-          newProject.sourceDuration = Math.max(endSec, 300);
+          newProject.sourceDuration = endSec;
           requestPayload = {
             mode: "youtube",
             videoUrl: newProject.videoUrl,
             videoId: newProject.videoId,
+            videoTitle: newProject.title,
+            authorName: newProject.author,
             ratio: "9:16",
             style: selectedStyle,
-            sourceStartSeconds: startSec,
-            sourceEndSeconds: Math.max(startSec + 30, endSec),
+            sourceStartSeconds: 0,
+            sourceEndSeconds: endSec,
             targetDuration: targetDuration,
             minSeconds: minSeconds,
             maxSeconds: maxSeconds,
@@ -1513,16 +2329,50 @@
           requestPayload.apiKey = savedSettingsApiKey;
         }
 
+        let data = null;
         const backendEndpoint = getConfiguredBackendEndpoint();
-        const response = await fetch(backendEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestPayload)
-        });
+        let shouldUseClientYoutubeFallback = false;
 
-        const data = await response.json().catch(function () { return null; });
-        if (!response.ok) {
-          throw new Error((data && data.error) ? data.error : "Gagal memproses video (HTTP " + response.status + ")");
+        try {
+          const response = await fetch(backendEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestPayload)
+          });
+
+          if (newProject.mode === "youtube" && (response.status === 404 || response.status === 405)) {
+            shouldUseClientYoutubeFallback = true;
+          } else {
+            data = await response.json().catch(function () { return null; });
+            if (!response.ok) {
+              if (newProject.mode === "youtube" && response.status >= 500 && !data) {
+                shouldUseClientYoutubeFallback = true;
+              } else {
+                throw new Error((data && data.error) ? data.error : "Gagal memproses video (HTTP " + response.status + ")");
+              }
+            }
+          }
+        } catch (fetchErr) {
+          if (newProject.mode === "youtube") {
+            shouldUseClientYoutubeFallback = true;
+          } else {
+            throw fetchErr;
+          }
+        }
+
+        if (shouldUseClientYoutubeFallback && newProject.mode === "youtube") {
+          data = await processYoutubeClientSideFallback({
+            videoUrl: newProject.videoUrl,
+            videoId: newProject.videoId,
+            title: newProject.title,
+            author: newProject.author,
+            thumbnailUrl: newProject.thumbnailUrl,
+            minSeconds: minSeconds,
+            maxSeconds: maxSeconds,
+            momentPrompt: momentPrompt,
+            style: selectedStyle
+          });
+          if (data.thumbnailUrl) newProject.thumbnailUrl = data.thumbnailUrl;
         }
 
         const rawClips = Array.isArray(data) ? data : (data && Array.isArray(data.clips) ? data.clips : []);
@@ -1535,124 +2385,19 @@
         }
 
         const rootStreamUrl = (data && (data.streamUrl || data.mp4Url || data.videoUrl)) || "";
-        let anyPlayableStream = false;
-        const srcDur = Number(newProject.sourceDuration) || 0;
-
-        // Mandatory JS post-processing duration guard + subtitle sync filter
-        const guardedClips = rawClips.map(function (item, idx) {
-          let cStart = Math.max(0, Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds) || 0);
-          let cEnd = Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds);
-          if (!Number.isFinite(cEnd) || cEnd <= cStart) {
-            cEnd = cStart + minSeconds;
-          }
-
-          if (newProject.mode === "local" && srcDur > 0) {
-            if (srcDur >= minSeconds) {
-              let clipDur = cEnd - cStart;
-              if (clipDur < minSeconds) {
-                cEnd = Math.min(srcDur, cStart + minSeconds);
-                if (cEnd - cStart < minSeconds) {
-                  cStart = Math.max(0, srcDur - minSeconds);
-                }
-              }
-              clipDur = cEnd - cStart;
-              if (clipDur > maxSeconds) {
-                cEnd = cStart + maxSeconds;
-              }
-              cEnd = Math.min(srcDur, cEnd);
-            } else {
-              cStart = 0;
-              cEnd = srcDur;
-            }
-          } else {
-            let clipDur = cEnd - cStart;
-            if (clipDur < minSeconds) {
-              cEnd = cStart + minSeconds;
-            } else if (clipDur > maxSeconds) {
-              cEnd = cStart + maxSeconds;
-            }
-          }
-
-          cStart = Math.round(cStart * 100) / 100;
-          cEnd = Math.round(cEnd * 100) / 100;
-          const segDur = Math.max(1.5, cEnd - cStart);
-          const rawSubs = Array.isArray(item.subtitles) ? item.subtitles : [];
-          const itemStreamUrl = item.mp4Url || item.streamUrl || item.videoUrl || rootStreamUrl || "";
-          const playableVideoUrl = newProject.mode === "local" ? newProject.objectUrl : itemStreamUrl;
-          if (playableVideoUrl) anyPlayableStream = true;
-
-          const filteredSubs = rawSubs
-            .map(function (s, sIdx) {
-              let subStartSec = Number(s.start_sec);
-              let subEndSec = Number(s.end_sec);
-              if (isNaN(subStartSec)) {
-                const relS = Math.max(0, Number(s.start) || 0);
-                subStartSec = cStart + relS;
-              }
-              if (isNaN(subEndSec)) {
-                const relE = Number(s.end);
-                subEndSec = !isNaN(relE) ? (cStart + relE) : (subStartSec + 1.5);
-              }
-              return {
-                id: s.id || ("sub-" + idx + "-" + sIdx),
-                rawStartSec: subStartSec,
-                rawEndSec: subEndSec,
-                text: String(s.text || "").trim()
-              };
-            })
-            .filter(function (s) {
-              return s.text.length > 0 && s.rawEndSec > cStart && s.rawStartSec < cEnd;
-            })
-            .map(function (s) {
-              const clampedStart = Math.max(cStart, Math.min(cEnd - 0.2, s.rawStartSec));
-              const clampedEnd = Math.min(cEnd, Math.max(clampedStart + 0.2, s.rawEndSec));
-              return {
-                id: s.id,
-                start_sec: Math.round(clampedStart * 100) / 100,
-                end_sec: Math.round(clampedEnd * 100) / 100,
-                start: Math.round((clampedStart - cStart) * 100) / 100,
-                end: Math.round((clampedEnd - cStart) * 100) / 100,
-                text: s.text,
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: 18,
-                color: selectedStyle === "karaoke" ? "#38BDF8" : "#FACC15",
-                animation: selectedStyle === "karaoke" || selectedStyle === "fade" ? selectedStyle : "pop"
-              };
-            })
-            .sort(function (a, b) { return a.start_sec - b.start_sec; });
-
-          return {
-            id: item.id || ("clip-" + projectId + "-" + (idx + 1)),
-            mode: playableVideoUrl ? (newProject.mode === "local" ? "local" : "stream") : "youtube",
-            sourceType: newProject.mode,
-            videoId: item.videoId || newProject.videoId,
-            videoUrl: playableVideoUrl,
-            thumbnailUrl: newProject.thumbnailUrl,
-            title: item.title || ("Klip Viral #" + (idx + 1)),
-            score: item.viral_score !== undefined ? item.viral_score : (item.score !== undefined ? item.score : 88),
-            start_sec: cStart,
-            end_sec: cEnd,
-            start_seconds: cStart,
-            end_seconds: cEnd,
-            duration: formatSeconds(segDur),
-            range: formatSeconds(cStart) + " - " + formatSeconds(cEnd),
-            style: selectedStyle,
-            subtitles: filteredSubs
-          };
+        const normalizedResult = normalizeClipsWithDurationGuard({
+          rawClips: rawClips,
+          newProject: newProject,
+          projectId: projectId,
+          minSeconds: minSeconds,
+          maxSeconds: maxSeconds,
+          selectedStyle: selectedStyle,
+          activeEffects: activeEffects,
+          rootStreamUrl: rootStreamUrl
         });
 
-        // Deduplicate clips that collapsed onto identical segments (e.g. short source video < 35s)
-        const dedupedClips = [];
-        guardedClips.forEach(function (clip) {
-          const isDup = dedupedClips.some(function (existing) {
-            return Math.abs(existing.start_sec - clip.start_sec) < 1.0 &&
-                   Math.abs(existing.end_sec - clip.end_sec) < 1.0;
-          });
-          if (!isDup) dedupedClips.push(clip);
-        });
-
-        newProject.clips = dedupedClips;
-        newProject.hasPlayableStream = anyPlayableStream;
+        newProject.clips = normalizedResult.clips;
+        newProject.hasPlayableStream = normalizedResult.anyPlayableStream;
 
         clearInterval(progressTimer);
         newProject.progress = 100;
@@ -1667,6 +2412,335 @@
         renderProjectsGrid();
         showProjectsError("Gagal memproses proyek \"" + newProject.title + "\": " + newProject.errorMessage);
       }
+    }
+
+    function getClientGeminiApiKey() {
+      try {
+        if (typeof process !== "undefined" && process.env) {
+          if (process.env.GEMINI_API && String(process.env.GEMINI_API).trim()) {
+            return String(process.env.GEMINI_API).trim();
+          }
+          if (process.env.GEMINI_API_KEY && String(process.env.GEMINI_API_KEY).trim()) {
+            return String(process.env.GEMINI_API_KEY).trim();
+          }
+        }
+      } catch (e) {}
+      try {
+        if (window.__ENV__ && (window.__ENV__.GEMINI_API || window.__ENV__.GEMINI_API_KEY)) {
+          return String(window.__ENV__.GEMINI_API || window.__ENV__.GEMINI_API_KEY).trim();
+        }
+      } catch (e) {}
+      return getSavedSettingsApiKey();
+    }
+
+    async function processYoutubeClientSideFallback(opts) {
+      let resolvedTitle = opts.title || ("Video YouTube (" + opts.videoId + ")");
+      let resolvedAuthor = opts.author || "YouTube";
+      let resolvedThumb = opts.thumbnailUrl || ("https://i.ytimg.com/vi/" + opts.videoId + "/hqdefault.jpg");
+
+      try {
+        const oembedRes = await fetch("https://www.youtube.com/oembed?url=" + encodeURIComponent(opts.videoUrl) + "&format=json");
+        if (oembedRes.ok) {
+          const meta = await oembedRes.json();
+          if (meta.title) resolvedTitle = meta.title;
+          if (meta.author_name) resolvedAuthor = meta.author_name;
+          if (meta.thumbnail_url) resolvedThumb = meta.thumbnail_url;
+        }
+      } catch (e) {}
+
+      const apiKey = getClientGeminiApiKey();
+      if (!apiKey) {
+        throw new Error("Backend /api/auto-clip tidak tersedia dan Gemini API key tidak ditemukan pada environment/Settings.");
+      }
+
+      const prompt = [
+        "Anda adalah produser & editor video pendek viral profesional (TikTok/Reels/Shorts 9:16).",
+        "Analisis video YouTube berikut:",
+        "- URL: " + opts.videoUrl,
+        "- Video ID: " + opts.videoId,
+        "- Judul: " + resolvedTitle,
+        "- Channel: " + resolvedAuthor,
+        "- Gaya Subtitle: " + (opts.style || "mozi_pop"),
+        opts.momentPrompt ? ("- Fokus Momen: " + opts.momentPrompt) : "- Fokus Momen: Hook kuat, poin utama, dan momen paling menarik",
+        "",
+        "ATURAN KETAT:",
+        "1. Kembalikan TEPAT 3 klip berurutan (tidak tumpang tindih).",
+        "2. Setiap klip WAJIB berdurasi antara " + opts.minSeconds + " hingga " + opts.maxSeconds + " detik (end_seconds - start_seconds >= " + opts.minSeconds + " dan <= " + opts.maxSeconds + ").",
+        "3. Buat hook_headline kapital pendek (< 6 kata) dan subtitle bahasa Indonesia per 2-3 detik (start_sec & end_sec absolut dalam rentang klip).",
+        "4. Sertakan 1-2 broll_moments dengan keyword, icon_or_emoji (emoji tunggal), caption singkat, start_sec, end_sec."
+      ].join("\n");
+
+      const geminiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(apiKey);
+      const res = await fetch(geminiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                clips: {
+                  type: "ARRAY",
+                  items: {
+                    type: "OBJECT",
+                    properties: {
+                      title: { type: "STRING" },
+                      hook_headline: { type: "STRING" },
+                      viral_score: { type: "NUMBER" },
+                      start_seconds: { type: "NUMBER" },
+                      end_seconds: { type: "NUMBER" },
+                      broll_moments: {
+                        type: "ARRAY",
+                        items: {
+                          type: "OBJECT",
+                          properties: {
+                            start_sec: { type: "NUMBER" },
+                            end_sec: { type: "NUMBER" },
+                            keyword: { type: "STRING" },
+                            icon_or_emoji: { type: "STRING" },
+                            caption: { type: "STRING" }
+                          },
+                          required: ["start_sec", "end_sec", "keyword", "icon_or_emoji", "caption"]
+                        }
+                      },
+                      subtitles: {
+                        type: "ARRAY",
+                        items: {
+                          type: "OBJECT",
+                          properties: {
+                            start_sec: { type: "NUMBER" },
+                            end_sec: { type: "NUMBER" },
+                            text: { type: "STRING" }
+                          },
+                          required: ["start_sec", "end_sec", "text"]
+                        }
+                      }
+                    },
+                    required: ["title", "hook_headline", "viral_score", "start_seconds", "end_seconds", "subtitles"]
+                  }
+                }
+              },
+              required: ["clips"]
+            }
+          }
+        })
+      });
+
+      const payload = await res.json().catch(function () { return null; });
+      if (!res.ok) {
+        const msg = (payload && payload.error && payload.error.message) ? payload.error.message : ("Gemini HTTP " + res.status);
+        throw new Error(msg);
+      }
+
+      const rawText = payload && payload.candidates && payload.candidates[0] && payload.candidates[0].content && payload.candidates[0].content.parts
+        ? payload.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
+        : "";
+      const parsed = JSON.parse(rawText || "{}");
+      const clips = Array.isArray(parsed.clips) ? parsed.clips : [];
+
+      return {
+        videoId: opts.videoId,
+        videoTitle: resolvedTitle,
+        authorName: resolvedAuthor,
+        thumbnailUrl: resolvedThumb,
+        clips: clips.slice(0, 3)
+      };
+    }
+
+    function normalizeClipsWithDurationGuard(params) {
+      const rawClips = params.rawClips;
+      const newProject = params.newProject;
+      const projectId = params.projectId;
+      const minSeconds = params.minSeconds;
+      const maxSeconds = params.maxSeconds;
+      const selectedStyle = params.selectedStyle;
+      const activeEffects = params.activeEffects;
+      const rootStreamUrl = params.rootStreamUrl;
+
+      let anyPlayableStream = false;
+      const srcDur = Number(newProject.sourceDuration) || 0;
+      const styleMeta = SUBTITLE_STYLE_META[selectedStyle] || SUBTITLE_STYLE_META.mozi_pop;
+
+      const guardedClips = rawClips.map(function (item, idx) {
+        let cStart = Math.max(0, Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds) || (idx * minSeconds));
+        let cEnd = Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds);
+        if (!Number.isFinite(cEnd) || cEnd <= cStart) {
+          cEnd = cStart + minSeconds;
+        }
+
+        if (newProject.mode === "local" && srcDur > 0) {
+          if (srcDur >= minSeconds) {
+            let clipDur = cEnd - cStart;
+            if (clipDur < minSeconds) {
+              cEnd = Math.min(srcDur, cStart + minSeconds);
+              if (cEnd - cStart < minSeconds) {
+                cStart = Math.max(0, srcDur - minSeconds);
+              }
+            }
+            clipDur = cEnd - cStart;
+            if (clipDur > maxSeconds) {
+              cEnd = cStart + maxSeconds;
+            }
+            cEnd = Math.min(srcDur, cEnd);
+          } else {
+            cStart = 0;
+            cEnd = srcDur;
+          }
+        } else {
+          const clipDur = cEnd - cStart;
+          if (clipDur < minSeconds) {
+            cEnd = cStart + minSeconds;
+          } else if (clipDur > maxSeconds) {
+            cEnd = cStart + maxSeconds;
+          }
+        }
+
+        cStart = Math.round(cStart * 100) / 100;
+        cEnd = Math.round(cEnd * 100) / 100;
+        const segDur = Math.max(1.5, cEnd - cStart);
+        const rawSubs = Array.isArray(item.subtitles) ? item.subtitles : [];
+        const rawBrolls = Array.isArray(item.broll_moments) ? item.broll_moments : [];
+        const itemStreamUrl = item.mp4Url || item.streamUrl || item.videoUrl || rootStreamUrl || "";
+        const playableVideoUrl = newProject.mode === "local" ? newProject.objectUrl : itemStreamUrl;
+        if (playableVideoUrl) anyPlayableStream = true;
+
+        const filteredSubs = rawSubs
+          .map(function (s, sIdx) {
+            let subStartSec = Number(s.start_sec);
+            let subEndSec = Number(s.end_sec);
+            if (isNaN(subStartSec)) {
+              const relS = Math.max(0, Number(s.start) || 0);
+              subStartSec = cStart + relS;
+            }
+            if (isNaN(subEndSec)) {
+              const relE = Number(s.end);
+              subEndSec = !isNaN(relE) ? (cStart + relE) : (subStartSec + 1.5);
+            }
+            return {
+              id: s.id || ("sub-" + idx + "-" + sIdx),
+              rawStartSec: subStartSec,
+              rawEndSec: subEndSec,
+              text: String(s.text || "").trim()
+            };
+          })
+          .filter(function (s) {
+            return s.text.length > 0 && s.rawEndSec > cStart && s.rawStartSec < cEnd;
+          })
+          .map(function (s) {
+            const clampedStart = Math.max(cStart, Math.min(cEnd - 0.2, s.rawStartSec));
+            const clampedEnd = Math.min(cEnd, Math.max(clampedStart + 0.2, s.rawEndSec));
+            return {
+              id: s.id,
+              start_sec: Math.round(clampedStart * 100) / 100,
+              end_sec: Math.round(clampedEnd * 100) / 100,
+              start: Math.round((clampedStart - cStart) * 100) / 100,
+              end: Math.round((clampedEnd - cStart) * 100) / 100,
+              text: s.text,
+              fontFamily: styleMeta.fontFamily,
+              fontSize: styleMeta.fontSize,
+              color: styleMeta.color,
+              highlightColor: styleMeta.highlightColor,
+              animation: styleMeta.animation === "karaoke" ? "pop" : styleMeta.animation
+            };
+          })
+          .sort(function (a, b) { return a.start_sec - b.start_sec; });
+
+        let filteredBrolls = rawBrolls
+          .map(function (b, bIdx) {
+            let bStart = Number(b.start_sec !== undefined ? b.start_sec : b.start);
+            let bEnd = Number(b.end_sec !== undefined ? b.end_sec : b.end);
+            if (isNaN(bStart)) bStart = cStart + Math.min(4.0, segDur * 0.25);
+            if (isNaN(bEnd) || bEnd <= bStart) bEnd = bStart + 3.0;
+            return {
+              id: b.id || ("broll-" + idx + "-" + bIdx),
+              rawStartSec: bStart,
+              rawEndSec: bEnd,
+              keyword: String(b.keyword || "Highlight").trim(),
+              icon_or_emoji: String(b.icon_or_emoji || "💡").trim(),
+              caption: String(b.caption || b.keyword || "Poin Penting").trim()
+            };
+          })
+          .filter(function (b) {
+            return b.rawEndSec > cStart && b.rawStartSec < cEnd;
+          })
+          .map(function (b) {
+            const clampedStart = Math.max(cStart + 0.5, Math.min(cEnd - 1.2, b.rawStartSec));
+            const clampedEnd = Math.min(cEnd, Math.max(clampedStart + 1.5, Math.min(clampedStart + 4.5, b.rawEndSec)));
+            return {
+              id: b.id,
+              start_sec: Math.round(clampedStart * 100) / 100,
+              end_sec: Math.round(clampedEnd * 100) / 100,
+              start: Math.round((clampedStart - cStart) * 100) / 100,
+              end: Math.round((clampedEnd - cStart) * 100) / 100,
+              keyword: b.keyword,
+              icon_or_emoji: b.icon_or_emoji,
+              caption: b.caption
+            };
+          })
+          .slice(0, 2);
+
+        if (filteredBrolls.length === 0 && segDur >= 4) {
+          const fbStart = Math.round((cStart + Math.min(3.5, segDur * 0.25)) * 100) / 100;
+          const fbEnd = Math.round(Math.min(cEnd, fbStart + 3.0) * 100) / 100;
+          filteredBrolls = [{
+            id: "broll-" + idx + "-0",
+            start_sec: fbStart,
+            end_sec: fbEnd,
+            start: Math.round((fbStart - cStart) * 100) / 100,
+            end: Math.round((fbEnd - cStart) * 100) / 100,
+            keyword: "Poin Kunci",
+            icon_or_emoji: "💡",
+            caption: String(item.title || "Momen Utama").slice(0, 36)
+          }];
+        }
+
+        const clipId = item.id || ("clip-" + projectId + "-" + (idx + 1));
+        return {
+          id: clipId,
+          mode: playableVideoUrl ? (newProject.mode === "local" ? "local" : "stream") : "youtube",
+          sourceType: newProject.mode,
+          videoId: item.videoId || newProject.videoId,
+          videoUrl: playableVideoUrl,
+          thumbnailUrl: newProject.thumbnailUrl,
+          title: item.title || ("Klip Viral #" + (idx + 1)),
+          hook_headline: String(item.hook_headline || item.title || "WAJIB TONTON SAMPAI HABIS!").trim(),
+          score: item.viral_score !== undefined ? item.viral_score : (item.score !== undefined ? item.score : 88),
+          start_sec: cStart,
+          end_sec: cEnd,
+          start_seconds: cStart,
+          end_seconds: cEnd,
+          duration: formatSeconds(segDur),
+          range: formatSeconds(cStart) + " - " + formatSeconds(cEnd),
+          style: selectedStyle,
+          effects: Object.assign({}, activeEffects),
+          videoSpeed: 1.0,
+          volume: 100,
+          brightness: 100,
+          contrast: activeEffects.autoColor ? 108 : 100,
+          bgMode: "crop",
+          subtitleYPercent: 78,
+          hookYPercent: 13,
+          sfxEvents: [],
+          videoSegments: [
+            { id: "vseg-" + clipId + "-1", start: 0, end: segDur, label: item.title || ("Klip #" + (idx + 1)) }
+          ],
+          subtitles: filteredSubs,
+          broll_moments: filteredBrolls
+        };
+      });
+
+      const dedupedClips = [];
+      guardedClips.forEach(function (clip) {
+        const isDup = dedupedClips.some(function (existing) {
+          return Math.abs(existing.start_sec - clip.start_sec) < 1.0 &&
+                 Math.abs(existing.end_sec - clip.end_sec) < 1.0;
+        });
+        if (!isDup) dedupedClips.push(clip);
+      });
+
+      return { clips: dedupedClips, anyPlayableStream: anyPlayableStream };
     }
 
     function updateProjectCardProgressUI(project) {
@@ -1864,7 +2938,7 @@
       }
     }
 
-    // STEP 4: Results Grid (9:16 Cropped Looping Video + Verbatim Subtitles + Custom 9:16 Fullscreen)
+    // STEP 4: Results Grid (9:16 Cropped Looping Video + 4 Subtitle Styles + Auto Zoom/SFX/B-Roll/Hook/Color + Custom 9:16 Fullscreen)
     function renderResultsGrid() {
       clearAllYoutubeSyncTimers();
       const grid = document.getElementById("resultsGridContainer");
@@ -1901,23 +2975,27 @@
         const isPlayableMp4 = Boolean(clip.videoUrl);
         const startSec = Math.floor(clip.start_sec);
         const segDur = Math.max(1.5, clip.end_sec - clip.start_sec);
+        const effects = clip.effects || { autoZoom: true, autoSfx: true, aiBroll: true, autoHook: true, autoColor: true };
+        const styleKey = SUBTITLE_STYLE_META[clip.style] ? clip.style : "mozi_pop";
 
         const initialSub = clip.subtitles.find(function (s) {
           return clip.start_sec >= s.start_sec && clip.start_sec <= s.end_sec;
         }) || null;
 
         const mediaHtml = isPlayableMp4
-          ? `<video
-               id="card-video-${clip.id}"
-               class="thumb-cover"
-               src="${clip.videoUrl}"
-               playsinline
-               preload="metadata"
-               controlsList="nodownload nofullscreen noremoteplayback"
-               disablePictureInPicture
-               onclick="toggleCardPlay('${clip.id}')"
-               style="cursor: pointer;"
-             ></video>
+          ? `<div class="clip-video-viewport">
+               <video
+                 id="card-video-${clip.id}"
+                 class="thumb-cover"
+                 src="${clip.videoUrl}"
+                 playsinline
+                 preload="metadata"
+                 controlsList="nodownload nofullscreen noremoteplayback"
+                 disablePictureInPicture
+                 onclick="toggleCardPlay('${clip.id}')"
+                 style="cursor: pointer; ${effects.autoColor ? "filter: contrast(1.08) saturate(1.12);" : ""}"
+               ></video>
+             </div>
              <div class="clip-player-controls">
                <input
                  type="range"
@@ -1947,16 +3025,16 @@
                </div>
              </div>`
           : `<div id="card-yt-wrap-${clip.id}" class="w-100 h-100 position-relative">
-               <img src="${clip.thumbnailUrl}" alt="${escapeHtml(clip.title)}" class="thumb-cover" />
+               <img src="${clip.thumbnailUrl}" alt="${escapeHtml(clip.title)}" class="thumb-cover" style="${effects.autoColor ? "filter: contrast(1.08) saturate(1.12);" : ""}" />
                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-2 px-3 text-center" style="background: rgba(10, 25, 47, 0.42);">
                  <button type="button" class="btn btn-accent rounded-circle shadow" style="width: 60px; height: 60px;" onclick="playYoutubeClipCard('${clip.id}')" title="Putar Segmen YouTube">
                    <i class="bi bi-play-fill fs-2"></i>
                  </button>
-                 <a href="https://youtu.be/${clip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3">
-                   <i class="bi bi-box-arrow-up-right me-1"></i>Tonton Segmen di YouTube
-                 </a>
-               </div>
-             </div>`;
+                  <a href="https://youtu.be/${clip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Buka di YouTube
+                  </a>
+                </div>
+              </div>`;
 
         const buttonsHtml = isPlayableMp4
           ? `<button type="button" id="btn-dl-${clip.id}" class="btn btn-navy btn-sm fw-bold flex-fill py-2" onclick="downloadLocalClipWithSubtitles('${clip.id}')">
@@ -1975,7 +3053,7 @@
                  </button>
                </div>
                <a href="https://youtu.be/${clip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm fw-semibold py-2">
-                 <i class="bi bi-youtube text-danger me-1"></i>Tonton Segmen di YouTube
+                 <i class="bi bi-youtube text-danger me-1"></i>Buka di YouTube
                </a>
              </div>`;
 
@@ -1992,19 +3070,37 @@
                 <div class="position-absolute top-0 end-0 m-3" style="pointer-events: none; z-index: 5;">
                   <span class="badge bg-dark bg-opacity-75 text-white font-mono-tabular">${clip.duration}</span>
                 </div>
-                <div class="position-absolute start-0 end-0 px-3 text-center" style="bottom: 19%; pointer-events: none; z-index: 7;">
+                <!-- Auto Hook Headline Banner (0-3s) -->
+                <div id="card-hook-${clip.id}" class="hook-banner-overlay text-center ${effects.autoHook ? "" : "d-none"}" style="top: ${clip.hookYPercent || 13}%;">
+                  <div class="bg-navy text-white border border-warning border-2 rounded-3 px-2 py-1 shadow anim-pop">
+                    <span class="fw-bold text-uppercase" style="font-size: 0.78rem; letter-spacing: 0.04em; color: #FACC15;">${escapeHtml(clip.hook_headline || clip.title)}</span>
+                  </div>
+                </div>
+                <!-- AI B-Roll Visual Card Overlay -->
+                <div id="card-broll-${clip.id}" class="broll-card-overlay d-none">
+                  <div class="bg-white bg-opacity-95 border border-primary rounded-3 p-2 shadow anim-card-in d-flex align-items-center gap-2 text-start">
+                    <div id="card-broll-icon-${clip.id}" class="bg-navy text-white rounded-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; font-size: 1.25rem;">💡</div>
+                    <div class="overflow-hidden">
+                      <span id="card-broll-kw-${clip.id}" class="badge bg-primary text-white text-uppercase mb-1" style="font-size: 0.6rem;">Highlight</span>
+                      <div id="card-broll-cap-${clip.id}" class="fw-bold text-navy text-truncate" style="font-size: 0.78rem;">Poin Penting</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Dynamic Subtitle Overlay -->
+                <div class="position-absolute start-0 end-0 px-3 text-center" style="top: ${clip.subtitleYPercent || 78}%; transform: translateY(-50%); pointer-events: none; z-index: 7;">
                   <span
                     id="card-sub-${clip.id}"
-                    class="d-inline-block px-3 py-1 rounded-3 bg-dark bg-opacity-75 fw-bold text-uppercase shadow anim-pop"
-                    style="font-family: 'Montserrat', sans-serif; font-size: 0.98rem; text-shadow: 0 2px 6px rgba(0,0,0,0.95); color: ${initialSub ? initialSub.color : "#FACC15"}; ${initialSub ? "" : "display:none;"}"
-                  >${initialSub ? escapeHtml(initialSub.text) : ""}</span>
+                    class="d-inline-block px-3 py-1 anim-pop sub-render-${styleKey}"
+                    style="${initialSub ? "" : "display:none;"}"
+                  >${initialSub ? formatSubtitleDomHtml(initialSub.text, styleKey, initialSub.highlightColor) : ""}</span>
                 </div>
               </div>
             </div>
             <div class="card-body p-4 d-flex flex-column justify-content-between">
               <div class="mb-3">
                 <h3 class="h6 fw-bold text-navy mb-1">${escapeHtml(clip.title)}</h3>
-                <small class="text-secondary font-mono-tabular">Segmen ${clip.range} · Durasi ${clip.duration}</small>
+                <small class="text-secondary font-mono-tabular d-block">Segmen ${clip.range} · Durasi ${clip.duration}</small>
+                <small class="text-primary fw-semibold" style="font-size: 0.75rem;">Gaya: ${(SUBTITLE_STYLE_META[styleKey] || SUBTITLE_STYLE_META.mozi_pop).label}</small>
               </div>
               <div id="dl-progress-wrap-${clip.id}" class="d-none mb-3">
                 <div class="d-flex justify-content-between align-items-center small fw-semibold text-navy mb-1">
@@ -2024,13 +3120,25 @@
 
         grid.appendChild(col);
 
+        const subBadge = document.getElementById("card-sub-" + clip.id);
+        if (initialSub && subBadge) {
+          applySubtitleBadgeStyle(subBadge, initialSub.text, styleKey, initialSub.color, initialSub.highlightColor, initialSub.animation);
+        }
+
         if (isPlayableMp4) {
           const videoEl = document.getElementById("card-video-" + clip.id);
-          const subBadge = document.getElementById("card-sub-" + clip.id);
+          const hookEl = document.getElementById("card-hook-" + clip.id);
+          const brollEl = document.getElementById("card-broll-" + clip.id);
+          const brollIconEl = document.getElementById("card-broll-icon-" + clip.id);
+          const brollKwEl = document.getElementById("card-broll-kw-" + clip.id);
+          const brollCapEl = document.getElementById("card-broll-cap-" + clip.id);
           const playBtn = document.getElementById("card-play-btn-" + clip.id);
           const seekSlider = document.getElementById("card-seek-" + clip.id);
           const timeLabel = document.getElementById("card-time-" + clip.id);
           let lastRenderedSubText = initialSub ? initialSub.text : "";
+          let lastSfxBucket = -1;
+          let lastHookPopBucket = -1;
+          let previewZoomRaf = null;
 
           function syncCardUIAtTime(curTime) {
             const relElapsed = Math.max(0, Math.min(segDur, curTime - clip.start_sec));
@@ -2040,6 +3148,58 @@
             if (timeLabel) {
               timeLabel.textContent = formatSeconds(relElapsed) + " / " + formatSeconds(segDur);
             }
+
+            // 1) Auto Zoom + Filter Brightness/Contrast
+            if (videoEl) {
+              const zoomScale = computeDynamicZoomScale(relElapsed, effects.autoZoom);
+              const bright = clip.brightness !== undefined ? clip.brightness : 100;
+              const contr = clip.contrast !== undefined ? clip.contrast : (effects.autoColor ? 108 : 100);
+              const sat = effects.autoColor ? 112 : 100;
+              videoEl.style.transform = "scale(" + zoomScale.toFixed(4) + ")";
+              videoEl.style.filter = "brightness(" + (bright / 100) + ") contrast(" + (contr / 100) + ") saturate(" + (sat / 100) + ")";
+              videoEl.playbackRate = clip.videoSpeed || 1.0;
+              videoEl.volume = Math.max(0, Math.min(1, (clip.volume !== undefined ? clip.volume : 100) / 100));
+            }
+
+            // 2) Auto Hook Headline (0 - 3 detik pertama)
+            if (hookEl) {
+              const showHook = Boolean(effects.autoHook && relElapsed <= 3.0);
+              hookEl.classList.toggle("d-none", !showHook);
+            }
+
+            // 3) AI B-Roll Card Overlay
+            const activeBroll = effects.aiBroll && Array.isArray(clip.broll_moments)
+              ? clip.broll_moments.find(function (b) { return curTime >= b.start_sec && curTime <= b.end_sec; })
+              : null;
+            if (brollEl) {
+              if (activeBroll) {
+                brollEl.classList.remove("d-none");
+                if (brollIconEl) brollIconEl.textContent = activeBroll.icon_or_emoji || "💡";
+                if (brollKwEl) brollKwEl.textContent = activeBroll.keyword || "Highlight";
+                if (brollCapEl) brollCapEl.textContent = activeBroll.caption || "";
+              } else {
+                brollEl.classList.add("d-none");
+              }
+            }
+
+            // 4) Auto SFX (saat video aktif & tidak di-mute)
+            if (effects.autoSfx && videoEl && !videoEl.paused && !videoEl.muted) {
+              if (effects.autoHook && relElapsed < 0.35 && lastHookPopBucket !== 0) {
+                lastHookPopBucket = 0;
+                playLivePreviewSfx("pop");
+              } else if (relElapsed >= 0.4) {
+                lastHookPopBucket = -1;
+              }
+              const sfxBucket = Math.floor(relElapsed / 4.0);
+              if (sfxBucket > 0 && sfxBucket !== lastSfxBucket) {
+                lastSfxBucket = sfxBucket;
+                playLivePreviewSfx("whoosh");
+              } else if (sfxBucket === 0) {
+                lastSfxBucket = 0;
+              }
+            }
+
+            // 5) Synchronized Subtitle Overlay
             const activeSub = clip.subtitles.find(function (s) {
               return curTime >= s.start_sec && curTime <= s.end_sec;
             });
@@ -2048,17 +3208,26 @@
                 subBadge.style.display = "inline-block";
                 if (lastRenderedSubText !== activeSub.text) {
                   lastRenderedSubText = activeSub.text;
-                  subBadge.classList.remove("anim-pop");
-                  void subBadge.offsetWidth;
-                  subBadge.classList.add("anim-pop");
+                  applySubtitleBadgeStyle(subBadge, activeSub.text, styleKey, activeSub.color, activeSub.highlightColor, activeSub.animation);
                 }
-                subBadge.textContent = activeSub.text;
-                subBadge.style.color = activeSub.color;
               } else {
                 lastRenderedSubText = "";
                 subBadge.style.display = "none";
               }
             }
+          }
+
+          function animateCardSmooth() {
+            if (!videoEl || videoEl.paused) {
+              previewZoomRaf = null;
+              return;
+            }
+            const relElapsed = Math.max(0, Math.min(segDur, videoEl.currentTime - clip.start_sec));
+            if (effects.autoZoom) {
+              const zoomScale = computeDynamicZoomScale(relElapsed, true);
+              videoEl.style.transform = "scale(" + zoomScale.toFixed(4) + ")";
+            }
+            previewZoomRaf = requestAnimationFrame(animateCardSmooth);
           }
 
           if (videoEl) {
@@ -2071,9 +3240,16 @@
                 videoEl.currentTime = clip.start_sec;
               }
               if (playBtn) playBtn.innerHTML = '<i class="bi bi-pause-fill fs-6"></i>';
+              if (!previewZoomRaf) {
+                previewZoomRaf = requestAnimationFrame(animateCardSmooth);
+              }
             });
             videoEl.addEventListener("pause", function () {
               if (playBtn) playBtn.innerHTML = '<i class="bi bi-play-fill fs-6"></i>';
+              if (previewZoomRaf) {
+                cancelAnimationFrame(previewZoomRaf);
+                previewZoomRaf = null;
+              }
             });
             if (seekSlider) {
               seekSlider.addEventListener("input", function () {
@@ -2120,6 +3296,13 @@
       }
 
       const subBadge = document.getElementById("card-sub-" + clipId);
+      const hookEl = document.getElementById("card-hook-" + clipId);
+      const brollEl = document.getElementById("card-broll-" + clipId);
+      const brollIconEl = document.getElementById("card-broll-icon-" + clipId);
+      const brollKwEl = document.getElementById("card-broll-kw-" + clipId);
+      const brollCapEl = document.getElementById("card-broll-cap-" + clipId);
+      const effects = clip.effects || { autoZoom: true, autoSfx: true, aiBroll: true, autoHook: true, autoColor: true };
+      const styleKey = SUBTITLE_STYLE_META[clip.style] ? clip.style : "mozi_pop";
       const segDur = Math.max(2, clip.end_seconds - clip.start_seconds);
       let elapsed = 0;
 
@@ -2130,14 +3313,30 @@
           delete youtubeSyncTimers[clipId];
           return;
         }
+        if (hookEl) {
+          hookEl.classList.toggle("d-none", !(effects.autoHook && elapsed <= 3.0));
+        }
+        const absTime = clip.start_sec + elapsed;
+        const activeBroll = effects.aiBroll && Array.isArray(clip.broll_moments)
+          ? clip.broll_moments.find(function (b) { return absTime >= b.start_sec && absTime <= b.end_sec; })
+          : null;
+        if (brollEl) {
+          if (activeBroll) {
+            brollEl.classList.remove("d-none");
+            if (brollIconEl) brollIconEl.textContent = activeBroll.icon_or_emoji || "💡";
+            if (brollKwEl) brollKwEl.textContent = activeBroll.keyword || "Highlight";
+            if (brollCapEl) brollCapEl.textContent = activeBroll.caption || "";
+          } else {
+            brollEl.classList.add("d-none");
+          }
+        }
         const activeSub = clip.subtitles.find(function (s) {
           return elapsed >= s.start && elapsed <= s.end;
         });
         if (subBadge) {
           if (activeSub) {
             subBadge.style.display = "inline-block";
-            subBadge.textContent = activeSub.text;
-            subBadge.style.color = activeSub.color;
+            applySubtitleBadgeStyle(subBadge, activeSub.text, styleKey, activeSub.color);
           } else {
             subBadge.style.display = "none";
           }
@@ -2162,7 +3361,152 @@
       }
     }
 
-    // Export 9:16 Center-Cropped Video Clip (720x1280) + Burned-in Verbatim Subtitles via Offscreen <canvas> + MediaRecorder
+    // Canvas Helper: Rounded Rectangle Path
+    function drawCanvasRoundRect(ctx, x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + w - radius, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+      ctx.lineTo(x + w, y + h - radius);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      ctx.lineTo(x + radius, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    // Canvas Helper: Draw Subtitle with Exact Chosen Style & Edited Properties
+    function drawCanvasStyledSubtitle(ctx, canvas, activeSub, styleKey, curTime, subtitleYPercent) {
+      if (!activeSub || !activeSub.text) return;
+      const resolvedKey = SUBTITLE_STYLE_META[styleKey] ? styleKey : "mozi_pop";
+      const meta = SUBTITLE_STYLE_META[resolvedKey];
+      const rawText = String(activeSub.text).trim();
+      const displayText = resolvedKey === "mozi_pop" ? rawText.toUpperCase() : rawText;
+
+      const animElapsed = Math.max(0, curTime - activeSub.start_sec);
+      const animMode = activeSub.animation || meta.animation;
+      let animScale = 1;
+      let animAlpha = 1;
+      if (animMode === "pop" && animElapsed < 0.14) {
+        animScale = 0.88 + (animElapsed / 0.14) * 0.12;
+      } else if (animMode === "fade" && animElapsed < 0.18) {
+        animAlpha = Math.max(0.15, animElapsed / 0.18);
+      }
+      const baseSize = activeSub.fontSize || meta.fontSize || 18;
+      const fontPx = Math.round(baseSize * (resolvedKey === "handwritten_glow" ? 2.55 : 2.2));
+      const yAnchor = canvas.height * (Math.max(12, Math.min(90, Number(subtitleYPercent) || 78)) / 100);
+      const textColor = activeSub.color || meta.color || "#FFFFFF";
+      const hlColor = activeSub.highlightColor || meta.highlightColor || "#FACC15";
+
+      ctx.save();
+      ctx.globalAlpha = animAlpha;
+      ctx.translate(canvas.width / 2, yAnchor);
+      ctx.scale(animScale, animScale);
+
+      const fontWeight = resolvedKey === "simple_clean" ? "800" : "900";
+      const fontPrefix = resolvedKey === "handwritten_glow" ? "italic 700 " : fontWeight + " ";
+      const fontFace = activeSub.fontFamily || meta.fontFamily;
+      ctx.font = fontPrefix + fontPx + "px " + fontFace;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const maxWidth = canvas.width - 96;
+      const words = displayText.split(/\s+/).filter(Boolean);
+      const lines = [];
+      let currentLine = "";
+      words.forEach(function (w) {
+        const testLine = currentLine ? currentLine + " " + w : w;
+        if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = w;
+        } else {
+          currentLine = testLine;
+        }
+      });
+      if (currentLine) lines.push(currentLine);
+
+      const lineHeight = fontPx + 18;
+      const totalHeight = lines.length * lineHeight;
+      const startY = -((lines.length - 1) * lineHeight) / 2;
+
+      if (resolvedKey === "karaoke_pill") {
+        let maxLineW = 0;
+        lines.forEach(function (ln) {
+          maxLineW = Math.max(maxLineW, ctx.measureText(ln).width);
+        });
+        const pillW = Math.min(canvas.width - 56, maxLineW + 58);
+        const pillH = totalHeight + 28;
+        const grad = ctx.createLinearGradient(-pillW / 2, -pillH / 2, pillW / 2, pillH / 2);
+        grad.addColorStop(0, "#0A192F");
+        grad.addColorStop(1, "#2563EB");
+        ctx.fillStyle = grad;
+        drawCanvasRoundRect(ctx, -pillW / 2, -pillH / 2, pillW, pillH, pillH / 2);
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(255,255,255,0.3)";
+        ctx.stroke();
+      }
+
+      lines.forEach(function (line, i) {
+        const yPos = startY + i * lineHeight;
+
+        if (resolvedKey === "mozi_pop") {
+          const lineWords = line.split(" ");
+          const totalW = ctx.measureText(line).width;
+          let cursorX = -totalW / 2;
+          const isLastLine = i === lines.length - 1;
+
+          lineWords.forEach(function (w, wIdx) {
+            const wordWithSpace = wIdx < lineWords.length - 1 ? w + " " : w;
+            const wWidth = ctx.measureText(wordWithSpace).width;
+            const pureWidth = ctx.measureText(w).width;
+            const centerX = cursorX + pureWidth / 2;
+            const isAccentWord = isLastLine && wIdx === lineWords.length - 1;
+
+            ctx.lineWidth = 12;
+            ctx.lineJoin = "round";
+            ctx.strokeStyle = "#000000";
+            ctx.shadowColor = "rgba(0,0,0,0.85)";
+            ctx.shadowBlur = 12;
+            ctx.strokeText(w, centerX, yPos);
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = isAccentWord ? hlColor : textColor;
+            ctx.fillText(w, centerX, yPos);
+            cursorX += wWidth;
+          });
+        } else if (resolvedKey === "handwritten_glow") {
+          const lineW = ctx.measureText(line).width;
+          ctx.lineWidth = 7;
+          ctx.lineJoin = "round";
+          ctx.strokeStyle = "rgba(10, 25, 47, 0.9)";
+          ctx.strokeText(line, 0, yPos);
+          ctx.shadowColor = "rgba(250, 204, 21, 0.85)";
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = textColor;
+          ctx.fillText(line, 0, yPos);
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = hlColor;
+          ctx.fillRect(-lineW / 2, yPos + fontPx * 0.44, lineW, 4);
+        } else if (resolvedKey === "simple_clean") {
+          ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+          ctx.shadowBlur = 14;
+          ctx.shadowOffsetY = 3;
+          ctx.fillStyle = textColor;
+          ctx.fillText(line, 0, yPos);
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+        } else {
+          ctx.fillStyle = textColor;
+          ctx.fillText(line, 0, yPos);
+        }
+      });
+
+      ctx.restore();
+    }
+
+    // Export 9:16 Center-Cropped Video Clip (720x1280) + Effects + Burned-in Subtitles + Mixed Web Audio SFX
     async function downloadLocalClipWithSubtitles(clipId) {
       const clip = generatedClips.find(function (c) { return c.id === clipId; });
       if (!clip || !clip.videoUrl) {
@@ -2187,7 +3531,7 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Merender...';
       }
       updateClipDownloadProgress(clip.id, 0, true);
-      showToast("Merender klip 9:16 (" + clip.range + ") di latar belakang...");
+      showToast("Merender klip 9:16 (" + clip.range + ") lengkap dengan efek...");
 
       let audioCtx = null;
       let hiddenVideo = null;
@@ -2209,6 +3553,8 @@
         });
 
         const totalClipDuration = Math.max(1.0, clip.end_sec - clip.start_sec);
+        const effects = clip.effects || { autoZoom: true, autoSfx: true, aiBroll: true, autoHook: true, autoColor: true };
+        const styleKey = SUBTITLE_STYLE_META[clip.style] ? clip.style : "mozi_pop";
 
         if (Math.abs(hiddenVideo.currentTime - clip.start_sec) > 0.05) {
           await new Promise(function (resolve) {
@@ -2227,8 +3573,9 @@
         const ctx = canvas.getContext("2d");
 
         const canvasStream = canvas.captureStream(30);
+        let exportDestNode = null;
 
-        // Tangkap track audio secara bersih (AudioContext atau captureStream fallback)
+        // Tangkap track audio video + campurkan sintesis Auto SFX (Whoosh & Pop) ke track audio ekspor
         try {
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
           if (AudioCtx) {
@@ -2237,9 +3584,12 @@
               await audioCtx.resume().catch(function () {});
             }
             const sourceNode = audioCtx.createMediaElementSource(hiddenVideo);
-            const destNode = audioCtx.createMediaStreamDestination();
-            sourceNode.connect(destNode);
-            destNode.stream.getAudioTracks().forEach(function (track) {
+            const srcGain = audioCtx.createGain();
+            srcGain.gain.value = Math.max(0, Math.min(1, (clip.volume !== undefined ? clip.volume : 100) / 100));
+            exportDestNode = audioCtx.createMediaStreamDestination();
+            sourceNode.connect(srcGain);
+            srcGain.connect(exportDestNode);
+            exportDestNode.stream.getAudioTracks().forEach(function (track) {
               canvasStream.addTrack(track);
             });
           } else if (typeof hiddenVideo.captureStream === "function") {
@@ -2254,6 +3604,8 @@
             });
           }
         }
+
+        hiddenVideo.playbackRate = clip.videoSpeed || 1.0;
 
         const mimeCandidates = [
           "video/mp4;codecs=avc1,mp4a",
@@ -2284,6 +3636,31 @@
           await hiddenVideo.play();
         }
 
+        const speedFactor = clip.videoSpeed || 1.0;
+        if (effects.autoSfx && audioCtx && exportDestNode) {
+          if (effects.autoHook) {
+            triggerSfxAtNode(audioCtx, exportDestNode, "pop", 0.05);
+          }
+          for (let tMark = 4.0; tMark < totalClipDuration - 0.5; tMark += 4.0) {
+            triggerSfxAtNode(audioCtx, exportDestNode, "whoosh", tMark / speedFactor);
+          }
+          if (effects.aiBroll && Array.isArray(clip.broll_moments)) {
+            clip.broll_moments.forEach(function (b) {
+              const offset = b.start_sec - clip.start_sec;
+              if (offset > 0.3 && offset < totalClipDuration - 0.3) {
+                triggerSfxAtNode(audioCtx, exportDestNode, "pop", offset / speedFactor);
+              }
+            });
+          }
+        }
+        if (audioCtx && exportDestNode && Array.isArray(clip.sfxEvents)) {
+          clip.sfxEvents.forEach(function (ev) {
+            if (ev && ev.time >= 0 && ev.time <= totalClipDuration) {
+              triggerSfxAtNode(audioCtx, exportDestNode, ev.type || "whoosh", ev.time / speedFactor);
+            }
+          });
+        }
+
         let isStopped = false;
         function drawAndTick() {
           if (isStopped) return;
@@ -2295,68 +3672,136 @@
             return;
           }
 
+          const curTime = hiddenVideo.currentTime;
+          const relElapsed = Math.max(0, curTime - clip.start_sec);
+
           ctx.fillStyle = "#071324";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-          // Center-crop 9:16 (object-fit: cover)
           const vw = hiddenVideo.videoWidth || 720;
           const vh = hiddenVideo.videoHeight || 1280;
-          const scale = Math.max(canvas.width / vw, canvas.height / vh);
-          const drawW = vw * scale;
-          const drawH = vh * scale;
-          ctx.drawImage(hiddenVideo, (canvas.width - drawW) / 2, (canvas.height - drawH) / 2, drawW, drawH);
+          const zoomScale = computeDynamicZoomScale(relElapsed, effects.autoZoom);
+          const bright = clip.brightness !== undefined ? clip.brightness : 100;
+          const contr = clip.contrast !== undefined ? clip.contrast : (effects.autoColor ? 108 : 100);
+          const sat = effects.autoColor ? 112 : 100;
+          const filterStr = "brightness(" + (bright / 100) + ") contrast(" + (contr / 100) + ") saturate(" + (sat / 100) + ")";
 
-          const curTime = hiddenVideo.currentTime;
-          const progressPct = Math.max(0, Math.min(99, ((curTime - clip.start_sec) / totalClipDuration) * 100));
+          if (clip.bgMode === "blur") {
+            const bgScale = Math.max(canvas.width / vw, canvas.height / vh);
+            ctx.save();
+            ctx.filter = "blur(24px) brightness(0.6) " + filterStr;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.drawImage(hiddenVideo, -(vw * bgScale) / 2, -(vh * bgScale) / 2, vw * bgScale, vh * bgScale);
+            ctx.restore();
+
+            const fgScale = Math.min(canvas.width / vw, canvas.height / vh);
+            ctx.save();
+            ctx.filter = filterStr;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(zoomScale, zoomScale);
+            ctx.drawImage(hiddenVideo, -(vw * fgScale) / 2, -(vh * fgScale) / 2, vw * fgScale, vh * fgScale);
+            ctx.restore();
+          } else {
+            const baseScale = Math.max(canvas.width / vw, canvas.height / vh);
+            const drawW = vw * baseScale;
+            const drawH = vh * baseScale;
+            ctx.save();
+            ctx.filter = filterStr;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(zoomScale, zoomScale);
+            ctx.drawImage(hiddenVideo, -drawW / 2, -drawH / 2, drawW, drawH);
+            ctx.restore();
+          }
+          ctx.filter = "none";
+
+          const progressPct = Math.max(0, Math.min(99, (relElapsed / totalClipDuration) * 100));
           updateClipDownloadProgress(clip.id, progressPct, true);
 
+          // 1) Auto Hook Headline Banner (0 - 3 detik pertama)
+          if (effects.autoHook && relElapsed <= 3.0) {
+            const hookText = String(clip.hook_headline || clip.title || "").toUpperCase().slice(0, 56);
+            if (hookText) {
+              const hookScale = relElapsed < 0.18 ? 0.9 + (relElapsed / 0.18) * 0.1 : 1;
+              const hookY = canvas.height * (Math.max(6, Math.min(35, Number(clip.hookYPercent) || 13)) / 100);
+              ctx.save();
+              ctx.translate(canvas.width / 2, hookY);
+              ctx.scale(hookScale, hookScale);
+              ctx.font = "900 28px 'Montserrat', sans-serif";
+              const textW = Math.min(canvas.width - 96, ctx.measureText(hookText).width + 44);
+              const boxW = Math.max(360, textW);
+              const boxH = 68;
+              ctx.fillStyle = "#0A192F";
+              drawCanvasRoundRect(ctx, -boxW / 2, -boxH / 2, boxW, boxH, 16);
+              ctx.fill();
+              ctx.lineWidth = 4;
+              ctx.strokeStyle = "#FACC15";
+              ctx.stroke();
+
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillStyle = "#FACC15";
+              ctx.fillText(hookText, 0, 2, boxW - 32);
+              ctx.restore();
+            }
+          }
+
+          // 2) AI B-Roll / Visual Card Overlay (paruh atas frame)
+          if (effects.aiBroll && Array.isArray(clip.broll_moments)) {
+            const activeBroll = clip.broll_moments.find(function (b) {
+              return curTime >= b.start_sec && curTime <= b.end_sec;
+            });
+            if (activeBroll) {
+              const bElapsed = Math.max(0, curTime - activeBroll.start_sec);
+              const cardScale = bElapsed < 0.16 ? 0.9 + (bElapsed / 0.16) * 0.1 : 1;
+              ctx.save();
+              ctx.translate(canvas.width / 2, 330);
+              ctx.scale(cardScale, cardScale);
+
+              const cardW = 540;
+              const cardH = 128;
+              ctx.shadowColor = "rgba(10, 25, 47, 0.55)";
+              ctx.shadowBlur = 24;
+              ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+              drawCanvasRoundRect(ctx, -cardW / 2, -cardH / 2, cardW, cardH, 20);
+              ctx.fill();
+              ctx.shadowBlur = 0;
+              ctx.lineWidth = 3;
+              ctx.strokeStyle = "#2563EB";
+              ctx.stroke();
+
+              ctx.fillStyle = "#0A192F";
+              drawCanvasRoundRect(ctx, -cardW / 2 + 18, -42, 84, 84, 14);
+              ctx.fill();
+              ctx.font = "44px sans-serif";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillStyle = "#FFFFFF";
+              ctx.fillText(activeBroll.icon_or_emoji || "💡", -cardW / 2 + 60, 2);
+
+              const kw = String(activeBroll.keyword || "HIGHLIGHT").toUpperCase();
+              ctx.font = "800 18px 'Plus Jakarta Sans', sans-serif";
+              const kwW = Math.min(260, ctx.measureText(kw).width + 26);
+              ctx.fillStyle = "#2563EB";
+              drawCanvasRoundRect(ctx, -cardW / 2 + 120, -38, kwW, 30, 8);
+              ctx.fill();
+              ctx.fillStyle = "#FFFFFF";
+              ctx.textAlign = "left";
+              ctx.fillText(kw, -cardW / 2 + 133, -22, 234);
+
+              ctx.font = "700 24px 'Plus Jakarta Sans', sans-serif";
+              ctx.fillStyle = "#0A192F";
+              ctx.fillText(String(activeBroll.caption || ""), -cardW / 2 + 120, 22, cardW - 142);
+
+              ctx.restore();
+            }
+          }
+
+          // 3) Synchronized Burned-In Subtitles in Selected Style & Position
           const activeSub = clip.subtitles.find(function (s) {
             return curTime >= s.start_sec && curTime <= s.end_sec;
           });
-
-          if (activeSub && activeSub.text) {
-            const subText = activeSub.text.toUpperCase();
-            const animElapsed = Math.max(0, curTime - activeSub.start_sec);
-            const popScale = animElapsed < 0.14 ? 0.88 + (animElapsed / 0.14) * 0.12 : 1;
-            const fontPx = Math.round((activeSub.fontSize || 18) * 2.25);
-
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height * 0.78);
-            ctx.scale(popScale, popScale);
-            ctx.font = "900 " + fontPx + "px " + (activeSub.fontFamily || "Montserrat, sans-serif");
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-
-            const maxWidth = canvas.width - 84;
-            const words = subText.split(" ");
-            const lines = [];
-            let currentLine = "";
-            words.forEach(function (w) {
-              const testLine = currentLine ? currentLine + " " + w : w;
-              if (ctx.measureText(testLine).width > maxWidth && currentLine) {
-                lines.push(currentLine);
-                currentLine = w;
-              } else {
-                currentLine = testLine;
-              }
-            });
-            if (currentLine) lines.push(currentLine);
-
-            const lineHeight = fontPx + 16;
-            const startY = -((lines.length - 1) * lineHeight) / 2;
-            lines.forEach(function (line, i) {
-              const yPos = startY + i * lineHeight;
-              ctx.lineWidth = 12;
-              ctx.lineJoin = "round";
-              ctx.strokeStyle = "#000000";
-              ctx.shadowColor = "rgba(0,0,0,0.85)";
-              ctx.shadowBlur = 12;
-              ctx.strokeText(line, 0, yPos);
-              ctx.shadowBlur = 0;
-              ctx.fillStyle = activeSub.color || "#FACC15";
-              ctx.fillText(line, 0, yPos);
-            });
-            ctx.restore();
+          if (activeSub) {
+            drawCanvasStyledSubtitle(ctx, canvas, activeSub, styleKey, curTime, clip.subtitleYPercent || 78);
           }
 
           if (document.hidden) {
@@ -2382,7 +3827,7 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 3000);
-        showToast("Video klip 9:16 (" + ext.toUpperCase() + ") dengan subtitle permanen berhasil diunduh!");
+        showToast("Video klip 9:16 (" + ext.toUpperCase() + ") lengkap dengan efek & subtitle berhasil diunduh!");
       } catch (err) {
         showToast("Gagal mengekspor video: " + (err && err.message ? err.message : "Error MediaRecorder"));
       } finally {
@@ -2409,18 +3854,182 @@
       }
     }
 
-    // CapCut-Style Timeline Editor (View 5)
+    // CapCut-Inspired "Edit Manual" Studio (View 5)
+    function cloneClipEditorSnapshot(clip) {
+      return JSON.stringify({
+        title: clip.title,
+        hook_headline: clip.hook_headline,
+        style: clip.style,
+        effects: clip.effects,
+        videoSpeed: clip.videoSpeed,
+        volume: clip.volume,
+        brightness: clip.brightness,
+        contrast: clip.contrast,
+        bgMode: clip.bgMode,
+        subtitleYPercent: clip.subtitleYPercent,
+        hookYPercent: clip.hookYPercent,
+        subtitles: clip.subtitles,
+        videoSegments: clip.videoSegments,
+        sfxEvents: clip.sfxEvents
+      });
+    }
+
+    function applyEditorSnapshot(snapshotJson) {
+      if (!activeClip || !snapshotJson) return;
+      try {
+        const snap = JSON.parse(snapshotJson);
+        activeClip.title = snap.title;
+        activeClip.hook_headline = snap.hook_headline;
+        activeClip.style = snap.style;
+        activeClip.effects = snap.effects;
+        activeClip.videoSpeed = snap.videoSpeed;
+        activeClip.volume = snap.volume;
+        activeClip.brightness = snap.brightness;
+        activeClip.contrast = snap.contrast;
+        activeClip.bgMode = snap.bgMode;
+        activeClip.subtitleYPercent = snap.subtitleYPercent;
+        activeClip.hookYPercent = snap.hookYPercent;
+        activeClip.subtitles = snap.subtitles || [];
+        activeClip.videoSegments = snap.videoSegments || [];
+        activeClip.sfxEvents = snap.sfxEvents || [];
+      } catch (e) {}
+    }
+
+    function pushEditorHistorySnapshot() {
+      if (!activeClip) return;
+      const snap = cloneClipEditorSnapshot(activeClip);
+      if (editorUndoStack.length > 0 && editorUndoStack[editorUndoStack.length - 1] === snap) {
+        updateUndoRedoButtons();
+        return;
+      }
+      editorUndoStack.push(snap);
+      if (editorUndoStack.length > 30) editorUndoStack.shift();
+      editorRedoStack = [];
+      updateUndoRedoButtons();
+    }
+
+    function updateUndoRedoButtons() {
+      const undoBtn = document.getElementById("btnEditorUndo");
+      const redoBtn = document.getElementById("btnEditorRedo");
+      if (undoBtn) undoBtn.disabled = editorUndoStack.length <= 1;
+      if (redoBtn) redoBtn.disabled = editorRedoStack.length === 0;
+    }
+
+    function undoEditorAction() {
+      if (!activeClip || editorUndoStack.length <= 1) return;
+      const currentSnap = editorUndoStack.pop();
+      editorRedoStack.push(currentSnap);
+      const prevSnap = editorUndoStack[editorUndoStack.length - 1];
+      applyEditorSnapshot(prevSnap);
+      syncAllEditorControlsFromActiveClip();
+      updateUndoRedoButtons();
+      showToast("Perubahan diurungkan (Undo).");
+    }
+
+    function redoEditorAction() {
+      if (!activeClip || editorRedoStack.length === 0) return;
+      const nextSnap = editorRedoStack.pop();
+      editorUndoStack.push(nextSnap);
+      applyEditorSnapshot(nextSnap);
+      syncAllEditorControlsFromActiveClip();
+      updateUndoRedoButtons();
+      showToast("Perubahan diulangi (Redo).");
+    }
+
+    function returnToResultsFromEditor() {
+      stopEditorPlayback();
+      renderResultsGrid();
+      switchView("view-results");
+    }
+
+    function updateEditorClipTitle(val) {
+      if (!activeClip) return;
+      activeClip.title = val;
+      if (Array.isArray(activeClip.videoSegments) && activeClip.videoSegments[0]) {
+        activeClip.videoSegments[0].label = val || "Klip Video";
+        renderTimelineVideoSegments();
+      }
+    }
+
+    function switchEditorToolTab(tabKey) {
+      document.querySelectorAll(".editor-tool-btn").forEach(function (btn) {
+        btn.classList.toggle("active", btn.getAttribute("data-editor-tab") === tabKey);
+      });
+      ["text", "audio", "visual"].forEach(function (k) {
+        const pane = document.getElementById("editorDrawer-" + k);
+        if (pane) pane.classList.toggle("d-none", k !== tabKey);
+      });
+    }
+
+    function syncAllEditorControlsFromActiveClip() {
+      if (!activeClip) return;
+      document.getElementById("editorClipTitleInput").value = activeClip.title || "";
+      document.getElementById("editorHookInput").value = activeClip.hook_headline || activeClip.title || "";
+      document.getElementById("editorToggleZoom").checked = Boolean(activeClip.effects.autoZoom);
+      document.getElementById("editorToggleSfx").checked = Boolean(activeClip.effects.autoSfx);
+      document.getElementById("editorToggleBroll").checked = Boolean(activeClip.effects.aiBroll);
+      document.getElementById("editorToggleHook").checked = Boolean(activeClip.effects.autoHook);
+
+      const vol = activeClip.volume !== undefined ? activeClip.volume : 100;
+      document.getElementById("editorVolumeSlider").value = vol;
+      document.getElementById("editorVolumeValue").textContent = vol + "%";
+
+      const bright = activeClip.brightness !== undefined ? activeClip.brightness : 100;
+      const contr = activeClip.contrast !== undefined ? activeClip.contrast : 108;
+      document.getElementById("editorBrightnessSlider").value = bright;
+      document.getElementById("editorBrightnessValue").textContent = bright + "%";
+      document.getElementById("editorContrastSlider").value = contr;
+      document.getElementById("editorContrastValue").textContent = contr + "%";
+
+      updateBgModeButtonsUI(activeClip.bgMode || "crop");
+      updateSpeedButtonsUI(activeClip.videoSpeed || 1.0);
+      updatePresetButtonsUI(activeClip.style || "mozi_pop");
+
+      const subOverlay = document.getElementById("editorSubtitleOverlay");
+      if (subOverlay) subOverlay.style.top = (activeClip.subtitleYPercent || 78) + "%";
+      const hookOverlay = document.getElementById("editorHookOverlay");
+      if (hookOverlay) hookOverlay.style.top = (activeClip.hookYPercent || 13) + "%";
+
+      if (activeClip.subtitles.length > 0 && !activeClip.subtitles.some(function (s) { return s.id === selectedSubtitleId; })) {
+        selectedSubtitleId = activeClip.subtitles[0].id;
+      }
+
+      renderTimelineSubtitles();
+      renderTimelineVideoSegments();
+      renderTimelineAudioTrack();
+      refreshContextualPropertiesPanel();
+      updateEditorPreviewAtTime(editorCurrentTime);
+    }
+
     function openManualEditor(clipId) {
       const found = generatedClips.find(function (c) { return c.id === clipId; });
       if (!found) return;
       activeClip = found;
+      if (!activeClip.effects) {
+        activeClip.effects = { autoZoom: true, autoSfx: true, aiBroll: true, autoHook: true, autoColor: true };
+      }
+      if (!SUBTITLE_STYLE_META[activeClip.style]) activeClip.style = "mozi_pop";
       activeSegmentDuration = Math.max(1.5, activeClip.end_sec - activeClip.start_sec);
-      selectedSubtitleId = activeClip.subtitles[0] ? activeClip.subtitles[0].id : null;
-      editorCurrentTime = 0;
 
-      document.getElementById("editorClipTitle").textContent = activeClip.title;
-      document.getElementById("timelineVideoLabel").textContent = activeClip.title + " (" + activeClip.range + ")";
-      document.getElementById("timelineVideoDuration").textContent = formatSeconds(activeSegmentDuration);
+      if (activeClip.videoSpeed === undefined) activeClip.videoSpeed = 1.0;
+      if (activeClip.volume === undefined) activeClip.volume = 100;
+      if (activeClip.brightness === undefined) activeClip.brightness = 100;
+      if (activeClip.contrast === undefined) activeClip.contrast = activeClip.effects.autoColor ? 108 : 100;
+      if (!activeClip.bgMode) activeClip.bgMode = "crop";
+      if (activeClip.subtitleYPercent === undefined) activeClip.subtitleYPercent = 78;
+      if (activeClip.hookYPercent === undefined) activeClip.hookYPercent = 13;
+      if (!Array.isArray(activeClip.sfxEvents)) activeClip.sfxEvents = [];
+      if (!Array.isArray(activeClip.videoSegments) || activeClip.videoSegments.length === 0) {
+        activeClip.videoSegments = [{ id: "vseg-" + activeClip.id + "-1", start: 0, end: activeSegmentDuration, label: activeClip.title }];
+      }
+
+      selectedSubtitleId = activeClip.subtitles[0] ? activeClip.subtitles[0].id : null;
+      selectedVideoSegmentId = activeClip.videoSegments[0].id;
+      editorSelectedTarget = selectedSubtitleId ? "subtitle" : "video";
+      editorCurrentTime = 0;
+      editorTimelineZoom = 100;
+      document.getElementById("timelineZoomSlider").value = 100;
+      setTimelineZoom(100);
 
       [0, 0.25, 0.5, 0.75, 1].forEach(function (frac, idx) {
         const tickEl = document.getElementById("rulerTick" + idx);
@@ -2428,6 +4037,7 @@
       });
 
       const videoEl = document.getElementById("editorVideoPlayer");
+      const blurEl = document.getElementById("editorBgBlurVideo");
       const ytWrap = document.getElementById("editorYoutubeWrap");
 
       if (activeClip.videoUrl) {
@@ -2435,12 +4045,24 @@
         ytWrap.innerHTML = "";
         videoEl.classList.remove("d-none");
         videoEl.src = activeClip.videoUrl;
+        videoEl.playbackRate = activeClip.videoSpeed || 1.0;
+        videoEl.volume = Math.max(0, Math.min(1, (activeClip.volume || 100) / 100));
         videoEl.onloadedmetadata = function () {
           videoEl.currentTime = activeClip.start_sec;
         };
+        if (blurEl) {
+          blurEl.src = activeClip.videoUrl;
+          blurEl.onloadedmetadata = function () {
+            blurEl.currentTime = activeClip.start_sec;
+          };
+        }
       } else {
         videoEl.classList.add("d-none");
         videoEl.removeAttribute("src");
+        if (blurEl) {
+          blurEl.classList.add("d-none");
+          blurEl.removeAttribute("src");
+        }
         ytWrap.classList.remove("d-none");
         const startSec = Math.floor(activeClip.start_sec);
         ytWrap.innerHTML = `
@@ -2450,16 +4072,164 @@
               <i class="bi bi-play-fill fs-3"></i>
             </button>
             <a href="https://youtu.be/${activeClip.videoId}?t=${startSec}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light text-navy fw-semibold shadow-sm rounded-3" style="font-size: 0.72rem;">
-              <i class="bi bi-box-arrow-up-right me-1"></i>Tonton Segmen di YouTube
+              <i class="bi bi-box-arrow-up-right me-1"></i>Buka di YouTube
             </a>
           </div>
         `;
       }
 
-      renderTimelineSubtitles();
-      loadSelectedSubtitleIntoProperties();
-      updateEditorPreviewAtTime(0);
+      editorUndoStack = [cloneClipEditorSnapshot(activeClip)];
+      editorRedoStack = [];
+      updateUndoRedoButtons();
+      switchEditorToolTab("text");
+      syncAllEditorControlsFromActiveClip();
       switchView("view-editor");
+    }
+
+    function updatePresetButtonsUI(styleKey) {
+      document.querySelectorAll(".editor-style-preset").forEach(function (btn) {
+        const isMatch = btn.getAttribute("data-preset") === styleKey;
+        btn.classList.toggle("btn-navy", isMatch);
+        btn.classList.toggle("text-white", isMatch);
+        btn.classList.toggle("btn-outline-secondary", !isMatch);
+      });
+    }
+
+    function applyEditorStylePreset(styleKey) {
+      if (!activeClip || !SUBTITLE_STYLE_META[styleKey]) return;
+      activeClip.style = styleKey;
+      const meta = SUBTITLE_STYLE_META[styleKey];
+      const applyAll = Boolean(document.getElementById("editorBatchStyleSwitch").checked);
+
+      activeClip.subtitles.forEach(function (s) {
+        if (applyAll || s.id === selectedSubtitleId) {
+          s.fontFamily = meta.fontFamily;
+          s.fontSize = meta.fontSize;
+          s.color = meta.color;
+          s.highlightColor = meta.highlightColor;
+          s.animation = meta.animation === "karaoke" ? "pop" : meta.animation;
+        }
+      });
+
+      updatePresetButtonsUI(styleKey);
+      refreshContextualPropertiesPanel();
+      updateEditorPreviewAtTime(editorCurrentTime);
+      pushEditorHistorySnapshot();
+      showToast("Preset gaya \"" + meta.label + "\" diterapkan.");
+    }
+
+    function handleBatchStyleToggle(checked) {
+      editorBatchApplyStyle = Boolean(checked);
+      if (editorBatchApplyStyle && activeClip) {
+        applyEditorStylePreset(activeClip.style || "mozi_pop");
+      }
+    }
+
+    function addHookBannerAction() {
+      if (!activeClip) return;
+      if (!activeClip.effects) activeClip.effects = {};
+      activeClip.effects.autoHook = true;
+      if (!activeClip.hook_headline) {
+        activeClip.hook_headline = activeClip.title || "WAJIB TONTON SAMPAI HABIS!";
+      }
+      document.getElementById("editorToggleHook").checked = true;
+      document.getElementById("editorHookInput").value = activeClip.hook_headline;
+      selectEditorTarget("video", selectedVideoSegmentId);
+      seekEditorTime(0);
+      pushEditorHistorySnapshot();
+      showToast("Judul Hook 3 detik diaktifkan.");
+    }
+
+    function updateEditorVolume(val) {
+      if (!activeClip) return;
+      const vol = Math.max(0, Math.min(100, Number(val) || 0));
+      activeClip.volume = vol;
+      document.getElementById("editorVolumeValue").textContent = vol + "%";
+      const videoEl = document.getElementById("editorVideoPlayer");
+      if (videoEl) videoEl.volume = vol / 100;
+    }
+
+    function insertAndPlayEditorSfx(sfxType) {
+      if (!activeClip) return;
+      playLivePreviewSfx(sfxType);
+      const markerTime = Math.round(editorCurrentTime * 10) / 10;
+      const sfxObj = { id: "sfx-" + Date.now(), time: markerTime, type: sfxType };
+      if (!Array.isArray(activeClip.sfxEvents)) activeClip.sfxEvents = [];
+      activeClip.sfxEvents.push(sfxObj);
+      selectedSfxId = sfxObj.id;
+      const labelEl = document.getElementById("editorSfxStatusText");
+      if (labelEl) {
+        labelEl.textContent = "SFX \"" + sfxType.toUpperCase() + "\" ditambahkan di " + formatSeconds(markerTime) + ".";
+      }
+      renderTimelineAudioTrack();
+      pushEditorHistorySnapshot();
+    }
+
+    function updateEditorVisualFilter() {
+      if (!activeClip) return;
+      const bright = Math.max(60, Math.min(150, Number(document.getElementById("editorBrightnessSlider").value) || 100));
+      const contr = Math.max(60, Math.min(150, Number(document.getElementById("editorContrastSlider").value) || 100));
+      activeClip.brightness = bright;
+      activeClip.contrast = contr;
+      document.getElementById("editorBrightnessValue").textContent = bright + "%";
+      document.getElementById("editorContrastValue").textContent = contr + "%";
+      updateEditorPreviewAtTime(editorCurrentTime);
+    }
+
+    function updateBgModeButtonsUI(mode) {
+      const btnCrop = document.getElementById("btnBgCrop");
+      const btnBlur = document.getElementById("btnBgBlur");
+      if (btnCrop && btnBlur) {
+        btnCrop.className = "btn fw-semibold " + (mode === "crop" ? "btn-navy" : "btn-outline-secondary");
+        btnBlur.className = "btn fw-semibold " + (mode === "blur" ? "btn-navy" : "btn-outline-secondary");
+      }
+    }
+
+    function setEditorBgMode(mode) {
+      if (!activeClip) return;
+      activeClip.bgMode = mode === "blur" ? "blur" : "crop";
+      updateBgModeButtonsUI(activeClip.bgMode);
+      updateEditorPreviewAtTime(editorCurrentTime);
+      pushEditorHistorySnapshot();
+    }
+
+    function updateSpeedButtonsUI(speed) {
+      document.querySelectorAll(".speed-opt-btn").forEach(function (btn) {
+        const bSpeed = Number(btn.getAttribute("data-speed"));
+        const isMatch = Math.abs(bSpeed - speed) < 0.05;
+        btn.classList.toggle("btn-navy", isMatch);
+        btn.classList.toggle("btn-outline-secondary", !isMatch);
+      });
+    }
+
+    function setEditorVideoSpeed(speedVal) {
+      if (!activeClip) return;
+      activeClip.videoSpeed = Number(speedVal) || 1.0;
+      const videoEl = document.getElementById("editorVideoPlayer");
+      const blurEl = document.getElementById("editorBgBlurVideo");
+      if (videoEl) videoEl.playbackRate = activeClip.videoSpeed;
+      if (blurEl) blurEl.playbackRate = activeClip.videoSpeed;
+      updateSpeedButtonsUI(activeClip.videoSpeed);
+      pushEditorHistorySnapshot();
+      showToast("Kecepatan video diatur ke " + activeClip.videoSpeed + "x.");
+    }
+
+    function updateEditorHookText(val) {
+      if (!activeClip) return;
+      activeClip.hook_headline = val;
+      updateEditorPreviewAtTime(editorCurrentTime);
+    }
+
+    function updateEditorEffectToggles(recordHistory) {
+      if (!activeClip) return;
+      activeClip.effects = Object.assign({}, activeClip.effects || {}, {
+        autoZoom: Boolean(document.getElementById("editorToggleZoom").checked),
+        autoSfx: Boolean(document.getElementById("editorToggleSfx").checked),
+        aiBroll: Boolean(document.getElementById("editorToggleBroll").checked),
+        autoHook: Boolean(document.getElementById("editorToggleHook").checked)
+      });
+      updateEditorPreviewAtTime(editorCurrentTime);
+      if (recordHistory) pushEditorHistorySnapshot();
     }
 
     function mountEditorYoutubeEmbed(customOffsetSec) {
@@ -2481,6 +4251,40 @@
       `;
     }
 
+    function selectEditorTarget(targetType, targetId) {
+      editorSelectedTarget = targetType;
+      if (targetType === "subtitle" && targetId) selectedSubtitleId = targetId;
+      if (targetType === "video" && targetId) selectedVideoSegmentId = targetId;
+      refreshContextualPropertiesPanel();
+      renderTimelineSubtitles();
+      renderTimelineVideoSegments();
+    }
+
+    function refreshContextualPropertiesPanel() {
+      const subPanel = document.getElementById("propContextSubtitle");
+      const vidPanel = document.getElementById("propContextVideo");
+      const heading = document.getElementById("editorPropsHeading");
+      const badge = document.getElementById("editorPropsTargetBadge");
+
+      if (editorSelectedTarget === "subtitle" && activeClip && activeClip.subtitles.some(function (s) { return s.id === selectedSubtitleId; })) {
+        subPanel.classList.remove("d-none");
+        vidPanel.classList.add("d-none");
+        if (heading) heading.innerHTML = '<i class="bi bi-chat-square-text-fill me-2 text-warning"></i>Properti Subtitle';
+        if (badge) badge.textContent = "Blok Teks";
+        loadSelectedSubtitleIntoProperties();
+      } else {
+        subPanel.classList.add("d-none");
+        vidPanel.classList.remove("d-none");
+        if (heading) heading.innerHTML = '<i class="bi bi-film me-2 text-primary"></i>Properti Track Video';
+        if (badge) badge.textContent = "Track Video";
+        const seg = activeClip && activeClip.videoSegments ? activeClip.videoSegments.find(function (v) { return v.id === selectedVideoSegmentId; }) : null;
+        const infoEl = document.getElementById("editorVideoSegmentInfo");
+        if (infoEl && seg) {
+          infoEl.textContent = "Segmen aktif: " + formatSeconds(seg.start) + " – " + formatSeconds(seg.end) + " (" + escapeHtml(seg.label) + ")";
+        }
+      }
+    }
+
     function renderTimelineSubtitles() {
       if (!activeClip) return;
       const container = document.getElementById("subtitleTrackContainer");
@@ -2488,31 +4292,116 @@
 
       activeClip.subtitles.forEach(function (sub) {
         const leftPct = Math.max(0, Math.min(100, (sub.start / activeSegmentDuration) * 100));
-        const widthPct = Math.max(6, Math.min(100 - leftPct, ((sub.end - sub.start) / activeSegmentDuration) * 100));
-        const isSelected = sub.id === selectedSubtitleId;
+        const widthPct = Math.max(5, Math.min(100 - leftPct, ((sub.end - sub.start) / activeSegmentDuration) * 100));
+        const isSelected = editorSelectedTarget === "subtitle" && sub.id === selectedSubtitleId;
 
         const block = document.createElement("div");
-        block.className = "timeline-subtitle-block " + (isSelected ? "bg-primary text-white shadow-sm" : "bg-navy text-white opacity-75");
+        block.className = "timeline-block-base timeline-block-subtitle" + (isSelected ? " is-selected" : "");
         block.style.left = leftPct + "%";
         block.style.width = widthPct + "%";
         block.textContent = sub.text;
-        block.title = sub.text + " (" + sub.start_sec.toFixed(1) + "s - " + sub.end_sec.toFixed(1) + "s)";
+        block.title = sub.text + " (" + sub.start.toFixed(1) + "s - " + sub.end.toFixed(1) + "s) — Seret untuk geser waktu";
 
-        block.addEventListener("click", function () {
-          selectedSubtitleId = sub.id;
-          seekEditorTime(sub.start);
-          loadSelectedSubtitleIntoProperties();
-          renderTimelineSubtitles();
+        // Horizontal drag + click selection
+        block.addEventListener("pointerdown", function (ev) {
+          ev.stopPropagation();
+          selectEditorTarget("subtitle", sub.id);
+          const trackRect = container.getBoundingClientRect();
+          const startX = ev.clientX;
+          const origStart = sub.start;
+          const subDur = Math.max(0.3, sub.end - sub.start);
+          let moved = false;
+
+          function onMove(moveEv) {
+            const dx = moveEv.clientX - startX;
+            if (Math.abs(dx) > 3) moved = true;
+            const deltaSec = (dx / Math.max(1, trackRect.width)) * activeSegmentDuration;
+            const newStart = Math.max(0, Math.min(activeSegmentDuration - subDur, Math.round((origStart + deltaSec) * 10) / 10));
+            sub.start = newStart;
+            sub.end = Math.round((newStart + subDur) * 10) / 10;
+            sub.start_sec = Math.round((activeClip.start_sec + sub.start) * 100) / 100;
+            sub.end_sec = Math.round((activeClip.start_sec + sub.end) * 100) / 100;
+            block.style.left = ((sub.start / activeSegmentDuration) * 100) + "%";
+            loadSelectedSubtitleIntoProperties();
+            updateEditorPreviewAtTime(editorCurrentTime);
+          }
+
+          function onUp() {
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onUp);
+            if (!moved) {
+              seekEditorTime(sub.start + 0.05);
+            } else {
+              pushEditorHistorySnapshot();
+            }
+          }
+
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
         });
 
         container.appendChild(block);
       });
+    }
 
-      const playhead = document.createElement("div");
-      playhead.id = "subTrackPlayhead";
-      playhead.className = "timeline-playhead";
-      playhead.style.left = ((editorCurrentTime / activeSegmentDuration) * 100) + "%";
-      container.appendChild(playhead);
+    function renderTimelineVideoSegments() {
+      if (!activeClip) return;
+      const container = document.getElementById("videoTrackContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const segs = activeClip.videoSegments || [{ id: "vseg-default", start: 0, end: activeSegmentDuration, label: activeClip.title }];
+
+      segs.forEach(function (seg) {
+        const leftPct = Math.max(0, Math.min(100, (seg.start / activeSegmentDuration) * 100));
+        const widthPct = Math.max(6, Math.min(100 - leftPct, ((seg.end - seg.start) / activeSegmentDuration) * 100));
+        const isSelected = editorSelectedTarget === "video" && seg.id === selectedVideoSegmentId;
+
+        const block = document.createElement("div");
+        block.className = "timeline-block-base timeline-block-video" + (isSelected ? " is-selected" : "");
+        block.style.left = leftPct + "%";
+        block.style.width = widthPct + "%";
+        block.innerHTML = '<i class="bi bi-film me-1"></i>' + escapeHtml(seg.label) + ' <span class="opacity-75 ms-1">(' + formatSeconds(seg.end - seg.start) + ")</span>";
+        block.addEventListener("click", function () {
+          selectEditorTarget("video", seg.id);
+          seekEditorTime(seg.start);
+        });
+        container.appendChild(block);
+      });
+    }
+
+    function renderTimelineAudioTrack() {
+      if (!activeClip) return;
+      const container = document.getElementById("audioTrackContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const waveBlock = document.createElement("div");
+      waveBlock.className = "timeline-block-base timeline-block-audio w-100";
+      waveBlock.style.left = "0%";
+      waveBlock.style.width = "100%";
+      waveBlock.innerHTML = '<span class="badge bg-dark bg-opacity-25 text-white me-2">' + (activeClip.volume !== undefined ? activeClip.volume : 100) + '%</span> Audio Video Utama';
+      waveBlock.addEventListener("click", function () { switchEditorToolTab("audio"); });
+      container.appendChild(waveBlock);
+
+      if (Array.isArray(activeClip.sfxEvents)) {
+        activeClip.sfxEvents.forEach(function (ev) {
+          const leftPct = Math.max(0, Math.min(95, (ev.time / activeSegmentDuration) * 100));
+          const sfxEl = document.createElement("div");
+          sfxEl.className = "timeline-block-base bg-warning text-navy shadow-sm";
+          sfxEl.style.left = leftPct + "%";
+          sfxEl.style.width = "48px";
+          sfxEl.style.fontSize = "0.66rem";
+          sfxEl.textContent = "🔊 " + ev.type;
+          sfxEl.title = "SFX " + ev.type + " pada " + formatSeconds(ev.time);
+          sfxEl.addEventListener("click", function (e) {
+            e.stopPropagation();
+            selectedSfxId = ev.id;
+            seekEditorTime(ev.time);
+            playLivePreviewSfx(ev.type);
+          });
+          container.appendChild(sfxEl);
+        });
+      }
     }
 
     function loadSelectedSubtitleIntoProperties() {
@@ -2522,8 +4411,9 @@
       document.getElementById("propSubText").value = sub.text;
       document.getElementById("propFontFamily").value = sub.fontFamily;
       document.getElementById("propFontSize").value = sub.fontSize;
-      document.getElementById("propColor").value = sub.color;
-      document.getElementById("propAnimation").value = sub.animation;
+      document.getElementById("propColor").value = sub.color || "#FFFFFF";
+      document.getElementById("propHighlightColor").value = sub.highlightColor || "#FACC15";
+      document.getElementById("propAnimation").value = sub.animation === "karaoke" ? "pop" : (sub.animation || "pop");
       document.getElementById("propStart").value = sub.start;
       document.getElementById("propEnd").value = sub.end;
     }
@@ -2535,8 +4425,9 @@
 
       sub.text = document.getElementById("propSubText").value;
       sub.fontFamily = document.getElementById("propFontFamily").value;
-      sub.fontSize = Math.max(12, Math.min(48, Number(document.getElementById("propFontSize").value) || 18));
+      sub.fontSize = Math.max(12, Math.min(42, Number(document.getElementById("propFontSize").value) || 18));
       sub.color = document.getElementById("propColor").value;
+      sub.highlightColor = document.getElementById("propHighlightColor").value;
       sub.animation = document.getElementById("propAnimation").value;
       sub.start = Math.max(0, Number(document.getElementById("propStart").value) || 0);
       sub.end = Math.min(activeSegmentDuration, Math.max(sub.start + 0.3, Number(document.getElementById("propEnd").value) || sub.start + 1.5));
@@ -2549,6 +4440,7 @@
 
     function addNewSubtitleBlock() {
       if (!activeClip) return;
+      const styleMeta = SUBTITLE_STYLE_META[activeClip.style] || SUBTITLE_STYLE_META.mozi_pop;
       const startRel = Math.round(editorCurrentTime * 10) / 10;
       const endRel = Math.min(activeSegmentDuration, Math.round((startRel + 2.5) * 10) / 10);
       const safeEndRel = Math.max(startRel + 0.4, endRel);
@@ -2559,44 +4451,193 @@
         start_sec: Math.round((activeClip.start_sec + startRel) * 100) / 100,
         end_sec: Math.round((activeClip.start_sec + safeEndRel) * 100) / 100,
         text: "TEKS SUBTITLE BARU",
-        fontFamily: "'Montserrat', sans-serif",
-        fontSize: 18,
-        color: "#FACC15",
-        animation: "pop"
+        fontFamily: styleMeta.fontFamily,
+        fontSize: styleMeta.fontSize,
+        color: styleMeta.color,
+        highlightColor: styleMeta.highlightColor,
+        animation: styleMeta.animation === "karaoke" ? "pop" : styleMeta.animation
       };
       activeClip.subtitles.push(newSub);
-      selectedSubtitleId = newSub.id;
-      loadSelectedSubtitleIntoProperties();
-      renderTimelineSubtitles();
+      activeClip.subtitles.sort(function (a, b) { return a.start - b.start; });
+      selectEditorTarget("subtitle", newSub.id);
       updateEditorPreviewAtTime(editorCurrentTime);
-      showToast("Blok subtitle baru ditambahkan pada timeline.");
+      pushEditorHistorySnapshot();
+      showToast("Blok subtitle baru ditambahkan.");
     }
 
+    function splitActiveTimelineItem() {
+      if (!activeClip) return;
+      const t = Math.round(editorCurrentTime * 10) / 10;
+
+      if (editorSelectedTarget === "video") {
+        const segIdx = activeClip.videoSegments.findIndex(function (v) { return t > v.start + 0.4 && t < v.end - 0.4; });
+        if (segIdx === -1) {
+          showToast("Pindahkan playhead ke tengah segmen video untuk membagi.");
+          return;
+        }
+        const seg = activeClip.videoSegments[segIdx];
+        const partA = { id: seg.id, start: seg.start, end: t, label: seg.label };
+        const partB = { id: "vseg-" + Date.now(), start: t, end: seg.end, label: seg.label + " (Lanjut)" };
+        activeClip.videoSegments.splice(segIdx, 1, partA, partB);
+        selectedVideoSegmentId = partB.id;
+        renderTimelineVideoSegments();
+        refreshContextualPropertiesPanel();
+        pushEditorHistorySnapshot();
+        showToast("Track video berhasil dibagi di " + formatSeconds(t) + ".");
+        return;
+      }
+
+      const subIdx = activeClip.subtitles.findIndex(function (s) {
+        return (s.id === selectedSubtitleId || (t >= s.start && t <= s.end)) && t > s.start + 0.25 && t < s.end - 0.25;
+      });
+      if (subIdx === -1) {
+        showToast("Letakkan playhead di tengah blok subtitle untuk membagi.");
+        return;
+      }
+      const sub = activeClip.subtitles[subIdx];
+      const words = String(sub.text || "").trim().split(/\s+/);
+      const midWord = Math.max(1, Math.floor(words.length / 2));
+      const textA = words.length > 1 ? words.slice(0, midWord).join(" ") : sub.text;
+      const textB = words.length > 1 ? words.slice(midWord).join(" ") : sub.text;
+
+      const firstHalf = Object.assign({}, sub, {
+        end: t,
+        end_sec: Math.round((activeClip.start_sec + t) * 100) / 100,
+        text: textA
+      });
+      const secondHalf = Object.assign({}, sub, {
+        id: "s-" + Date.now(),
+        start: t,
+        start_sec: Math.round((activeClip.start_sec + t) * 100) / 100,
+        text: textB
+      });
+      activeClip.subtitles.splice(subIdx, 1, firstHalf, secondHalf);
+      selectedSubtitleId = secondHalf.id;
+      renderTimelineSubtitles();
+      refreshContextualPropertiesPanel();
+      updateEditorPreviewAtTime(editorCurrentTime);
+      pushEditorHistorySnapshot();
+      showToast("Subtitle berhasil dibagi dua.");
+    }
+
+    function duplicateSelectedTimelineItem() {
+      if (!activeClip) return;
+      const sub = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; });
+      if (!sub) {
+        showToast("Pilih blok subtitle untuk diduplikasi.");
+        return;
+      }
+      const dur = Math.max(0.5, sub.end - sub.start);
+      const newStart = Math.min(activeSegmentDuration - 0.4, Math.round((sub.end + 0.1) * 10) / 10);
+      const newEnd = Math.min(activeSegmentDuration, Math.round((newStart + dur) * 10) / 10);
+      const dup = Object.assign({}, sub, {
+        id: "s-dup-" + Date.now(),
+        start: newStart,
+        end: Math.max(newStart + 0.3, newEnd),
+        start_sec: Math.round((activeClip.start_sec + newStart) * 100) / 100,
+        end_sec: Math.round((activeClip.start_sec + Math.max(newStart + 0.3, newEnd)) * 100) / 100
+      });
+      activeClip.subtitles.push(dup);
+      activeClip.subtitles.sort(function (a, b) { return a.start - b.start; });
+      selectEditorTarget("subtitle", dup.id);
+      updateEditorPreviewAtTime(editorCurrentTime);
+      pushEditorHistorySnapshot();
+      showToast("Blok subtitle diduplikasi.");
+    }
+
+    function deleteSelectedTimelineItem() {
+      if (!activeClip) return;
+      if (editorSelectedTarget === "subtitle" && selectedSubtitleId) {
+        activeClip.subtitles = activeClip.subtitles.filter(function (s) { return s.id !== selectedSubtitleId; });
+        selectedSubtitleId = activeClip.subtitles[0] ? activeClip.subtitles[0].id : null;
+        if (!selectedSubtitleId) editorSelectedTarget = "video";
+        renderTimelineSubtitles();
+        refreshContextualPropertiesPanel();
+        updateEditorPreviewAtTime(editorCurrentTime);
+        pushEditorHistorySnapshot();
+        showToast("Blok subtitle dihapus.");
+      } else if (editorSelectedTarget === "video" && activeClip.videoSegments && activeClip.videoSegments.length > 1) {
+        activeClip.videoSegments = activeClip.videoSegments.filter(function (v) { return v.id !== selectedVideoSegmentId; });
+        selectedVideoSegmentId = activeClip.videoSegments[0].id;
+        renderTimelineVideoSegments();
+        refreshContextualPropertiesPanel();
+        pushEditorHistorySnapshot();
+        showToast("Potongan segmen video dihapus.");
+      } else {
+        showToast("Minimal harus tersisa satu segmen video utama.");
+      }
+    }
+
+    function setTimelineZoom(pctVal) {
+      editorTimelineZoom = Math.max(100, Math.min(300, Number(pctVal) || 100));
+      const inner = document.getElementById("timelineZoomInner");
+      const badge = document.getElementById("timelineZoomBadge");
+      if (inner) inner.style.width = editorTimelineZoom + "%";
+      if (badge) badge.textContent = editorTimelineZoom + "%";
+    }
+
+    let editorLastSfxBucket = -1;
+    let editorLastHookPopBucket = -1;
     function toggleEditorPlay() {
       if (!activeClip) return;
       const videoEl = document.getElementById("editorVideoPlayer");
+      const blurEl = document.getElementById("editorBgBlurVideo");
       const btn = document.getElementById("btnTogglePlay");
       if (isEditorPlaying) {
         stopEditorPlayback();
       } else {
         isEditorPlaying = true;
+        editorLastSfxBucket = -1;
+        editorLastHookPopBucket = -1;
+        editorTriggeredSfxIds = {};
         btn.innerHTML = '<i class="bi bi-pause-fill me-1"></i> Jeda';
         if (activeClip.videoUrl && videoEl) {
+          videoEl.playbackRate = activeClip.videoSpeed || 1.0;
+          videoEl.volume = Math.max(0, Math.min(1, (activeClip.volume !== undefined ? activeClip.volume : 100) / 100));
           videoEl.currentTime = activeClip.start_sec + editorCurrentTime;
           videoEl.play().catch(function () {});
+          if (blurEl && activeClip.bgMode === "blur") {
+            blurEl.playbackRate = activeClip.videoSpeed || 1.0;
+            blurEl.currentTime = activeClip.start_sec + editorCurrentTime;
+            blurEl.play().catch(function () {});
+          }
         } else if (!document.getElementById("editorYoutubePlayer")) {
           mountEditorYoutubeEmbed(editorCurrentTime);
         }
+        const speed = activeClip.videoSpeed || 1.0;
         editorTimer = setInterval(function () {
-          editorCurrentTime += 0.1;
+          editorCurrentTime += 0.05 * speed;
           if (editorCurrentTime >= activeSegmentDuration) {
             editorCurrentTime = 0;
+            editorLastSfxBucket = -1;
+            editorLastHookPopBucket = -1;
+            editorTriggeredSfxIds = {};
             if (activeClip.videoUrl && videoEl) {
               videoEl.currentTime = activeClip.start_sec;
+              if (blurEl && activeClip.bgMode === "blur") blurEl.currentTime = activeClip.start_sec;
             }
           }
+          if (activeClip.effects && activeClip.effects.autoSfx && (!videoEl || !videoEl.muted)) {
+            if (activeClip.effects.autoHook && editorCurrentTime < 0.25 && editorLastHookPopBucket !== 0) {
+              editorLastHookPopBucket = 0;
+              playLivePreviewSfx("pop");
+            }
+            const sfxBucket = Math.floor(editorCurrentTime / 4.0);
+            if (sfxBucket > 0 && sfxBucket !== editorLastSfxBucket) {
+              editorLastSfxBucket = sfxBucket;
+              playLivePreviewSfx("whoosh");
+            }
+          }
+          if (Array.isArray(activeClip.sfxEvents)) {
+            activeClip.sfxEvents.forEach(function (ev) {
+              if (!editorTriggeredSfxIds[ev.id] && Math.abs(editorCurrentTime - ev.time) < 0.15) {
+                editorTriggeredSfxIds[ev.id] = true;
+                playLivePreviewSfx(ev.type || "whoosh");
+              }
+            });
+          }
           updateEditorPreviewAtTime(editorCurrentTime);
-        }, 100);
+        }, 50);
       }
     }
 
@@ -2608,6 +4649,8 @@
       }
       const videoEl = document.getElementById("editorVideoPlayer");
       if (videoEl) videoEl.pause();
+      const blurEl = document.getElementById("editorBgBlurVideo");
+      if (blurEl) blurEl.pause();
       const btn = document.getElementById("btnTogglePlay");
       if (btn) btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Putar';
     }
@@ -2616,8 +4659,12 @@
       if (!activeClip) return;
       editorCurrentTime = Math.max(0, Math.min(activeSegmentDuration, seconds));
       const videoEl = document.getElementById("editorVideoPlayer");
+      const blurEl = document.getElementById("editorBgBlurVideo");
       if (activeClip.videoUrl && videoEl) {
         videoEl.currentTime = activeClip.start_sec + editorCurrentTime;
+        if (blurEl && activeClip.bgMode === "blur") {
+          blurEl.currentTime = activeClip.start_sec + editorCurrentTime;
+        }
       } else if (!activeClip.videoUrl && isEditorPlaying) {
         mountEditorYoutubeEmbed(editorCurrentTime);
       }
@@ -2631,12 +4678,58 @@
       seekEditorTime(ratio * activeSegmentDuration);
     }
 
+    // Playhead Dragging & Stage Overlay Vertical Dragging Listeners
+    (function initInteractiveDragHandlers() {
+      const phHandle = document.getElementById("playheadDragHandle");
+      const ruler = document.getElementById("timelineRuler");
+      if (phHandle && ruler) {
+        phHandle.addEventListener("pointerdown", function (ev) {
+          ev.stopPropagation();
+          function onMove(moveEv) {
+            const rect = ruler.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (moveEv.clientX - rect.left) / Math.max(1, rect.width)));
+            seekEditorTime(ratio * activeSegmentDuration);
+          }
+          function onUp() {
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onUp);
+          }
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
+        });
+      }
+
+      function bindVerticalOverlayDrag(elId, propName, minPct, maxPct) {
+        const el = document.getElementById(elId);
+        const stage = document.getElementById("editorStageBox");
+        if (!el || !stage) return;
+        el.addEventListener("pointerdown", function (ev) {
+          if (!activeClip) return;
+          ev.preventDefault();
+          const rect = stage.getBoundingClientRect();
+          function onMove(moveEv) {
+            const pct = Math.max(minPct, Math.min(maxPct, Math.round(((moveEv.clientY - rect.top) / Math.max(1, rect.height)) * 100)));
+            activeClip[propName] = pct;
+            el.style.top = pct + "%";
+          }
+          function onUp() {
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onUp);
+            pushEditorHistorySnapshot();
+          }
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
+        });
+      }
+
+      bindVerticalOverlayDrag("editorSubtitleOverlay", "subtitleYPercent", 15, 88);
+      bindVerticalOverlayDrag("editorHookOverlay", "hookYPercent", 8, 35);
+    })();
+
     function updateEditorPreviewAtTime(t) {
-      const pct = Math.min(100, (t / activeSegmentDuration) * 100) + "%";
-      ["rulerPlayhead", "videoTrackPlayhead", "subTrackPlayhead"].forEach(function (id) {
-        const el = document.getElementById(id);
-        if (el) el.style.left = pct;
-      });
+      const pct = Math.min(100, Math.max(0, (t / activeSegmentDuration) * 100)) + "%";
+      const masterPh = document.getElementById("timelineMasterPlayhead");
+      if (masterPh) masterPh.style.left = pct;
 
       const formatT = function (val) {
         const m = Math.floor(val / 60).toString().padStart(2, "0");
@@ -2646,19 +4739,64 @@
       };
       document.getElementById("editorTimeDisplay").textContent = formatT(t) + " / " + formatT(activeSegmentDuration);
 
+      const effects = (activeClip && activeClip.effects) || { autoZoom: true, autoSfx: true, aiBroll: true, autoHook: true, autoColor: true };
+      const styleKey = activeClip && SUBTITLE_STYLE_META[activeClip.style] ? activeClip.style : "mozi_pop";
+
+      const videoEl = document.getElementById("editorVideoPlayer");
+      const blurEl = document.getElementById("editorBgBlurVideo");
+      if (videoEl && activeClip && activeClip.videoUrl) {
+        const zoomScale = computeDynamicZoomScale(t, effects.autoZoom);
+        const bright = activeClip.brightness !== undefined ? activeClip.brightness : 100;
+        const contr = activeClip.contrast !== undefined ? activeClip.contrast : (effects.autoColor ? 108 : 100);
+        const sat = effects.autoColor ? 112 : 100;
+        const isBlurMode = activeClip.bgMode === "blur";
+
+        videoEl.classList.toggle("thumb-cover", !isBlurMode);
+        videoEl.classList.toggle("video-contain", isBlurMode);
+        if (blurEl) blurEl.classList.toggle("d-none", !isBlurMode);
+
+        videoEl.style.transform = "scale(" + zoomScale.toFixed(4) + ")";
+        videoEl.style.filter = "brightness(" + (bright / 100) + ") contrast(" + (contr / 100) + ") saturate(" + (sat / 100) + ")";
+      }
+
+      const hookOverlay = document.getElementById("editorHookOverlay");
+      const hookTextEl = document.getElementById("editorHookText");
+      if (hookOverlay && hookTextEl && activeClip) {
+        const showHook = Boolean(effects.autoHook && t <= 3.0);
+        hookOverlay.classList.toggle("d-none", !showHook);
+        hookOverlay.style.top = (activeClip.hookYPercent || 13) + "%";
+        hookTextEl.textContent = activeClip.hook_headline || activeClip.title || "";
+      }
+
       const absTime = (activeClip ? activeClip.start_sec : 0) + t;
+      const activeBroll = activeClip && effects.aiBroll && Array.isArray(activeClip.broll_moments)
+        ? activeClip.broll_moments.find(function (b) { return absTime >= b.start_sec && absTime <= b.end_sec; })
+        : null;
+      const brollOverlay = document.getElementById("editorBrollOverlay");
+      if (brollOverlay) {
+        if (activeBroll) {
+          brollOverlay.classList.remove("d-none");
+          document.getElementById("editorBrollIcon").textContent = activeBroll.icon_or_emoji || "💡";
+          document.getElementById("editorBrollKeyword").textContent = activeBroll.keyword || "Highlight";
+          document.getElementById("editorBrollCaption").textContent = activeBroll.caption || "";
+        } else {
+          brollOverlay.classList.add("d-none");
+        }
+      }
+
+      const subOverlay = document.getElementById("editorSubtitleOverlay");
+      if (subOverlay && activeClip) {
+        subOverlay.style.top = (activeClip.subtitleYPercent || 78) + "%";
+      }
       const activeSub = activeClip ? activeClip.subtitles.find(function (s) {
         return absTime >= s.start_sec && absTime <= s.end_sec;
       }) : null;
       const subSpan = document.getElementById("editorSubtitleText");
       if (activeSub) {
         subSpan.style.display = "inline-block";
-        subSpan.textContent = activeSub.text;
+        applySubtitleBadgeStyle(subSpan, activeSub.text, styleKey, activeSub.color, activeSub.highlightColor, activeSub.animation);
         subSpan.style.fontFamily = activeSub.fontFamily;
-        subSpan.style.fontSize = activeSub.fontSize + "px";
-        subSpan.style.color = activeSub.color;
-        subSpan.className = "d-inline-block px-2 py-1 rounded bg-dark bg-opacity-75 fw-bold text-uppercase " +
-          (activeSub.animation === "fade" ? "anim-fade" : "anim-pop");
+        subSpan.style.fontSize = Math.min(24, activeSub.fontSize) + "px";
       } else {
         subSpan.style.display = "none";
       }
