@@ -12,9 +12,13 @@ const PORT = 3000;
 
 app.use(express.json({ limit: "50mb" }));
 
-// Lazy Google GenAI Client
-function getGenAI() {
-  const apiKey = process.env.GEMINI_API_KEY;
+// Lazy Google GenAI Client (GEMINI_API -> GEMINI_API_KEY -> Settings fallback)
+function getGenAI(overrideApiKey?: string) {
+  const apiKey =
+    (typeof process.env.GEMINI_API === "string" && process.env.GEMINI_API.trim()) ||
+    (typeof process.env.GEMINI_API_KEY === "string" && process.env.GEMINI_API_KEY.trim()) ||
+    (typeof overrideApiKey === "string" && overrideApiKey.trim()) ||
+    "";
   if (!apiKey) return null;
   return new GoogleGenAI({
     apiKey,
@@ -104,7 +108,9 @@ app.post("/api/analyze-video", async (req, res) => {
       }
     }
 
-    const ai = getGenAI();
+    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
+    const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
+    const ai = getGenAI(bodyApiKey || headerApiKey);
 
     if (ai) {
       const prompt = `Act as an expert viral video editor and technical director for short-form video (TikTok, YouTube Shorts, Reels).
@@ -218,11 +224,13 @@ app.post("/api/auto-clip", async (req, res) => {
       referenceInstructions,
     } = req.body || {};
 
-    const ai = getGenAI();
+    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
+    const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
+    const ai = getGenAI(bodyApiKey || headerApiKey);
     if (!ai) {
       return res.status(500).json({
         success: false,
-        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets). Harap tambahkan API key terlebih dahulu.",
+        error: "GEMINI_API maupun GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets). Harap tambahkan API key terlebih dahulu.",
       });
     }
 
@@ -294,13 +302,23 @@ app.post("/api/auto-clip", async (req, res) => {
     const rangeStart = Math.max(0, Number(sourceStartSeconds) || 0);
     const rangeEnd = Math.max(rangeStart + 4, Math.min(safeTotalDuration, Number(sourceEndSeconds) || safeTotalDuration));
 
-    let durationRule = "durasi ideal 15-45 detik per klip (atau menyesuaikan panjang video sumber)";
-    if (targetDuration === "under_30") durationRule = "WAJIB di bawah 30 detik per klip";
-    else if (targetDuration === "30_60") durationRule = "WAJIB antara 30 sampai 60 detik per klip";
-    else if (targetDuration === "60_90") durationRule = "WAJIB antara 60 sampai 90 detik per klip";
-
-    const minSegLen = isLocalMode ? Math.max(3, Math.min(12, Math.floor((rangeEnd - rangeStart) / 3))) : 15;
-    const maxSegLen = isLocalMode ? Math.max(minSegLen + 2, Math.min(60, rangeEnd - rangeStart)) : 90;
+    let minSeconds = Number(req.body?.minSeconds);
+    let maxSeconds = Number(req.body?.maxSeconds);
+    if (!Number.isFinite(minSeconds) || !Number.isFinite(maxSeconds) || minSeconds <= 0 || maxSeconds < minSeconds) {
+      if (targetDuration === "30_60") {
+        minSeconds = 30;
+        maxSeconds = 60;
+      } else if (targetDuration === "60_90") {
+        minSeconds = 60;
+        maxSeconds = 90;
+      } else {
+        minSeconds = 15;
+        maxSeconds = 30;
+      }
+    }
+    minSeconds = Math.max(5, Math.round(minSeconds));
+    maxSeconds = Math.max(minSeconds, Math.round(maxSeconds));
+    const durationRule = `WAJIB antara ${minSeconds} sampai ${maxSeconds} detik per klip`;
 
     const promptText = isLocalMode
       ? `Anda adalah ahli transkripsi audio dan editor video pendek AI profesional.
@@ -309,19 +327,22 @@ ${hasAudioPayload ? "Anda menerima rekaman AUDIO ASLI (mono 16kHz WAV) dari file
 - Total Durasi Video: ${safeTotalDuration.toFixed(2)} detik
 - Rentang Sumber Dipilih: ${rangeStart.toFixed(2)}s sampai ${rangeEnd.toFixed(2)}s
 ${hasAudioPayload ? `- Catatan Timeline Audio: Detik 0.0 pada file audio ini berkorespondensi dengan detik ${audioOffset.toFixed(2)} pada timeline video asli.` : ""}
-- Target Durasi Klip: ${durationRule} (panjang segmen ideal ${minSegLen}-${maxSegLen} detik)
+- Target Durasi Klip: ${durationRule}
 - Rasio Output: ${resolvedRatio}
 - Gaya Subtitle: ${resolvedStyle}
 ${momentPrompt ? `- Momen Spesifik yang Dicari: ${momentPrompt}` : ""}
 ${referenceInstructions ? `- Instruksi Tambahan: ${referenceInstructions}` : ""}
 
+ATURAN DURASI WAJIB (CRITICAL):
+Every returned clip MUST have a duration (end_sec - start_sec) strictly between ${minSeconds} and ${maxSeconds} seconds. If the total source video is under 35 seconds, return 1 comprehensive clip lasting ${minSeconds} to ${safeTotalDuration.toFixed(1)} seconds rather than splitting into tiny 6-second fragments.
+
 TUGAS WAJIB (SANGAT KETAT):
 1. ${hasAudioPayload ? "Dengarkan dengan teliti ucapan asli (Bahasa Indonesia atau Inggris) yang terdengar pada audio." : "Analisis visual frame yang dikirimkan."}
-2. Pilih 3 sampai 4 segmen klip terbaik dengan 'start_sec' dan 'end_sec' (angka desimal/float tepat dalam detik timeline video asli, berada di dalam rentang ${rangeStart.toFixed(2)} sampai ${rangeEnd.toFixed(2)}).
+2. Pilih ${safeTotalDuration < 35 ? "1 segmen klip komprehensif terbaik" : "3 sampai 4 segmen klip terbaik"} dengan 'start_sec' dan 'end_sec' (angka desimal/float tepat dalam detik timeline video asli, berada di dalam rentang ${rangeStart.toFixed(2)} sampai ${rangeEnd.toFixed(2)}) dengan panjang (end_sec - start_sec) antara ${minSeconds} sampai ${maxSeconds} detik.
 3. Berikan 'title' hook yang relevan dengan isi ucapan asli dan 'viral_score' (75-99).
 4. TRANSKRIPSI VERBATIM (KATA DEMI KATA): Pecah ucapan NYATA yang benar-benar terdengar di dalam rentang [start_sec, end_sec] menjadi potongan subtitle pendek yang padat (2 sampai 4 kata per baris).
    - JANGAN PERNAH mengarang, menambah, atau berhalusinasi kata yang tidak diucapkan di audio.
-   - Setiap objek subtitle WAJIB memiliki 'start_sec' dan 'end_sec' dalam DETIK TIMELINE VIDEO ASLI (bukan dimulai dari 0 jika klip dimulai di detik ke-15; contoh: jika klip mulai di 15.2s dan berakhir di 28.4s, maka subtitle berada di antara 15.2 dan 28.4 tepat mengikuti momen kata tersebut diucapkan).
+   - Setiap objek subtitle WAJIB memiliki 'start_sec' dan 'end_sec' dalam DETIK TIMELINE VIDEO ASLI (bukan dimulai dari 0 jika klip dimulai di detik ke-15; contoh: jika klip mulai di 15.2s dan berakhir di 32.4s, maka subtitle berada di antara 15.2 dan 32.4 tepat mengikuti momen kata tersebut diucapkan).
    - Jika pada bagian tertentu tidak ada ucapan (musik/hening), jangan buat teks ucapan palsu.`
       : `Anda adalah editor video pendek AI profesional.
 Analisis video YouTube nyata berikut:
@@ -335,6 +356,9 @@ ${authorName ? `- Channel: ${authorName}` : ""}
 - Gaya Subtitle: ${resolvedStyle}
 ${momentPrompt ? `- Momen Spesifik yang Dicari: ${momentPrompt}` : ""}
 ${referenceInstructions ? `- Instruksi Tambahan: ${referenceInstructions}` : ""}
+
+ATURAN DURASI WAJIB (CRITICAL):
+Every returned clip MUST have a duration (end_sec - start_sec) strictly between ${minSeconds} and ${maxSeconds} seconds. If the total source video is under 35 seconds, return 1 comprehensive clip lasting ${minSeconds} to ${safeTotalDuration.toFixed(1)} seconds rather than splitting into tiny 6-second fragments.
 
 Tugas Wajib:
 1. Analisis topik dan konteks video YouTube tersebut dan hasilkan 3 sampai 4 segmen klip paling berpotensi viral.
@@ -430,13 +454,32 @@ Tugas Wajib:
 
     const normalizedClips = rawClips.map((c: any, idx: number) => {
       let startSec = Math.max(0, Number(c.start_sec ?? c.start_seconds) || 0);
-      let endSec = Number(c.end_sec ?? c.end_seconds) || startSec + 10;
+      let endSec = Number(c.end_sec ?? c.end_seconds) || startSec + minSeconds;
 
       if (isLocalMode) {
-        startSec = Math.min(Math.max(0, startSec), Math.max(0, safeTotalDuration - 1.5));
-        endSec = Math.min(safeTotalDuration, Math.max(startSec + 1.5, endSec));
+        if (safeTotalDuration >= minSeconds) {
+          startSec = Math.min(startSec, Math.max(0, safeTotalDuration - minSeconds));
+          endSec = Math.min(safeTotalDuration, Math.max(startSec + 1, endSec));
+          if (endSec - startSec < minSeconds) {
+            endSec = Math.min(safeTotalDuration, startSec + minSeconds);
+            if (endSec - startSec < minSeconds) {
+              startSec = Math.max(0, safeTotalDuration - minSeconds);
+            }
+          }
+          if (endSec - startSec > maxSeconds) {
+            endSec = startSec + maxSeconds;
+          }
+        } else {
+          startSec = 0;
+          endSec = safeTotalDuration;
+        }
       } else {
-        endSec = Math.max(startSec + 8, endSec);
+        if (endSec - startSec < minSeconds) {
+          endSec = startSec + minSeconds;
+        }
+        if (endSec - startSec > maxSeconds) {
+          endSec = startSec + maxSeconds;
+        }
       }
 
       startSec = Math.round(startSec * 100) / 100;
@@ -457,17 +500,24 @@ Tugas Wajib:
                 rawSubEnd += audioOffset;
               }
 
-              const subStartSec = Math.max(startSec, Math.min(endSec - 0.3, rawSubStart));
-              const subEndSec = Math.min(endSec, Math.max(subStartSec + 0.3, rawSubEnd));
-
               return {
                 id: `sub-${idx + 1}-${sIdx + 1}`,
-                start_sec: Math.round(subStartSec * 100) / 100,
-                end_sec: Math.round(subEndSec * 100) / 100,
+                rawSubStart,
+                rawSubEnd,
                 text: String(s.text || "").trim(),
               };
             })
-            .filter((s: any) => s.text.length > 0)
+            .filter((s: any) => s.text.length > 0 && s.rawSubEnd > startSec && s.rawSubStart < endSec)
+            .map((s: any) => {
+              const subStartSec = Math.max(startSec, Math.min(endSec - 0.2, s.rawSubStart));
+              const subEndSec = Math.min(endSec, Math.max(subStartSec + 0.2, s.rawSubEnd));
+              return {
+                id: s.id,
+                start_sec: Math.round(subStartSec * 100) / 100,
+                end_sec: Math.round(subEndSec * 100) / 100,
+                text: s.text,
+              };
+            })
             .sort((a: any, b: any) => a.start_sec - b.start_sec)
         : [];
 
@@ -529,7 +579,9 @@ app.post("/api/analyze-url", async (req, res) => {
   const videoId = extractVideoId(url);
 
   try {
-    const ai = getGenAI();
+    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
+    const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
+    const ai = getGenAI(bodyApiKey || headerApiKey);
     
     if (ai) {
       const prompt = `Analyze this YouTube video URL: ${url} (Video ID: ${videoId}).

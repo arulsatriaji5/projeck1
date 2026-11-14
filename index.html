@@ -472,13 +472,13 @@
                 <div class="col-6">
                   <div class="input-group shadow-sm rounded-3 overflow-hidden">
                     <span class="input-group-text bg-white border-0 small text-secondary">Mulai</span>
-                    <input type="text" id="configStartTime" class="form-control border-0 bg-white font-mono-tabular" value="00:00" placeholder="00:00" oninput="syncConfigSummary()" />
+                    <input type="text" id="configStartTime" class="form-control border-0 bg-white font-mono-tabular" value="00:00" placeholder="00:00" oninput="syncConfigSummary()" onblur="sanitizeTimeInput(this, '00:00')" />
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="input-group shadow-sm rounded-3 overflow-hidden">
                     <span class="input-group-text bg-white border-0 small text-secondary">Selesai</span>
-                    <input type="text" id="configEndTime" class="form-control border-0 bg-white font-mono-tabular" value="05:00" placeholder="05:00" oninput="syncConfigSummary()" />
+                    <input type="text" id="configEndTime" class="form-control border-0 bg-white font-mono-tabular" value="05:00" placeholder="05:00" oninput="syncConfigSummary()" onblur="sanitizeTimeInput(this, '05:00')" />
                   </div>
                 </div>
               </div>
@@ -489,8 +489,7 @@
               <div class="col-12 col-sm-6">
                 <label for="configTargetDuration" class="form-label small fw-bold text-navy">Target Durasi Klip</label>
                 <select id="configTargetDuration" class="form-select border-0 shadow-sm" onchange="syncConfigSummary()">
-                  <option value="auto" selected>Auto (Rekomendasi AI)</option>
-                  <option value="under_30">&lt; 30 detik</option>
+                  <option value="15_30" selected>15 - 30 detik</option>
                   <option value="30_60">30 - 60 detik</option>
                   <option value="60_90">60 - 90 detik</option>
                 </select>
@@ -538,7 +537,7 @@
               </li>
               <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
                 <span class="text-secondary">Target Durasi Klip</span>
-                <span class="fw-bold text-navy" id="summaryDurationText">Auto (Rekomendasi AI)</span>
+                <span class="fw-bold text-navy" id="summaryDurationText">15 - 30 detik</span>
               </li>
               <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
                 <span class="text-secondary">Referensi Gaya</span>
@@ -911,6 +910,7 @@
     let localUploadedObjectUrl = null;
     let localUploadedFile = null;
     let youtubeSyncTimers = {};
+    let activeRenderJobs = {};
 
     // Listener Upload File Lokal & Input YouTube (Saling Membersihkan agar Tidak Bentrok)
     document.getElementById("localFileInput").addEventListener("change", function (e) {
@@ -1004,19 +1004,49 @@
     }
 
     function parseTimeToSeconds(val, fallbackSec) {
+      const safeFallback = Number.isFinite(Number(fallbackSec)) && Number(fallbackSec) >= 0 ? Number(fallbackSec) : 0;
       const text = String(val || "").trim();
-      if (!text) return fallbackSec;
+      if (!text) return safeFallback;
       if (text.includes(":")) {
-        const parts = text.split(":").map(function (p) { return Number(p); });
-        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-          return Math.max(0, parts[0] * 60 + parts[1]);
+        const parts = text.split(":").map(function (p) {
+          const digits = p.replace(/[^\d]/g, "");
+          return digits === "" ? 0 : parseInt(digits, 10);
+        });
+        if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+          return Math.max(0, parts[0] * 60 + Math.min(59, parts[1]));
         }
-        if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
-          return Math.max(0, parts[0] * 3600 + parts[1] * 60 + parts[2]);
+        if (parts.length >= 3 && Number.isFinite(parts[0]) && Number.isFinite(parts[1]) && Number.isFinite(parts[2])) {
+          return Math.max(0, parts[0] * 3600 + Math.min(59, parts[1]) * 60 + Math.min(59, parts[2]));
         }
+        return safeFallback;
       }
-      const num = Number(text);
-      return !isNaN(num) && num >= 0 ? num : fallbackSec;
+      const digitsOnly = text.replace(/[^\d.]/g, "");
+      if (!digitsOnly) return safeFallback;
+      const num = Number(digitsOnly);
+      return Number.isFinite(num) && num >= 0 ? num : safeFallback;
+    }
+
+    function sanitizeTimeInput(inputEl, fallbackStr) {
+      if (!inputEl) return 0;
+      const raw = String(inputEl.value || "").trim();
+      const defaultSec = parseTimeToSeconds(fallbackStr, 0);
+      if (!raw || /^\d{1,3}:$/.test(raw) || /^:\d{0,2}$/.test(raw) || raw === ":") {
+        const prefixNum = raw.replace(/[^\d]/g, "");
+        const normalizedSec = raw.endsWith(":") && prefixNum ? parseInt(prefixNum, 10) * 60 : 0;
+        inputEl.value = formatSeconds(normalizedSec);
+        syncConfigSummary();
+        return normalizedSec;
+      }
+      const parsed = parseTimeToSeconds(raw, defaultSec);
+      inputEl.value = formatSeconds(parsed);
+      syncConfigSummary();
+      return parsed;
+    }
+
+    function getDurationPresetBounds(presetValue) {
+      if (presetValue === "30_60") return { minSeconds: 30, maxSeconds: 60 };
+      if (presetValue === "60_90") return { minSeconds: 60, maxSeconds: 90 };
+      return { minSeconds: 15, maxSeconds: 30 };
     }
 
     // Ekstrak YouTube Video ID (watch?v=, youtu.be/, shorts/, live/)
@@ -1334,8 +1364,14 @@
           for (let i = 0; i < sampleCount; i++) {
             const seekTo = Math.min(duration - 0.2, Math.max(0.1, ((i + 0.5) / sampleCount) * duration));
             await new Promise(function (resSeek) {
-              function onSeeked() {
+              let settled = false;
+              function finishSeek() {
+                if (settled) return;
+                settled = true;
                 video.removeEventListener("seeked", onSeeked);
+                resSeek();
+              }
+              function onSeeked() {
                 if (ctx) {
                   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                   frames.push({
@@ -1344,8 +1380,9 @@
                     data: canvas.toDataURL("image/jpeg", 0.7)
                   });
                 }
-                resSeek();
+                finishSeek();
               }
+              setTimeout(finishSeek, 1500);
               video.addEventListener("seeked", onSeeked);
               video.currentTime = seekTo;
             });
@@ -1363,12 +1400,24 @@
         return;
       }
 
-      const startSec = parseTimeToSeconds(document.getElementById("configStartTime").value, 0);
-      const endSec = parseTimeToSeconds(
-        document.getElementById("configEndTime").value,
-        pendingSource.mode === "local" ? Math.round(pendingSource.duration) : 300
-      );
+      const startInput = document.getElementById("configStartTime");
+      const endInput = document.getElementById("configEndTime");
+      const defaultEndStr = pendingSource.mode === "local" ? formatSeconds(pendingSource.duration) : "05:00";
+
+      const startSec = sanitizeTimeInput(startInput, "00:00");
+      let endSec = sanitizeTimeInput(endInput, defaultEndStr);
+      if (endSec <= startSec) {
+        endSec = pendingSource.mode === "local"
+          ? Math.max(startSec + 4, Math.round(pendingSource.duration || 30))
+          : startSec + 300;
+        if (endInput) endInput.value = formatSeconds(endSec);
+        syncConfigSummary();
+      }
+
       const targetDuration = document.getElementById("configTargetDuration").value;
+      const durationBounds = getDurationPresetBounds(targetDuration);
+      const minSeconds = durationBounds.minSeconds;
+      const maxSeconds = durationBounds.maxSeconds;
       const selectedStyle = document.getElementById("configStyleRef").value;
       const momentPrompt = document.getElementById("configMomentPrompt").value.trim();
 
@@ -1423,6 +1472,7 @@
           newProject.progress = Math.max(newProject.progress, 48);
           updateProjectCardProgressUI(newProject);
 
+          let knownSourceDuration = extractedFrames.duration;
           requestPayload = {
             mode: "local",
             fileName: newProject.fileName,
@@ -1436,9 +1486,13 @@
             sourceStartSeconds: startSec,
             sourceEndSeconds: Math.min(extractedFrames.duration, Math.max(startSec + 4, endSec)),
             targetDuration: targetDuration,
+            minSeconds: minSeconds,
+            maxSeconds: maxSeconds,
             momentPrompt: momentPrompt
           };
+          newProject.sourceDuration = knownSourceDuration;
         } else {
+          newProject.sourceDuration = Math.max(endSec, 300);
           requestPayload = {
             mode: "youtube",
             videoUrl: newProject.videoUrl,
@@ -1448,8 +1502,15 @@
             sourceStartSeconds: startSec,
             sourceEndSeconds: Math.max(startSec + 30, endSec),
             targetDuration: targetDuration,
+            minSeconds: minSeconds,
+            maxSeconds: maxSeconds,
             momentPrompt: momentPrompt
           };
+        }
+
+        const savedSettingsApiKey = getSavedSettingsApiKey();
+        if (savedSettingsApiKey && requestPayload) {
+          requestPayload.apiKey = savedSettingsApiKey;
         }
 
         const backendEndpoint = getConfiguredBackendEndpoint();
@@ -1475,33 +1536,53 @@
 
         const rootStreamUrl = (data && (data.streamUrl || data.mp4Url || data.videoUrl)) || "";
         let anyPlayableStream = false;
+        const srcDur = Number(newProject.sourceDuration) || 0;
 
-        newProject.clips = rawClips.map(function (item, idx) {
-          const cStart = Math.max(0, Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds) || 0);
-          const cEnd = Math.max(cStart + 1.5, Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds) || cStart + 20);
-          const segDur = cEnd - cStart;
+        // Mandatory JS post-processing duration guard + subtitle sync filter
+        const guardedClips = rawClips.map(function (item, idx) {
+          let cStart = Math.max(0, Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds) || 0);
+          let cEnd = Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds);
+          if (!Number.isFinite(cEnd) || cEnd <= cStart) {
+            cEnd = cStart + minSeconds;
+          }
+
+          if (newProject.mode === "local" && srcDur > 0) {
+            if (srcDur >= minSeconds) {
+              let clipDur = cEnd - cStart;
+              if (clipDur < minSeconds) {
+                cEnd = Math.min(srcDur, cStart + minSeconds);
+                if (cEnd - cStart < minSeconds) {
+                  cStart = Math.max(0, srcDur - minSeconds);
+                }
+              }
+              clipDur = cEnd - cStart;
+              if (clipDur > maxSeconds) {
+                cEnd = cStart + maxSeconds;
+              }
+              cEnd = Math.min(srcDur, cEnd);
+            } else {
+              cStart = 0;
+              cEnd = srcDur;
+            }
+          } else {
+            let clipDur = cEnd - cStart;
+            if (clipDur < minSeconds) {
+              cEnd = cStart + minSeconds;
+            } else if (clipDur > maxSeconds) {
+              cEnd = cStart + maxSeconds;
+            }
+          }
+
+          cStart = Math.round(cStart * 100) / 100;
+          cEnd = Math.round(cEnd * 100) / 100;
+          const segDur = Math.max(1.5, cEnd - cStart);
           const rawSubs = Array.isArray(item.subtitles) ? item.subtitles : [];
           const itemStreamUrl = item.mp4Url || item.streamUrl || item.videoUrl || rootStreamUrl || "";
           const playableVideoUrl = newProject.mode === "local" ? newProject.objectUrl : itemStreamUrl;
           if (playableVideoUrl) anyPlayableStream = true;
 
-          return {
-            id: item.id || ("clip-" + projectId + "-" + (idx + 1)),
-            mode: playableVideoUrl ? (newProject.mode === "local" ? "local" : "stream") : "youtube",
-            sourceType: newProject.mode,
-            videoId: item.videoId || newProject.videoId,
-            videoUrl: playableVideoUrl,
-            thumbnailUrl: newProject.thumbnailUrl,
-            title: item.title || ("Klip Viral #" + (idx + 1)),
-            score: item.viral_score !== undefined ? item.viral_score : (item.score !== undefined ? item.score : 88),
-            start_sec: Math.round(cStart * 100) / 100,
-            end_sec: Math.round(cEnd * 100) / 100,
-            start_seconds: Math.round(cStart * 100) / 100,
-            end_seconds: Math.round(cEnd * 100) / 100,
-            duration: item.duration || formatSeconds(segDur),
-            range: formatSeconds(cStart) + " - " + formatSeconds(cEnd),
-            style: selectedStyle,
-            subtitles: rawSubs.map(function (s, sIdx) {
+          const filteredSubs = rawSubs
+            .map(function (s, sIdx) {
               let subStartSec = Number(s.start_sec);
               let subEndSec = Number(s.end_sec);
               if (isNaN(subStartSec)) {
@@ -1512,25 +1593,65 @@
                 const relE = Number(s.end);
                 subEndSec = !isNaN(relE) ? (cStart + relE) : (subStartSec + 1.5);
               }
-              subStartSec = Math.max(cStart, Math.min(cEnd - 0.2, subStartSec));
-              subEndSec = Math.min(cEnd, Math.max(subStartSec + 0.2, subEndSec));
-
               return {
                 id: s.id || ("sub-" + idx + "-" + sIdx),
-                start_sec: Math.round(subStartSec * 100) / 100,
-                end_sec: Math.round(subEndSec * 100) / 100,
-                start: Math.round((subStartSec - cStart) * 100) / 100,
-                end: Math.round((subEndSec - cStart) * 100) / 100,
-                text: String(s.text || "").trim(),
+                rawStartSec: subStartSec,
+                rawEndSec: subEndSec,
+                text: String(s.text || "").trim()
+              };
+            })
+            .filter(function (s) {
+              return s.text.length > 0 && s.rawEndSec > cStart && s.rawStartSec < cEnd;
+            })
+            .map(function (s) {
+              const clampedStart = Math.max(cStart, Math.min(cEnd - 0.2, s.rawStartSec));
+              const clampedEnd = Math.min(cEnd, Math.max(clampedStart + 0.2, s.rawEndSec));
+              return {
+                id: s.id,
+                start_sec: Math.round(clampedStart * 100) / 100,
+                end_sec: Math.round(clampedEnd * 100) / 100,
+                start: Math.round((clampedStart - cStart) * 100) / 100,
+                end: Math.round((clampedEnd - cStart) * 100) / 100,
+                text: s.text,
                 fontFamily: "'Montserrat', sans-serif",
                 fontSize: 18,
                 color: selectedStyle === "karaoke" ? "#38BDF8" : "#FACC15",
                 animation: selectedStyle === "karaoke" || selectedStyle === "fade" ? selectedStyle : "pop"
               };
-            }).filter(function (s) { return s.text.length > 0; })
+            })
+            .sort(function (a, b) { return a.start_sec - b.start_sec; });
+
+          return {
+            id: item.id || ("clip-" + projectId + "-" + (idx + 1)),
+            mode: playableVideoUrl ? (newProject.mode === "local" ? "local" : "stream") : "youtube",
+            sourceType: newProject.mode,
+            videoId: item.videoId || newProject.videoId,
+            videoUrl: playableVideoUrl,
+            thumbnailUrl: newProject.thumbnailUrl,
+            title: item.title || ("Klip Viral #" + (idx + 1)),
+            score: item.viral_score !== undefined ? item.viral_score : (item.score !== undefined ? item.score : 88),
+            start_sec: cStart,
+            end_sec: cEnd,
+            start_seconds: cStart,
+            end_seconds: cEnd,
+            duration: formatSeconds(segDur),
+            range: formatSeconds(cStart) + " - " + formatSeconds(cEnd),
+            style: selectedStyle,
+            subtitles: filteredSubs
           };
         });
 
+        // Deduplicate clips that collapsed onto identical segments (e.g. short source video < 35s)
+        const dedupedClips = [];
+        guardedClips.forEach(function (clip) {
+          const isDup = dedupedClips.some(function (existing) {
+            return Math.abs(existing.start_sec - clip.start_sec) < 1.0 &&
+                   Math.abs(existing.end_sec - clip.end_sec) < 1.0;
+          });
+          if (!isDup) dedupedClips.push(clip);
+        });
+
+        newProject.clips = dedupedClips;
         newProject.hasPlayableStream = anyPlayableStream;
 
         clearInterval(progressTimer);
@@ -1885,6 +2006,15 @@
                 <h3 class="h6 fw-bold text-navy mb-1">${escapeHtml(clip.title)}</h3>
                 <small class="text-secondary font-mono-tabular">Segmen ${clip.range} · Durasi ${clip.duration}</small>
               </div>
+              <div id="dl-progress-wrap-${clip.id}" class="d-none mb-3">
+                <div class="d-flex justify-content-between align-items-center small fw-semibold text-navy mb-1">
+                  <span><span class="spinner-border spinner-border-sm text-primary me-1"></span>Merender video 9:16...</span>
+                  <span id="dl-progress-pct-${clip.id}" class="font-mono-tabular text-primary">0%</span>
+                </div>
+                <div class="progress bg-light" style="height: 8px;">
+                  <div id="dl-progress-bar-${clip.id}" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
               <div class="d-grid gap-2 d-sm-flex">
                 ${buttonsHtml}
               </div>
@@ -2015,11 +2145,32 @@
       }, 250);
     }
 
-    // Export 9:16 Center-Cropped Video Clip + Burned-in Hormozi Subtitles via <canvas> + MediaRecorder
+    function updateClipDownloadProgress(clipId, percent, show) {
+      const wrap = document.getElementById("dl-progress-wrap-" + clipId);
+      const bar = document.getElementById("dl-progress-bar-" + clipId);
+      const pctEl = document.getElementById("dl-progress-pct-" + clipId);
+      const safePct = Math.max(0, Math.min(100, Math.round(percent)));
+      if (wrap) {
+        wrap.classList.toggle("d-none", !show);
+      }
+      if (bar) {
+        bar.style.width = safePct + "%";
+        bar.setAttribute("aria-valuenow", String(safePct));
+      }
+      if (pctEl) {
+        pctEl.textContent = safePct + "%";
+      }
+    }
+
+    // Export 9:16 Center-Cropped Video Clip (720x1280) + Burned-in Verbatim Subtitles via Offscreen <canvas> + MediaRecorder
     async function downloadLocalClipWithSubtitles(clipId) {
       const clip = generatedClips.find(function (c) { return c.id === clipId; });
       if (!clip || !clip.videoUrl) {
         showToast("Ekspor video MP4 permanen tersedia untuk file MP4 lokal atau stream backend.");
+        return;
+      }
+
+      if (activeRenderJobs[clip.id]) {
         return;
       }
 
@@ -2028,43 +2179,63 @@
         return;
       }
 
+      activeRenderJobs[clip.id] = true;
       const btn = document.getElementById("btn-dl-" + clip.id);
       const originalBtnHtml = btn ? btn.innerHTML : "";
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Merender 9:16...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Merender...';
       }
-      showToast("Merender klip 9:16 (" + clip.range + ") dengan subtitle permanen...");
+      updateClipDownloadProgress(clip.id, 0, true);
+      showToast("Merender klip 9:16 (" + clip.range + ") di latar belakang...");
 
       let audioCtx = null;
+      let hiddenVideo = null;
+      let renderLoopTimer = null;
+      let renderRafId = null;
+
       try {
-        const hiddenVideo = document.createElement("video");
-        hiddenVideo.src = clip.videoUrl;
+        hiddenVideo = document.createElement("video");
+        if (!clip.videoUrl.startsWith("blob:")) {
+          hiddenVideo.crossOrigin = "anonymous";
+        }
         hiddenVideo.playsInline = true;
-        hiddenVideo.crossOrigin = "anonymous";
+        hiddenVideo.preload = "auto";
+        hiddenVideo.src = clip.videoUrl;
 
         await new Promise(function (resolve, reject) {
           hiddenVideo.onloadedmetadata = resolve;
           hiddenVideo.onerror = function () { reject(new Error("Gagal memuat video sumber.")); };
         });
 
-        await new Promise(function (resolve) {
-          hiddenVideo.onseeked = resolve;
-          hiddenVideo.currentTime = clip.start_sec;
-        });
+        const totalClipDuration = Math.max(1.0, clip.end_sec - clip.start_sec);
+
+        if (Math.abs(hiddenVideo.currentTime - clip.start_sec) > 0.05) {
+          await new Promise(function (resolve) {
+            const timeoutId = setTimeout(resolve, 1500);
+            hiddenVideo.onseeked = function () {
+              clearTimeout(timeoutId);
+              resolve();
+            };
+            hiddenVideo.currentTime = clip.start_sec;
+          });
+        }
 
         const canvas = document.createElement("canvas");
-        canvas.width = 540;
-        canvas.height = 960;
+        canvas.width = 720;
+        canvas.height = 1280;
         const ctx = canvas.getContext("2d");
 
         const canvasStream = canvas.captureStream(30);
 
-        // Tangkap audio secara bersih tanpa mengganggu speaker jika memungkinkan
+        // Tangkap track audio secara bersih (AudioContext atau captureStream fallback)
         try {
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
           if (AudioCtx) {
             audioCtx = new AudioCtx();
+            if (audioCtx.state === "suspended") {
+              await audioCtx.resume().catch(function () {});
+            }
             const sourceNode = audioCtx.createMediaElementSource(hiddenVideo);
             const destNode = audioCtx.createMediaStreamDestination();
             sourceNode.connect(destNode);
@@ -2093,7 +2264,7 @@
         ];
         const chosenMime = mimeCandidates.find(function (m) { return MediaRecorder.isTypeSupported(m); }) || "";
         const recorder = chosenMime
-          ? new MediaRecorder(canvasStream, { mimeType: chosenMime, videoBitsPerSecond: 2500000 })
+          ? new MediaRecorder(canvasStream, { mimeType: chosenMime, videoBitsPerSecond: 4000000 })
           : new MediaRecorder(canvasStream);
 
         const chunks = [];
@@ -2113,9 +2284,13 @@
           await hiddenVideo.play();
         }
 
-        function renderFrame() {
-          if (hiddenVideo.paused || hiddenVideo.ended || hiddenVideo.currentTime >= clip.end_sec) {
-            hiddenVideo.pause();
+        let isStopped = false;
+        function drawAndTick() {
+          if (isStopped) return;
+          if (!hiddenVideo || hiddenVideo.paused || hiddenVideo.ended || hiddenVideo.currentTime >= clip.end_sec) {
+            isStopped = true;
+            if (hiddenVideo) hiddenVideo.pause();
+            updateClipDownloadProgress(clip.id, 99, true);
             if (recorder.state !== "inactive") recorder.stop();
             return;
           }
@@ -2124,14 +2299,17 @@
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           // Center-crop 9:16 (object-fit: cover)
-          const vw = hiddenVideo.videoWidth || 540;
-          const vh = hiddenVideo.videoHeight || 960;
+          const vw = hiddenVideo.videoWidth || 720;
+          const vh = hiddenVideo.videoHeight || 1280;
           const scale = Math.max(canvas.width / vw, canvas.height / vh);
           const drawW = vw * scale;
           const drawH = vh * scale;
           ctx.drawImage(hiddenVideo, (canvas.width - drawW) / 2, (canvas.height - drawH) / 2, drawW, drawH);
 
           const curTime = hiddenVideo.currentTime;
+          const progressPct = Math.max(0, Math.min(99, ((curTime - clip.start_sec) / totalClipDuration) * 100));
+          updateClipDownloadProgress(clip.id, progressPct, true);
+
           const activeSub = clip.subtitles.find(function (s) {
             return curTime >= s.start_sec && curTime <= s.end_sec;
           });
@@ -2140,16 +2318,16 @@
             const subText = activeSub.text.toUpperCase();
             const animElapsed = Math.max(0, curTime - activeSub.start_sec);
             const popScale = animElapsed < 0.14 ? 0.88 + (animElapsed / 0.14) * 0.12 : 1;
-            const fontPx = Math.round((activeSub.fontSize || 18) * 1.65);
+            const fontPx = Math.round((activeSub.fontSize || 18) * 2.25);
 
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height * 0.78);
             ctx.scale(popScale, popScale);
-            ctx.font = "900 " + fontPx + "px Montserrat, sans-serif";
+            ctx.font = "900 " + fontPx + "px " + (activeSub.fontFamily || "Montserrat, sans-serif");
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            const maxWidth = canvas.width - 64;
+            const maxWidth = canvas.width - 84;
             const words = subText.split(" ");
             const lines = [];
             let currentLine = "";
@@ -2164,15 +2342,15 @@
             });
             if (currentLine) lines.push(currentLine);
 
-            const lineHeight = fontPx + 12;
+            const lineHeight = fontPx + 16;
             const startY = -((lines.length - 1) * lineHeight) / 2;
             lines.forEach(function (line, i) {
               const yPos = startY + i * lineHeight;
-              ctx.lineWidth = 9;
+              ctx.lineWidth = 12;
               ctx.lineJoin = "round";
               ctx.strokeStyle = "#000000";
               ctx.shadowColor = "rgba(0,0,0,0.85)";
-              ctx.shadowBlur = 10;
+              ctx.shadowBlur = 12;
               ctx.strokeText(line, 0, yPos);
               ctx.shadowBlur = 0;
               ctx.fillStyle = activeSub.color || "#FACC15";
@@ -2181,11 +2359,16 @@
             ctx.restore();
           }
 
-          requestAnimationFrame(renderFrame);
+          if (document.hidden) {
+            renderLoopTimer = setTimeout(drawAndTick, 33);
+          } else {
+            renderRafId = requestAnimationFrame(drawAndTick);
+          }
         }
 
-        requestAnimationFrame(renderFrame);
+        renderRafId = requestAnimationFrame(drawAndTick);
         await recordingDone;
+        updateClipDownloadProgress(clip.id, 100, true);
 
         const outMime = chosenMime || "video/webm";
         const ext = outMime.indexOf("mp4") !== -1 ? "mp4" : "webm";
@@ -2203,13 +2386,26 @@
       } catch (err) {
         showToast("Gagal mengekspor video: " + (err && err.message ? err.message : "Error MediaRecorder"));
       } finally {
+        if (renderLoopTimer) clearTimeout(renderLoopTimer);
+        if (renderRafId) cancelAnimationFrame(renderRafId);
+        if (hiddenVideo) {
+          hiddenVideo.pause();
+          hiddenVideo.removeAttribute("src");
+          hiddenVideo.load();
+        }
         if (audioCtx && typeof audioCtx.close === "function") {
           audioCtx.close().catch(function () {});
         }
+        delete activeRenderJobs[clip.id];
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = originalBtnHtml;
         }
+        setTimeout(function () {
+          if (!activeRenderJobs[clip.id]) {
+            updateClipDownloadProgress(clip.id, 0, false);
+          }
+        }, 1200);
       }
     }
 
@@ -2490,6 +2686,19 @@
     }
 
     // Pengaturan Endpoint Backend API & Preferensi Studio
+    function getSavedSettingsApiKey() {
+      try {
+        const key =
+          localStorage.getItem("clipa_gemini_api_key") ||
+          localStorage.getItem("clipa_api_key") ||
+          localStorage.getItem("gemini_api_key") ||
+          "";
+        return key ? key.trim() : "";
+      } catch (e) {
+        return "";
+      }
+    }
+
     function getConfiguredBackendEndpoint() {
       const input = document.getElementById("settingBackendEndpoint");
       const raw = input && input.value ? input.value.trim() : "";
