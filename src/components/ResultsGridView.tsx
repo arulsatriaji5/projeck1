@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Play,
   Download,
-  Scissors,
+  Pencil,
   ArrowLeft,
   Flame,
   X,
@@ -63,10 +63,11 @@ export const ResultsGridView: React.FC<ResultsGridViewProps> = ({
             <button
               type="button"
               onClick={onBackToHome}
-              className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-emerald-400 transition-colors cursor-pointer mb-1"
+              title="Kembali"
+              aria-label="Kembali"
+              className="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-800/80 text-gray-300 hover:text-emerald-400 transition-colors cursor-pointer mb-1"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Proses Video Baru</span>
+              <ArrowLeft className="w-4 h-4" />
             </button>
 
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white line-clamp-1">
@@ -207,9 +208,9 @@ export const ResultsGridView: React.FC<ResultsGridViewProps> = ({
                         type="button"
                         onClick={() => onEditManual(clip)}
                         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white border border-gray-800 text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
-                        title="Buka Editor Timeline"
+                        title="Edit Klip"
                       >
-                        <Scissors className="w-3.5 h-3.5 text-emerald-400" />
+                        <Pencil className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Edit</span>
                       </button>
                     </div>
@@ -295,8 +296,8 @@ export const ResultsGridView: React.FC<ResultsGridViewProps> = ({
                 }}
                 className="py-2.5 px-3 rounded-xl bg-gray-900 hover:bg-gray-800 border border-gray-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
-                <Scissors className="w-4 h-4 text-emerald-400" />
-                <span>Edit Timeline</span>
+                <Pencil className="w-4 h-4 text-emerald-400" />
+                <span>Edit Klip</span>
               </button>
             </div>
           </div>

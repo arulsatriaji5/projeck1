@@ -54,10 +54,20 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
   const handleFileSelected = (file: File) => {
     setFileError(null);
-    if (file.type.includes('mp4') || file.name.toLowerCase().endsWith('.mp4')) {
+    const lowerName = file.name.toLowerCase();
+    const lowerType = (file.type || '').toLowerCase();
+    const isSupportedVideo =
+      lowerType.includes('mp4') ||
+      lowerType.includes('quicktime') ||
+      lowerType.includes('webm') ||
+      lowerName.endsWith('.mp4') ||
+      lowerName.endsWith('.mov') ||
+      lowerName.endsWith('.webm');
+
+    if (isSupportedVideo) {
       setUploadedFile(file);
     } else {
-      setFileError('Format berkas tidak didukung. Mohon pilih video berformat .MP4.');
+      setFileError('Format berkas tidak didukung. Mohon pilih video berformat .MP4, .MOV, atau .WEBM.');
     }
   };
 
@@ -102,7 +112,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           <input
             ref={fileInputRef}
             type="file"
-            accept="video/mp4,.mp4"
+            accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
             onChange={(e) => {
               if (e.target.files && e.target.files[0]) {
                 handleFileSelected(e.target.files[0]);

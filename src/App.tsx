@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sidebar, SidebarTabId } from './components/Sidebar';
 import { HomeDashboardView } from './components/HomeDashboardView';
 import { ProcessingDashboardView } from './components/ProcessingDashboardView';
@@ -31,6 +31,7 @@ import {
   ProjectItem,
 } from './types';
 import { ArrowLeft, CheckCircle2, Sparkles, Flame, Youtube } from 'lucide-react';
+import { extractLocalAudioWavBase64 } from './utils/audioExtractor';
 
 type ActiveWorkspaceView =
   | 'home'
@@ -44,6 +45,25 @@ type ActiveWorkspaceView =
 export default function App() {
   const [activeView, setActiveView] = useState<ActiveWorkspaceView>('home');
   const [sidebarTab, setSidebarTab] = useState<SidebarTabId>('home');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('clipa_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('clipa_sidebar_collapsed', String(isSidebarCollapsed));
+    } catch {
+      // ignore storage errors
+    }
+  }, [isSidebarCollapsed]);
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => !prev);
+  };
 
   const [credits] = useState(250);
   const maxCredits = 300;
@@ -98,10 +118,14 @@ export default function App() {
       setActiveView(isProcessing ? 'processing' : 'home');
     } else if (tab === 'projects') {
       setActiveView('projects');
+    } else if (tab === 'edit-manual') {
+      setActiveView('editor');
     } else if (tab === 'references') {
       setActiveView('references');
     } else if (tab === 'settings') {
       setActiveView('settings');
+    } else {
+      setActiveView('home');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -155,12 +179,19 @@ export default function App() {
       .join('\n');
 
     try {
+      const extractedAudio = uploadedFile ? await extractLocalAudioWavBase64(uploadedFile) : null;
+
       const response = await fetch('/api/auto-clip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sourceVideoUrl: targetUrl,
+          mode: uploadedFile ? 'local' : 'youtube',
+          sourceVideoUrl: uploadedFile ? '' : targetUrl,
           fileName: uploadedFile?.name,
+          videoDuration: extractedAudio?.duration,
+          audioBase64: extractedAudio?.audioBase64,
+          audioMimeType: extractedAudio?.audioMimeType,
+          audioOffsetSeconds: extractedAudio?.audioOffsetSeconds ?? 0,
           recipe,
           referenceInstructions,
         }),
@@ -175,17 +206,70 @@ export default function App() {
       let resolvedVideoData: VideoData;
 
       if (payload.videoData && Array.isArray(payload.videoData.clips) && payload.videoData.clips.length > 0) {
-        const mappedClips: ClipItem[] = payload.videoData.clips.map((c: ClipItem, idx: number) => ({
-          ...c,
-          aspectRatio: c.aspectRatio || recipe.layout,
-          thumbnailUrl: c.thumbnailUrl || CLIP_THUMBNAILS[idx % CLIP_THUMBNAILS.length],
-          mp4Url: localObjectUrl || c.mp4Url || payload.mp4Url || SAMPLE_VIDEO_STREAM,
-          videoSrc: localObjectUrl || c.videoSrc || payload.mp4Url || SAMPLE_VIDEO_STREAM,
-        }));
+        const mappedClips: ClipItem[] = payload.videoData.clips
+          .map((c: ClipItem, idx: number) => ({
+            ...c,
+            aspectRatio: c.aspectRatio || recipe.layout,
+            thumbnailUrl: c.thumbnailUrl || CLIP_THUMBNAILS[idx % CLIP_THUMBNAILS.length],
+            mp4Url: localObjectUrl || c.mp4Url || payload.mp4Url || SAMPLE_VIDEO_STREAM,
+            videoSrc: localObjectUrl || c.videoSrc || payload.mp4Url || SAMPLE_VIDEO_STREAM,
+          }))
+          .sort((a: ClipItem, b: ClipItem) => (Number(b.viralScore) || 0) - (Number(a.viralScore) || 0));
 
         resolvedVideoData = {
           ...payload.videoData,
           thumbnailUrl: payload.videoData.thumbnailUrl || CLIP_THUMBNAILS[0],
+          clips: mappedClips,
+        };
+      } else if (Array.isArray(payload.clips) && payload.clips.length > 0) {
+        const mappedClips: ClipItem[] = payload.clips
+          .map((c: any, idx: number) => {
+            const startSec = Number(c.start_sec ?? c.start_seconds ?? c.startTime) || 0;
+            const endSec = Number(c.end_sec ?? c.end_seconds ?? c.endTime) || startSec + 30;
+            const rawSubs = Array.isArray(c.subtitles) ? c.subtitles : [];
+            const captions: CaptionItem[] = rawSubs.map((s: any, sIdx: number) => {
+              const relStart = typeof s.start === 'number' ? s.start : Math.max(0, (Number(s.start_sec) || startSec) - startSec);
+              const relEnd = typeof s.end === 'number' ? s.end : Math.max(relStart + 0.2, (Number(s.end_sec) || startSec + 1.2) - startSec);
+              const hw = String(s.highlightWord || s.highlight || '').trim();
+              return {
+                id: String(s.id || `sub-${idx + 1}-${sIdx + 1}`),
+                start: relStart,
+                end: relEnd,
+                text: String(s.text || '').trim(),
+                highlight: hw || undefined,
+                highlightWord: hw || undefined,
+              };
+            });
+
+            return {
+              id: String(c.id || `clip-${Date.now()}-${idx + 1}`),
+              title: String(c.title || `Klip #${idx + 1}`),
+              hook: String(c.hook_headline || c.hook || 'Momen terbaik pilihan AI.'),
+              startTime: startSec,
+              endTime: endSec,
+              duration: String(c.duration || '00:30'),
+              viralScore: Number(c.viral_score ?? c.score ?? c.viralScore) || 85,
+              scoreReason: String(c.alasan_viral || c.scoreReason || 'Dipilih otomatis oleh AI Auto-Clip Pipeline.'),
+              aspectRatio: recipe.layout,
+              category: 'Viral Hook',
+              captions,
+              thumbnailUrl: c.thumbnailUrl || c.coverImage || CLIP_THUMBNAILS[idx % CLIP_THUMBNAILS.length],
+              mp4Url: localObjectUrl || c.mp4Url || payload.mp4Url || SAMPLE_VIDEO_STREAM,
+              videoSrc: localObjectUrl || c.videoSrc || payload.mp4Url || SAMPLE_VIDEO_STREAM,
+            };
+          })
+          .sort((a: ClipItem, b: ClipItem) => (Number(b.viralScore) || 0) - (Number(a.viralScore) || 0));
+
+        const totalSec = Math.max(1, Math.round(Number(payload.videoDurationSec) || extractedAudio?.duration || 60));
+        const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const secs = Math.floor(totalSec % 60).toString().padStart(2, '0');
+
+        resolvedVideoData = {
+          videoId: payload.videoId || targetUrl,
+          videoTitle: payload.videoTitle || (uploadedFile ? uploadedFile.name.replace(/\.[^/.]+$/, '') : 'Video Analisis AI'),
+          channelName: uploadedFile ? 'File Video Lokal' : 'YouTube Source',
+          totalDuration: `${mins}:${secs}`,
+          thumbnailUrl: mappedClips[0]?.thumbnailUrl || CLIP_THUMBNAILS[0],
           clips: mappedClips,
         };
       } else {
@@ -207,11 +291,13 @@ export default function App() {
           thumbnailUrl: CLIP_THUMBNAILS[0],
           mp4Url: localObjectUrl || payload.mp4Url || SAMPLE_VIDEO_STREAM,
           videoSrc: localObjectUrl || payload.mp4Url || SAMPLE_VIDEO_STREAM,
-          captions: (bp?.subtitles || []).map((s: { text: string; start: number; end: number }, idx: number) => ({
+          captions: (bp?.subtitles || []).map((s: { text: string; start: number; end: number; highlightWord?: string; highlight?: string }, idx: number) => ({
             id: `c-${idx}`,
             start: s.start,
             end: s.end,
             text: s.text,
+            highlight: s.highlightWord || s.highlight,
+            highlightWord: s.highlightWord || s.highlight,
           })),
         };
 
@@ -305,19 +391,19 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans selection:bg-emerald-500 selection:text-gray-950">
-      {/* Fixed Left Sidebar (Zero Top Navbar on Desktop) */}
+    <div className="min-h-screen lg:flex bg-gray-900 text-white font-sans selection:bg-emerald-500 selection:text-gray-950">
+      {/* Collapsible Left Sidebar (Zero Top Navbar on Desktop) */}
       <Sidebar
         activeTab={sidebarTab}
         onSelectTab={handleSelectSidebarTab}
         projectsCount={projects.length}
         referencesCount={references.length}
-        credits={credits}
-        maxCredits={maxCredits}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
 
-      {/* Main Content Area */}
-      <main className="lg:pl-64 min-h-screen">
+      {/* Fluid Main Content Area */}
+      <main className="flex-1 min-w-0 min-h-screen transition-all duration-300">
         {activeView === 'home' && (
           <HomeDashboardView
             videoUrl={videoUrl}
@@ -389,25 +475,26 @@ export default function App() {
         )}
 
         {activeView === 'editor' && (
-          <div className="min-h-screen bg-gray-900 px-4 sm:px-8 py-6 pt-20 lg:pt-6">
-            <div className="max-w-7xl mx-auto space-y-6">
+          <div className="min-h-screen bg-gray-900 px-4 sm:px-6 lg:px-8 py-6 pt-20 lg:pt-6">
+            <div className="w-full max-w-[1440px] mx-auto space-y-6">
               {/* Editor Header */}
               <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-gray-800">
                 <div>
                   <button
                     type="button"
                     onClick={() => setActiveView('results')}
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-950 hover:bg-gray-800 border border-gray-800 text-white text-xs font-bold transition-colors cursor-pointer mb-3 whitespace-nowrap"
+                    title="Kembali ke Hasil"
+                    aria-label="Kembali ke Hasil"
+                    className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-gray-950 hover:bg-gray-800 border border-gray-800 text-white transition-colors cursor-pointer mb-3"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Kembali ke Hasil</span>
+                    <ArrowLeft className="w-4 h-4 text-emerald-400" />
                   </button>
 
                   <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                    Ruang Kerja Timeline &amp; Video Editor
+                    Editor Video
                   </h1>
                   <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
-                    Mengedit klip aktif: <strong className="text-emerald-400">{selectedClip.title}</strong>
+                    Mengedit: <strong className="text-emerald-400">{selectedClip.title}</strong>
                   </p>
                 </div>
 

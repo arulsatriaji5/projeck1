@@ -97,18 +97,19 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
             <button
               type="button"
               onClick={onBackToInput}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#EEF2F7] text-[#0B1F3A] text-xs sm:text-sm font-bold mb-4 transition-colors cursor-pointer shadow-sm"
+              title="Kembali"
+              aria-label="Kembali"
+              className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-white hover:bg-[#EEF2F7] text-[#0B1F3A] mb-4 transition-colors cursor-pointer shadow-sm"
             >
               <ArrowLeft className="w-4 h-4 text-[#1D4ED8]" />
-              <span>Ganti Video / Input Ulang</span>
             </button>
 
             <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight text-balance">
-              Hasil Generate: <span className="text-[#1D4ED8]">{videoData.clips.length} Klip Viral Siap Putar</span>
+              Hasil Klip: <span className="text-[#1D4ED8]">{videoData.clips.length} Klip Siap Putar</span>
             </h1>
 
             <p className="text-sm text-slate-600 mt-2 max-w-2xl leading-relaxed">
-              Putar pratinjau klip secara langsung pada kartu di bawah, lalu unduh MP4 atau buka <strong className="text-[#0B1F3A]">Edit Manual</strong> untuk menyempurnakan timeline dan subtitle.
+              Putar pratinjau langsung di bawah, lalu unduh MP4 atau buka <strong className="text-[#0B1F3A]">Edit Foto &amp; Video</strong>.
             </p>
           </div>
 
@@ -349,7 +350,7 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
                     title="Buka Ruang Kerja Timeline & Video Editor"
                   >
                     <SlidersHorizontal className="w-4 h-4 text-[#1D4ED8] shrink-0" />
-                    <span>Edit Manual</span>
+                    <span>Buka di Edit Foto &amp; Video</span>
                   </button>
                 </div>
 
@@ -423,7 +424,7 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
                 className="py-2.5 px-3 rounded-xl bg-[#EEF2F7] hover:bg-[#DCE5F2] text-[#0B1F3A] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                <span>Edit Manual</span>
+                <span>Buka di Edit Foto &amp; Video</span>
               </button>
             </div>
 

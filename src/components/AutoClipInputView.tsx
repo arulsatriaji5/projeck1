@@ -252,14 +252,15 @@ export const AutoClipInputView: React.FC<AutoClipInputViewProps> = ({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#EEF2F7] text-[#0B1F3A] font-bold text-sm transition-colors cursor-pointer shadow-sm"
+            title="Kembali"
+            aria-label="Kembali"
+            className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-white hover:bg-[#EEF2F7] text-[#0B1F3A] transition-colors cursor-pointer shadow-sm"
           >
             <ArrowLeft className="w-4 h-4 text-[#1D4ED8]" />
-            <span>Kembali ke Beranda</span>
           </button>
 
           <span className="text-xs font-bold text-[#1D4ED8] uppercase tracking-wider">
-            Mode Klip Otomatis AI
+            Buat Klip Otomatis
           </span>
         </div>
 
@@ -648,7 +649,7 @@ export const AutoClipInputView: React.FC<AutoClipInputViewProps> = ({
                         }`}
                       >
                         <Cpu className="w-3.5 h-3.5" />
-                        <span>Rendering Browser (FFmpeg.wasm)</span>
+                        <span>Proses di Browser</span>
                       </button>
 
                       <button

@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-slate-300 border-transparent hover:text-white hover:border-slate-400'
               }`}
             >
-              Edit Manual
+              Edit Foto &amp; Video
             </button>
           )}
 

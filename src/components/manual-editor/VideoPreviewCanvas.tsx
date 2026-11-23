@@ -19,6 +19,7 @@ interface VideoPreviewCanvasProps {
   isPlaying: boolean;
   onTogglePlay: () => void;
   onSeek: (time: number) => void;
+  onVideoTimeUpdate?: (time: number) => void;
   subtitles: ManualSubtitleItem[];
   selectedSubtitleId: string | null;
   onSelectSubtitle: (id: string) => void;
@@ -31,6 +32,7 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
   isPlaying,
   onTogglePlay,
   onSeek,
+  onVideoTimeUpdate,
   subtitles,
   selectedSubtitleId,
   onSelectSubtitle
@@ -48,7 +50,7 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
     return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
   }, [videoSrc]);
 
-  // Sync video currentTime with parent state
+  // Sync video currentTime with parent state on explicit seeks
   useEffect(() => {
     if (videoRef.current) {
       if (Math.abs(videoRef.current.currentTime - currentTime) > 0.3) {
@@ -67,6 +69,47 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
       }
     }
   }, [isPlaying]);
+
+  const latestTimeRef = useRef<number>(currentTime);
+  useEffect(() => {
+    latestTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  // 60fps requestAnimationFrame loop reading directly from <video>.currentTime while actively playing
+  useEffect(() => {
+    if (!isPlaying || !onVideoTimeUpdate) return;
+    let rafId = 0;
+    let lastStamp = performance.now();
+
+    const tick = (now: number) => {
+      const video = videoRef.current;
+      if (video && !video.paused && !video.seeking && video.readyState >= 2) {
+        const live = video.currentTime;
+        if (live >= duration) {
+          video.currentTime = 0;
+          latestTimeRef.current = 0;
+          onVideoTimeUpdate(0);
+        } else {
+          latestTimeRef.current = live;
+          onVideoTimeUpdate(live);
+        }
+        lastStamp = now;
+      } else if (!video || video.readyState < 2) {
+        const dt = Math.min(0.1, Math.max(0, (now - lastStamp) / 1000));
+        lastStamp = now;
+        if (dt > 0) {
+          const prev = latestTimeRef.current;
+          const next = prev + dt >= duration ? 0 : prev + dt;
+          latestTimeRef.current = next;
+          onVideoTimeUpdate(next);
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [isPlaying, duration, onVideoTimeUpdate]);
 
   // Find active subtitle at current playhead
   const activeSubtitle = subtitles.find(
@@ -94,14 +137,26 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
       animationClass = 'animate-pulse duration-1000';
     }
 
-    // Split text into words for karaoke highlight if applicable
-    const words = sub.text.split(' ');
-    const relativeTime = currentTime - sub.start;
-    const subDuration = Math.max(0.5, sub.end - sub.start);
-    const wordProgressIndex = Math.min(
-      words.length - 1,
-      Math.floor((relativeTime / subDuration) * words.length)
-    );
+    // Split text into words for syllable/char-weighted karaoke highlight
+    const words = sub.text.trim().split(/\s+/).filter(Boolean);
+    const relativeTime = Math.max(0, currentTime - sub.start);
+    const subDuration = Math.max(0.35, sub.end - sub.start);
+    const weights = words.map((w) => {
+      const clean = w.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, '');
+      const vowels = (clean.match(/[aeiouyAEIOUY]/g) || []).length;
+      return Math.max(1.2, vowels * 1.15 + clean.length * 0.25);
+    });
+    const totalWeight = weights.reduce((sum, val) => sum + val, 0) || 1;
+    const targetWeight = Math.min(1, relativeTime / subDuration) * totalWeight;
+    let accWeight = 0;
+    let wordProgressIndex = 0;
+    for (let i = 0; i < weights.length; i++) {
+      accWeight += weights[i];
+      if (targetWeight <= accWeight || i === weights.length - 1) {
+        wordProgressIndex = i;
+        break;
+      }
+    }
 
     return (
       <div
@@ -144,6 +199,23 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
               </span>
             );
           })
+        ) : (sub.highlightWord || sub.highlight) ? (
+          words.map((word, wIdx) => {
+            const target = (sub.highlightWord || sub.highlight || '').trim().toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
+            const cleanWord = word.toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
+            const isTarget = Boolean(target && (cleanWord === target || target.split(/\s+/).includes(cleanWord)));
+            return (
+              <span
+                key={wIdx}
+                className="inline-block mx-1"
+                style={{
+                  color: isTarget ? (sub.highlightColor || '#FACC15') : sub.color,
+                }}
+              >
+                {word}
+              </span>
+            );
+          })
         ) : (
           <span>{sub.text}</span>
         )}
@@ -162,7 +234,7 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
             Kanvas Video 9:16 (Vertikal)
           </span>
           <span className="text-[11px] text-slate-500 hidden sm:inline">
-            · 1080x1920 Real-Time
+            · 1080×1920
           </span>
         </div>
 
@@ -199,7 +271,7 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
             <div 
               className="absolute inset-x-3 pointer-events-auto z-20 flex justify-center"
               style={{
-                top: `${activeSubtitle.yOffsetPercent || 78}%`,
+                top: `${activeSubtitle.yOffsetPercent || 54}%`,
                 transform: 'translateY(-50%)'
               }}
             >

@@ -56,19 +56,34 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
     clip.thumbnailUrl || thumbnailUrl || CLIP_THUMBNAILS[0];
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          const clipDurationSeconds = clip.endTime - clip.startTime || 30;
-          if (prev >= clipDurationSeconds) {
-            return 0;
-          }
-          return prev + 0.1;
-        });
-      }, 100);
-    }
-    return () => clearInterval(interval);
+    if (!isPlaying) return;
+    let rafId = 0;
+    let lastStamp = performance.now();
+    const clipDurationSeconds = Math.max(1, clip.endTime - clip.startTime || 30);
+
+    const step = (now: number) => {
+      const video = videoElementRef.current;
+      if (video && !video.paused && !video.seeking && video.readyState >= 2) {
+        const live = video.currentTime;
+        if (live >= clipDurationSeconds) {
+          video.currentTime = 0;
+          setCurrentTime(0);
+        } else {
+          setCurrentTime(live);
+        }
+        lastStamp = now;
+      } else if (!video || video.readyState < 2) {
+        const dt = Math.min(0.1, Math.max(0, (now - lastStamp) / 1000));
+        lastStamp = now;
+        if (dt > 0) {
+          setCurrentTime((prev) => (prev + dt >= clipDurationSeconds ? 0 : prev + dt));
+        }
+      }
+      rafId = requestAnimationFrame(step);
+    };
+
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
   }, [isPlaying, clip, setCurrentTime]);
 
   useEffect(() => {
@@ -82,8 +97,9 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
   }, [isPlaying]);
 
   useEffect(() => {
-    if (videoElementRef.current && Math.abs(videoElementRef.current.currentTime - currentTime) > 0.35) {
-      videoElementRef.current.currentTime = currentTime;
+    const video = videoElementRef.current;
+    if (video && Math.abs(video.currentTime - currentTime) > 0.35) {
+      video.currentTime = currentTime;
     }
   }, [currentTime]);
 
@@ -95,12 +111,10 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
       if (idx !== -1) {
         setActiveCaptionIndex(idx);
       } else {
-        const activeIdx = clip.captions.reduce((acc, cap, index) => {
-          if (currentTime >= cap.start) return index;
-          return acc;
-        }, 0);
-        setActiveCaptionIndex(activeIdx);
+        setActiveCaptionIndex(-1);
       }
+    } else {
+      setActiveCaptionIndex(-1);
     }
   }, [currentTime, clip]);
 
@@ -117,7 +131,33 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
     }
   };
 
-  const currentCaption = clip.captions[activeCaptionIndex];
+  const currentCaption = activeCaptionIndex >= 0 ? clip.captions[activeCaptionIndex] : undefined;
+
+  const renderHighlightedCaptionText = (text: string, highlightTarget?: string) => {
+    const cleanTarget = (highlightTarget || '').trim().toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
+    if (!cleanTarget) return <span>{text}</span>;
+    const words = text.split(/\s+/).filter(Boolean);
+    return (
+      <span>
+        {words.map((word, wIdx) => {
+          const cleanWord = word.toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
+          const isHighlight = cleanWord === cleanTarget || cleanTarget.split(/\s+/).includes(cleanWord);
+          return (
+            <span
+              key={wIdx}
+              className={
+                isHighlight
+                  ? 'inline-block mx-0.5 px-1.5 py-0.5 rounded bg-[#2563EB] text-yellow-300 scale-105 shadow-md'
+                  : 'inline-block mx-0.5'
+              }
+            >
+              {word}
+            </span>
+          );
+        })}
+      </span>
+    );
+  };
 
   const getAspectRatioDimensions = () => {
     switch (aspectRatio) {
@@ -210,10 +250,21 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20 pointer-events-none" />
 
           {currentCaption && (
-            <div className="absolute bottom-12 inset-x-4 z-20 flex flex-col items-center justify-center pointer-events-none">
+            <div className="absolute top-[54%] -translate-y-1/2 inset-x-4 z-20 flex flex-col items-center justify-center pointer-events-none">
               <div className={getCaptionStyleClasses()}>
                 {currentCaption.emoji && <span className="mr-1.5">{currentCaption.emoji}</span>}
-                <span>{currentCaption.text}</span>
+                {renderHighlightedCaptionText(
+                  currentCaption.text,
+                  currentCaption.highlightWord || currentCaption.highlight
+                )}
+              </div>
+            </div>
+          )}
+
+          {clip.hook && clip.hook.trim().length > 0 && (
+            <div className="absolute top-[76%] -translate-y-1/2 left-1/2 -translate-x-1/2 max-w-[82%] max-h-[24%] overflow-hidden w-max z-20 pointer-events-none text-center">
+              <div className="bg-black/80 text-white font-extrabold text-[11px] px-3 py-1 rounded-xl shadow-lg border border-white/15 leading-snug line-clamp-2 overflow-hidden">
+                {clip.hook}
               </div>
             </div>
           )}

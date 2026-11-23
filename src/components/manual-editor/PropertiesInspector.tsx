@@ -364,27 +364,27 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
             <span className="text-[#1D4ED8] font-mono tabular-nums">{selectedSubtitle.yOffsetPercent}%</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               type="button"
-              onClick={() => updateField('yOffsetPercent', 25)}
+              onClick={() => updateField('yOffsetPercent', 20)}
               className="px-2.5 py-1 rounded-lg bg-[#EEF2F7] hover:bg-slate-200 text-[11px] font-semibold text-[#0B1F3A] cursor-pointer"
             >
-              Atas (25%)
+              Atas (20%)
             </button>
             <button
               type="button"
-              onClick={() => updateField('yOffsetPercent', 50)}
-              className="px-2.5 py-1 rounded-lg bg-[#EEF2F7] hover:bg-slate-200 text-[11px] font-semibold text-[#0B1F3A] cursor-pointer"
+              onClick={() => updateField('yOffsetPercent', 54)}
+              className="px-2.5 py-1 rounded-lg bg-[#E6EDF7] hover:bg-slate-200 text-[11px] font-bold text-[#0B1F3A] cursor-pointer"
             >
-              Tengah (50%)
+              Tengah Ideal (54%)
             </button>
             <button
               type="button"
-              onClick={() => updateField('yOffsetPercent', 78)}
-              className="px-2.5 py-1 rounded-lg bg-[#E6EDF7] hover:bg-slate-200 text-[11px] text-[#0B1F3A] font-bold cursor-pointer"
+              onClick={() => updateField('yOffsetPercent', 76)}
+              className="px-2.5 py-1 rounded-lg bg-[#EEF2F7] hover:bg-slate-200 text-[11px] font-semibold text-[#0B1F3A] cursor-pointer"
             >
-              Bawah (78%)
+              Bawah (76%)
             </button>
           </div>
 

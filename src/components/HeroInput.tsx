@@ -132,7 +132,7 @@ export const HeroInput: React.FC<HeroInputProps> = ({
             </button>
           </article>
 
-          {/* Card 2: Edit Manual */}
+          {/* Card 2: Edit Foto & Video */}
           <article className="bg-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-200">
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -148,11 +148,11 @@ export const HeroInput: React.FC<HeroInputProps> = ({
               </div>
 
               <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-3">
-                Edit Manual
+                Edit Foto &amp; Video
               </h2>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-8">
-                Gunakan ruang kerja timeline multi-track untuk kontrol penuh. Atur posisi teks, warna, gaya animasi subtitle, dan durasi klip sesuai kebutuhan merek Anda.
+                Pilih ruang kerja Edit Foto untuk thumbnail &amp; feed, atau Edit Video multi-track untuk kontrol penuh posisi teks, warna, subtitle, dan durasi klip.
               </p>
             </div>
 
@@ -161,7 +161,7 @@ export const HeroInput: React.FC<HeroInputProps> = ({
               onClick={onOpenManualEdit}
               className="w-full py-3.5 px-6 rounded-xl bg-[#EEF2F7] hover:bg-[#0B1F3A] text-[#0B1F3A] hover:text-white font-bold text-sm sm:text-base transition-colors cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
             >
-              <span>Buka Editor Manual</span>
+              <span>Buka Edit Foto &amp; Video</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </article>

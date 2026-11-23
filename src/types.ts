@@ -8,6 +8,7 @@ export interface CaptionItem {
   end: number;
   text: string;
   highlight?: string;
+  highlightWord?: string;
   emoji?: string;
 }
 
@@ -95,6 +96,7 @@ export interface ManualSubtitleItem {
   end: number;
   text: string;
   highlight?: string;
+  highlightWord?: string;
   fontFamily: string;
   fontSize: number;
   color: string;

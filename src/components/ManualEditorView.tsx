@@ -43,7 +43,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 4,
       shadowBlur: 8,
       animation: 'pop',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     },
     {
       id: 'sub-2',
@@ -59,7 +59,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 4.5,
       shadowBlur: 10,
       animation: 'pop',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     },
     {
       id: 'sub-3',
@@ -75,7 +75,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 4,
       shadowBlur: 8,
       animation: 'karaoke',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     },
     {
       id: 'sub-4',
@@ -91,7 +91,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 4,
       shadowBlur: 8,
       animation: 'pop',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     },
     {
       id: 'sub-5',
@@ -107,7 +107,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 4.5,
       shadowBlur: 10,
       animation: 'pop',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     },
     {
       id: 'sub-6',
@@ -123,7 +123,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 5,
       shadowBlur: 12,
       animation: 'karaoke',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     },
     {
       id: 'sub-7',
@@ -139,7 +139,7 @@ const DEFAULT_GEMINI_BLUEPRINT: ManualBlueprint = {
       strokeWidth: 5,
       shadowBlur: 12,
       animation: 'pop',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     }
   ]
 };
@@ -155,21 +155,7 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
   const [selectedSubtitleId, setSelectedSubtitleId] = useState<string | null>('sub-1');
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
 
-  // Sync playhead loop within clip duration
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          if (prev >= blueprint.duration) {
-            return 0;
-          }
-          return Math.round((prev + 0.1) * 10) / 10;
-        });
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, blueprint.duration]);
+  // Playhead sync is driven at 60fps via VideoPreviewCanvas requestAnimationFrame locked to <video>.currentTime
 
   // Spacebar hotkey to toggle playback
   useEffect(() => {
@@ -242,7 +228,7 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
       strokeWidth: 4,
       shadowBlur: 8,
       animation: 'pop',
-      yOffsetPercent: 78
+      yOffsetPercent: 54
     };
 
     setBlueprint((prev) => ({
@@ -331,11 +317,11 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
           <button 
             type="button"
             onClick={onClose}
-            className="px-3 py-2 text-slate-200 hover:text-white rounded-xl hover:bg-[#122E56] transition-colors cursor-pointer flex items-center gap-2 text-xs font-bold whitespace-nowrap"
-            title="Tutup / Kembali ke Hasil"
+            className="w-9 h-9 text-slate-200 hover:text-white rounded-xl hover:bg-[#122E56] transition-colors cursor-pointer inline-flex items-center justify-center"
+            title="Tutup"
+            aria-label="Tutup"
           >
             <X className="w-4 h-4 text-sky-400" />
-            <span className="hidden sm:inline">Tutup Editor</span>
           </button>
           
           <div className="h-5 w-px bg-white/15 shrink-0" />
@@ -349,7 +335,7 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
               />
             </span>
             <h1 className="text-xs sm:text-sm font-extrabold text-white tracking-tight whitespace-nowrap">
-              ClipA Manual Studio
+              Editor Video
             </h1>
             <span className="text-[11px] text-slate-300 hidden md:inline truncate">
               · {blueprint.clip_title}
@@ -363,10 +349,10 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
             type="button"
             onClick={handleResetBlueprint}
             className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#122E56] hover:bg-[#1B4278] text-slate-200 hover:text-white text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
-            title="Muat ulang blueprint awal dari Gemini AI"
+            title="Kembalikan pengaturan awal AI"
           >
             <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
-            <span>Reset Blueprint AI</span>
+            <span>Reset AI</span>
           </button>
 
           {/* Export Button */}
@@ -376,7 +362,7 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
             className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#2563EB] text-white font-bold text-xs transition-all duration-150 cursor-pointer shadow-md whitespace-nowrap"
           >
             <Download className="w-4 h-4" />
-            <span>Export &amp; Download MP4</span>
+            <span>Ekspor MP4</span>
           </button>
         </div>
 
@@ -394,6 +380,7 @@ export const ManualEditorView: React.FC<ManualEditorViewProps> = ({
             isPlaying={isPlaying}
             onTogglePlay={() => setIsPlaying(!isPlaying)}
             onSeek={(t) => setCurrentTime(t)}
+            onVideoTimeUpdate={(t) => setCurrentTime(t)}
             subtitles={blueprint.subtitles}
             selectedSubtitleId={selectedSubtitleId}
             onSelectSubtitle={(id) => setSelectedSubtitleId(id)}

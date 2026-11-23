@@ -2,22 +2,32 @@ import React, { useState } from 'react';
 import {
   Home,
   FolderKanban,
+  ImagePlay,
+  FileText,
   FolderArchive,
+  CalendarCheck2,
   Settings,
   Menu,
   X,
-  Zap,
+  PanelLeftClose,
 } from 'lucide-react';
 
-export type SidebarTabId = 'home' | 'projects' | 'references' | 'settings';
+export type SidebarTabId =
+  | 'home'
+  | 'projects'
+  | 'edit-manual'
+  | 'transcribe'
+  | 'references'
+  | 'auto-publish'
+  | 'settings';
 
 interface SidebarProps {
   activeTab: SidebarTabId;
   onSelectTab: (tab: SidebarTabId) => void;
   projectsCount: number;
   referencesCount: number;
-  credits: number;
-  maxCredits: number;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -25,43 +35,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   projectsCount,
   referencesCount,
-  credits,
-  maxCredits,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navItems: Array<{
+  const mainNavItems: Array<{
     id: SidebarTabId;
     label: string;
-    subtitle: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: number;
   }> = [
     {
       id: 'home',
       label: 'Home',
-      subtitle: 'Buat klip baru',
       icon: Home,
     },
     {
       id: 'projects',
       label: 'My Projects',
-      subtitle: 'Riwayat & hasil klip',
       icon: FolderKanban,
       badge: projectsCount,
     },
     {
+      id: 'edit-manual',
+      label: 'Edit Foto & Video',
+      icon: ImagePlay,
+    },
+    {
+      id: 'transcribe',
+      label: 'Auto Script',
+      icon: FileText,
+    },
+    {
       id: 'references',
       label: 'Gudang Referensi',
-      subtitle: 'Brand Kit & Template',
       icon: FolderArchive,
       badge: referencesCount,
     },
     {
-      id: 'settings',
-      label: 'Settings',
-      subtitle: 'Preferensi studio',
-      icon: Settings,
+      id: 'auto-publish',
+      label: 'Auto Publish',
+      icon: CalendarCheck2,
     },
   ];
 
@@ -70,82 +85,125 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setMobileOpen(false);
   };
 
-  const creditPercent = Math.min(100, Math.round((credits / maxCredits) * 100));
-
-  const sidebarContent = (
-    <div className="flex flex-col h-full bg-gray-950 text-white border-r border-gray-800 select-none">
-      {/* Brand Logo */}
-      <div className="px-5 py-5 border-b border-gray-800 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => handleNavClick('home')}
-          className="flex items-center gap-3 text-left cursor-pointer group"
-        >
-          <div className="w-9 h-9 rounded-xl bg-gray-900 border border-gray-800 p-1.5 flex items-center justify-center shrink-0 group-hover:border-emerald-500/50 transition-colors">
-            <img
-              src="/assets/aistudio/clipA_dae34944.png"
-              alt="ClipA Studio"
-              className="w-full h-full object-contain"
-            />
+  const renderDesktopSidebar = () => (
+    <div className="flex flex-col h-full bg-[#0A192F] text-white border-r border-white/10 select-none overflow-visible">
+      {/* Top Brand & Collapse Toggle Header */}
+      <div
+        className={`border-b border-white/10 flex items-center shrink-0 transition-all duration-300 ${
+          isCollapsed ? 'justify-center px-2 py-4' : 'justify-between px-4 py-4'
+        }`}
+      >
+        {isCollapsed ? (
+          <div className="relative group flex items-center justify-center">
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              title="Buka Sidebar"
+              aria-label="Buka Sidebar"
+              className="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-[#112240] transition-colors cursor-pointer"
+            >
+              <img
+                src="/assets/aistudio/clipA_dae34944.png"
+                alt="ClipA Studio"
+                className="w-9 h-9 object-contain shrink-0 transition-transform duration-200 group-hover:scale-105"
+              />
+            </button>
+            <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-[#0A192F] text-white text-xs font-semibold whitespace-nowrap border border-white/15 shadow-xl z-50">
+              Buka Sidebar
+            </span>
           </div>
-          <div className="min-w-0">
-            <div className="text-base font-extrabold tracking-tight text-white leading-none">
-              ClipA Studio
-            </div>
-            <div className="text-[11px] text-gray-400 mt-1 font-medium">
-              Auto-Clip AI Workspace
-            </div>
-          </div>
-        </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => handleNavClick('home')}
+              className="flex items-center gap-3 text-left cursor-pointer group min-w-0"
+            >
+              <img
+                src="/assets/aistudio/clipA_dae34944.png"
+                alt="ClipA Studio"
+                className="w-9 h-9 object-contain shrink-0 transition-transform group-hover:scale-105"
+              />
+              <div className="min-w-0">
+                <div className="text-base font-extrabold tracking-tight text-white leading-none whitespace-nowrap">
+                  ClipA Studio
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1 font-medium whitespace-nowrap">
+                  Editor Klip Video AI
+                </div>
+              </div>
+            </button>
 
-        <button
-          type="button"
-          onClick={() => setMobileOpen(false)}
-          className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-900 cursor-pointer"
-          aria-label="Tutup menu"
-        >
-          <X className="w-5 h-5" />
-        </button>
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              title="Tutup Sidebar"
+              aria-label="Tutup Sidebar"
+              className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#112240] border border-transparent hover:border-white/10 transition-colors cursor-pointer shrink-0"
+            >
+              <PanelLeftClose className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto" aria-label="Menu Utama">
-        {navItems.map((item) => {
+      {/* Main Navigation Links */}
+      <nav
+        className={`flex-1 py-4 space-y-2 overflow-y-auto overflow-x-visible ${
+          isCollapsed ? 'px-2.5' : 'px-3.5'
+        }`}
+        aria-label="Menu Utama"
+      >
+        {mainNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
+
+          if (isCollapsed) {
+            return (
+              <div key={item.id} className="relative group flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => handleNavClick(item.id)}
+                  aria-label={item.label}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer ${
+                    isActive
+                      ? 'bg-[#2563EB] text-white shadow-lg shadow-blue-600/35'
+                      : 'bg-[#0D1F3A] text-slate-300 hover:text-white hover:bg-[#112240] border border-white/5'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 shrink-0" />
+                </button>
+                <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 rounded-lg bg-[#0A192F] text-white text-xs font-semibold whitespace-nowrap border border-white/15 shadow-xl z-50">
+                  {item.label}
+                </span>
+              </div>
+            );
+          }
+
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => handleNavClick(item.id)}
-              className={`w-full flex items-center justify-between gap-3 px-3.5 py-3 rounded-xl text-left transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer ${
                 isActive
-                  ? 'bg-gray-800/90 text-white border border-gray-700/80'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-900 border border-transparent'
+                  ? 'bg-[#2563EB] text-white shadow-lg shadow-blue-600/30 border border-blue-300/30'
+                  : 'bg-[#0D1F3A] text-slate-200 hover:text-white hover:bg-[#132A4D] border border-white/5'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <Icon
-                  className={`w-4 h-4 shrink-0 ${
-                    isActive ? 'text-emerald-400' : 'text-gray-400'
-                  }`}
-                />
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold whitespace-nowrap truncate">
-                    {item.label}
-                  </div>
-                  <div className="text-[11px] text-gray-500 truncate">
-                    {item.subtitle}
-                  </div>
-                </div>
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="text-sm font-semibold whitespace-nowrap truncate">
+                  {item.label}
+                </span>
               </div>
 
               {typeof item.badge === 'number' && (
                 <span
                   className={`text-[11px] font-mono tabular-nums px-2 py-0.5 rounded-md shrink-0 ${
                     isActive
-                      ? 'bg-emerald-500/15 text-emerald-400 font-bold'
-                      : 'bg-gray-900 text-gray-400'
+                      ? 'bg-white/20 text-white font-bold'
+                      : 'bg-[#112240] text-slate-300'
                   }`}
                 >
                   {item.badge}
@@ -156,64 +214,159 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Bottom Quota Summary */}
-      <div className="p-4 border-t border-gray-800">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-3.5 space-y-2.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-300 font-semibold flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-emerald-400" />
-              Kuota Render AI
-            </span>
-            <span className="font-mono tabular-nums text-emerald-400 font-bold">
-              {credits}/{maxCredits} mnt
+      {/* Pinned Bottom Settings Item */}
+      <div
+        className={`mt-auto border-t border-white/10 shrink-0 ${
+          isCollapsed ? 'p-2.5' : 'p-3.5'
+        }`}
+      >
+        {isCollapsed ? (
+          <div className="relative group flex justify-center">
+            <button
+              type="button"
+              onClick={() => handleNavClick('settings')}
+              aria-label="Settings"
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer ${
+                activeTab === 'settings'
+                  ? 'bg-[#2563EB] text-white shadow-lg shadow-blue-600/35'
+                  : 'bg-[#0D1F3A] text-slate-300 hover:text-white hover:bg-[#112240] border border-white/5'
+              }`}
+            >
+              <Settings className="w-5 h-5 shrink-0" />
+            </button>
+            <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 rounded-lg bg-[#0A192F] text-white text-xs font-semibold whitespace-nowrap border border-white/15 shadow-xl z-50">
+              Settings
             </span>
           </div>
-          <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-emerald-400 rounded-full transition-all"
-              style={{ width: `${creditPercent}%` }}
-            />
-          </div>
-          <p className="text-[11px] text-gray-400 leading-relaxed">
-            Siap memproses video YouTube &amp; MP4 ke format 9:16.
-          </p>
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => handleNavClick('settings')}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer ${
+              activeTab === 'settings'
+                ? 'bg-[#2563EB] text-white shadow-lg shadow-blue-600/30 border border-blue-300/30'
+                : 'bg-[#0D1F3A] text-slate-200 hover:text-white hover:bg-[#132A4D] border border-white/5'
+            }`}
+          >
+            <Settings className="w-4 h-4 shrink-0" />
+            <span className="text-sm font-semibold whitespace-nowrap truncate">Settings</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderMobileSidebar = () => (
+    <div className="flex flex-col h-full bg-[#0A192F] text-white border-r border-white/10 select-none">
+      <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => handleNavClick('home')}
+          className="flex items-center gap-3 text-left cursor-pointer"
+        >
+          <img
+            src="/assets/aistudio/clipA_dae34944.png"
+            alt="ClipA Studio"
+            className="w-9 h-9 object-contain shrink-0"
+          />
+          <span className="text-base font-extrabold tracking-tight text-white whitespace-nowrap">
+            ClipA Studio
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileOpen(false)}
+          className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-[#112240] cursor-pointer"
+          aria-label="Tutup menu"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto" aria-label="Menu Mobile">
+        {mainNavItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => handleNavClick(item.id)}
+              className={`w-full flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-left transition-colors cursor-pointer ${
+                isActive
+                  ? 'bg-[#2563EB] text-white'
+                  : 'bg-[#0D1F3A] text-slate-200 hover:text-white hover:bg-[#132A4D]'
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="text-sm font-semibold whitespace-nowrap truncate">{item.label}</span>
+              </div>
+              {typeof item.badge === 'number' && (
+                <span className="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded-md bg-white/15 text-white shrink-0">
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="mt-auto p-3 border-t border-white/10">
+        <button
+          type="button"
+          onClick={() => handleNavClick('settings')}
+          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors cursor-pointer ${
+            activeTab === 'settings'
+              ? 'bg-[#2563EB] text-white'
+              : 'bg-[#0D1F3A] text-slate-200 hover:text-white hover:bg-[#132A4D]'
+          }`}
+        >
+          <Settings className="w-4 h-4 shrink-0" />
+          <span className="text-sm font-semibold whitespace-nowrap">Settings</span>
+        </button>
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Mobile Compact Header Trigger (only visible below lg) */}
-      <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 bg-gray-950 border-b border-gray-800 px-4 flex items-center justify-between">
+      {/* Mobile Compact Header Trigger */}
+      <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 bg-[#0A192F] border-b border-white/10 px-4 flex items-center justify-between">
         <button
           type="button"
           onClick={() => handleNavClick('home')}
           className="flex items-center gap-2.5 cursor-pointer"
         >
-          <div className="w-8 h-8 rounded-lg bg-gray-900 border border-gray-800 p-1 flex items-center justify-center">
-            <img
-              src="/assets/aistudio/clipA_dae34944.png"
-              alt="ClipA"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <span className="text-sm font-extrabold text-white tracking-tight">ClipA Studio</span>
+          <img
+            src="/assets/aistudio/clipA_dae34944.png"
+            alt="ClipA Studio"
+            className="w-9 h-9 object-contain shrink-0"
+          />
+          <span className="text-sm font-extrabold text-white tracking-tight whitespace-nowrap">
+            ClipA Studio
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="p-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 hover:text-white cursor-pointer"
+          className="p-2 rounded-lg bg-[#112240] border border-white/10 text-white cursor-pointer"
           aria-label="Buka navigasi"
         >
           <Menu className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Desktop Fixed Left Sidebar */}
-      <aside className="hidden lg:block fixed inset-y-0 left-0 w-64 z-30">
-        {sidebarContent}
+      {/* Desktop Collapsible Sticky Rail */}
+      <aside
+        className={`hidden lg:flex flex-col sticky top-0 h-screen shrink-0 z-30 transition-all duration-300 ${
+          isCollapsed ? 'w-[72px]' : 'w-64'
+        }`}
+        aria-label="Navigasi Utama"
+      >
+        {renderDesktopSidebar()}
       </aside>
 
       {/* Mobile Drawer Overlay */}
@@ -223,9 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="fixed inset-0 bg-black/70 backdrop-blur-xs"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative w-64 max-w-[80vw] h-full z-10">
-            {sidebarContent}
-          </div>
+          <div className="relative w-64 max-w-[80vw] h-full z-10">{renderMobileSidebar()}</div>
         </div>
       )}
     </>

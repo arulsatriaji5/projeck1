@@ -143,9 +143,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="bg-gray-900 border border-gray-800 rounded-xl p-3 flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div>
-                  <div className="text-xs font-bold text-white">Pipeline Server Aktif</div>
+                  <div className="text-xs font-bold text-white">Layanan AI Aktif</div>
                   <div className="text-[11px] text-gray-400">
-                    Endpoint /api/auto-clip &amp; Gemini 2.5 Flash terhubung
+                    Siap memproses klip dan subtitle otomatis
                   </div>
                 </div>
               </div>
