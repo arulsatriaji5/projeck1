@@ -133,25 +133,26 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
 
   const currentCaption = activeCaptionIndex >= 0 ? clip.captions[activeCaptionIndex] : undefined;
 
-  const renderHighlightedCaptionText = (text: string, highlightTarget?: string) => {
-    const cleanTarget = (highlightTarget || '').trim().toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
-    if (!cleanTarget) return <span>{text}</span>;
-    const words = text.split(/\s+/).filter(Boolean);
+  const renderHighlightedCaptionText = (text: string, subStart: number, subEnd: number) => {
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return null;
+    const progress = Math.max(0, Math.min(1, (currentTime - subStart) / Math.max(0.1, subEnd - subStart)));
+    const activeWordIndex = Math.min(words.length - 1, Math.max(0, Math.floor(progress * words.length)));
     return (
-      <span>
+      <span className="flex flex-wrap justify-center items-center gap-x-[0.3em] gap-y-1 max-w-[86%] mx-auto text-center">
         {words.map((word, wIdx) => {
-          const cleanWord = word.toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
-          const isHighlight = cleanWord === cleanTarget || cleanTarget.split(/\s+/).includes(cleanWord);
+          const isHighlight = wIdx === activeWordIndex;
           return (
             <span
               key={wIdx}
+              style={{ paintOrder: 'stroke fill' }}
               className={
                 isHighlight
-                  ? 'inline-block mx-0.5 px-1.5 py-0.5 rounded bg-[#2563EB] text-yellow-300 scale-105 shadow-md'
-                  : 'inline-block mx-0.5'
+                  ? 'inline-block whitespace-nowrap text-yellow-300 scale-105 transition-transform duration-100'
+                  : 'inline-block whitespace-nowrap text-white'
               }
             >
-              {word}
+              {word}{' '}
             </span>
           );
         })}
@@ -244,26 +245,27 @@ export const VideoPlayerVertical: React.FC<VideoPlayerVerticalProps> = ({
             playsInline
             muted={isMuted}
             loop
-            className="absolute inset-0 w-full h-full object-contain bg-black"
+            className={`absolute inset-0 w-full h-full bg-black ${aspectRatio === '9:16' ? 'object-cover' : 'object-contain'}`}
           />
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20 pointer-events-none" />
 
           {currentCaption && (
-            <div className="absolute top-[54%] -translate-y-1/2 inset-x-4 z-20 flex flex-col items-center justify-center pointer-events-none">
+            <div className="absolute top-[56%] -translate-y-1/2 inset-x-4 z-20 flex flex-col items-center justify-center pointer-events-none">
               <div className={getCaptionStyleClasses()}>
                 {currentCaption.emoji && <span className="mr-1.5">{currentCaption.emoji}</span>}
                 {renderHighlightedCaptionText(
                   currentCaption.text,
-                  currentCaption.highlightWord || currentCaption.highlight
+                  currentCaption.start,
+                  currentCaption.end
                 )}
               </div>
             </div>
           )}
 
           {clip.hook && clip.hook.trim().length > 0 && (
-            <div className="absolute top-[76%] -translate-y-1/2 left-1/2 -translate-x-1/2 max-w-[82%] max-h-[24%] overflow-hidden w-max z-20 pointer-events-none text-center">
-              <div className="bg-black/80 text-white font-extrabold text-[11px] px-3 py-1 rounded-xl shadow-lg border border-white/15 leading-snug line-clamp-2 overflow-hidden">
+            <div className="absolute top-[76%] -translate-y-1/2 left-1/2 -translate-x-1/2 max-w-[88%] max-h-[36%] overflow-hidden w-max z-20 pointer-events-none text-center">
+              <div className="bg-black/80 text-white font-extrabold text-[11px] px-3.5 py-2.5 rounded-xl shadow-lg border border-white/15 leading-snug line-clamp-3 text-center whitespace-normal break-words overflow-hidden">
                 {clip.hook}
               </div>
             </div>

@@ -12,6 +12,19 @@ export interface CaptionItem {
   emoji?: string;
 }
 
+export interface TranscriptWord {
+  word: string;
+  start: number;
+  end: number;
+}
+
+export interface TranscriptSegment {
+  start: number;
+  end: number;
+  text: string;
+  words: TranscriptWord[];
+}
+
 export interface ClipItem {
   id: string;
   title: string;
@@ -37,6 +50,7 @@ export interface VideoData {
   channelName: string;
   totalDuration: string;
   thumbnailUrl: string;
+  fullTranscript?: TranscriptSegment[];
   clips: ClipItem[];
 }
 
@@ -85,6 +99,7 @@ export interface ProjectItem {
   clipsCount: number;
   topScore: number;
   thumbnailUrl: string;
+  fullTranscript?: TranscriptSegment[];
   videoData: VideoData;
 }
 

@@ -137,26 +137,13 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
       animationClass = 'animate-pulse duration-1000';
     }
 
-    // Split text into words for syllable/char-weighted karaoke highlight
+    // Split text into words for clean single-word kinetic highlight
     const words = sub.text.trim().split(/\s+/).filter(Boolean);
-    const relativeTime = Math.max(0, currentTime - sub.start);
-    const subDuration = Math.max(0.35, sub.end - sub.start);
-    const weights = words.map((w) => {
-      const clean = w.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, '');
-      const vowels = (clean.match(/[aeiouyAEIOUY]/g) || []).length;
-      return Math.max(1.2, vowels * 1.15 + clean.length * 0.25);
-    });
-    const totalWeight = weights.reduce((sum, val) => sum + val, 0) || 1;
-    const targetWeight = Math.min(1, relativeTime / subDuration) * totalWeight;
-    let accWeight = 0;
-    let wordProgressIndex = 0;
-    for (let i = 0; i < weights.length; i++) {
-      accWeight += weights[i];
-      if (targetWeight <= accWeight || i === weights.length - 1) {
-        wordProgressIndex = i;
-        break;
-      }
-    }
+    const subDuration = Math.max(0.1, sub.end - sub.start);
+    const progress = Math.max(0, Math.min(1, (currentTime - sub.start) / subDuration));
+    const activeWordIndex = words.length > 0
+      ? Math.min(words.length - 1, Math.max(0, Math.floor(progress * words.length)))
+      : 0;
 
     return (
       <div
@@ -164,7 +151,7 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
           e.stopPropagation();
           onSelectSubtitle(sub.id);
         }}
-        className={`cursor-pointer transition-all ${animationClass} ${
+        className={`cursor-pointer transition-all flex flex-wrap justify-center items-center gap-x-[0.3em] gap-y-1 max-w-[86%] mx-auto text-center ${animationClass} ${
           isSelected ? 'ring-2 ring-sky-400/80 ring-offset-2 ring-offset-black rounded-lg p-1' : ''
         }`}
         style={{
@@ -172,6 +159,7 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
           fontSize: `${sub.fontSize}px`,
           color: sub.color,
           WebkitTextStroke: `${sub.strokeWidth}px ${sub.strokeColor}`,
+          paintOrder: 'stroke fill',
           textShadow: sub.shadowBlur > 0 ? `0 4px ${sub.shadowBlur * 2}px rgba(0,0,0,0.9)` : 'none',
           lineHeight: 1.15,
           fontWeight: 900,
@@ -180,45 +168,25 @@ export const VideoPreviewCanvas: React.FC<VideoPreviewCanvasProps> = ({
           textTransform: 'uppercase'
         }}
       >
-        {sub.animation === 'karaoke' ? (
-          words.map((word, wIdx) => {
-            const isHighlight = wIdx === wordProgressIndex;
-            return (
-              <span
-                key={wIdx}
-                className="inline-block mx-1 transition-all"
-                style={{
-                  color: isHighlight ? (sub.highlightColor || '#FACC15') : sub.color,
-                  transform: isHighlight ? 'scale(1.15)' : 'scale(1)',
-                  textShadow: isHighlight
-                    ? '0 0 15px rgba(250,204,21,0.8), 0 4px 10px rgba(0,0,0,0.9)'
-                    : undefined
-                }}
-              >
-                {word}
-              </span>
-            );
-          })
-        ) : (sub.highlightWord || sub.highlight) ? (
-          words.map((word, wIdx) => {
-            const target = (sub.highlightWord || sub.highlight || '').trim().toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
-            const cleanWord = word.toLowerCase().replace(/[^\w\u00C0-\u024F]/g, '');
-            const isTarget = Boolean(target && (cleanWord === target || target.split(/\s+/).includes(cleanWord)));
-            return (
-              <span
-                key={wIdx}
-                className="inline-block mx-1"
-                style={{
-                  color: isTarget ? (sub.highlightColor || '#FACC15') : sub.color,
-                }}
-              >
-                {word}
-              </span>
-            );
-          })
-        ) : (
-          <span>{sub.text}</span>
-        )}
+        {words.map((word, wIdx) => {
+          const isHighlight = wIdx === activeWordIndex;
+          return (
+            <span
+              key={wIdx}
+              className="inline-block whitespace-nowrap transition-transform duration-100"
+              style={{
+                paintOrder: 'stroke fill',
+                color: isHighlight ? (sub.highlightColor || '#FACC15') : sub.color,
+                transform: isHighlight && sub.animation === 'karaoke' ? 'scale(1.12)' : 'scale(1)',
+                textShadow: isHighlight && sub.animation === 'karaoke'
+                  ? '0 0 15px rgba(250,204,21,0.8), 0 4px 10px rgba(0,0,0,0.9)'
+                  : undefined
+              }}
+            >
+              {word}{' '}
+            </span>
+          );
+        })}
       </div>
     );
   };

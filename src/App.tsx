@@ -219,6 +219,9 @@ export default function App() {
         resolvedVideoData = {
           ...payload.videoData,
           thumbnailUrl: payload.videoData.thumbnailUrl || CLIP_THUMBNAILS[0],
+          fullTranscript: Array.isArray(payload.fullTranscript)
+            ? payload.fullTranscript
+            : (Array.isArray(payload.videoData.fullTranscript) ? payload.videoData.fullTranscript : []),
           clips: mappedClips,
         };
       } else if (Array.isArray(payload.clips) && payload.clips.length > 0) {
@@ -226,20 +229,57 @@ export default function App() {
           .map((c: any, idx: number) => {
             const startSec = Number(c.start_sec ?? c.start_seconds ?? c.startTime) || 0;
             const endSec = Number(c.end_sec ?? c.end_seconds ?? c.endTime) || startSec + 30;
-            const rawSubs = Array.isArray(c.subtitles) ? c.subtitles : [];
+            const clipDuration = Math.max(1, endSec - startSec);
+            const rawSubs = (Array.isArray(c.subtitles) ? c.subtitles : []).filter(
+              (s: any) => s && String(s.text || '').trim().length > 0
+            );
+            const inputsAreAbs =
+              startSec > 1.5 &&
+              rawSubs.some((s: any) => {
+                const st = Number(s.start_sec ?? s.start);
+                return Number.isFinite(st) && st >= startSec - 0.5 && st <= endSec + 1.5;
+              });
             const captions: CaptionItem[] = rawSubs.map((s: any, sIdx: number) => {
-              const relStart = typeof s.start === 'number' ? s.start : Math.max(0, (Number(s.start_sec) || startSec) - startSec);
-              const relEnd = typeof s.end === 'number' ? s.end : Math.max(relStart + 0.2, (Number(s.end_sec) || startSec + 1.2) - startSec);
+              const rawS = Number(s.start_sec !== undefined ? s.start_sec : s.start);
+              const rawE = Number(s.end_sec !== undefined ? s.end_sec : s.end);
+              let relStart = inputsAreAbs && Number.isFinite(rawS) ? Math.max(0, rawS - startSec) : Math.max(0, Number(s.start) || 0);
+              let relEnd = inputsAreAbs && Number.isFinite(rawE) ? Math.max(relStart, rawE - startSec) : Math.max(relStart, Number(s.end) || relStart);
+              relStart = Math.min(clipDuration, relStart);
+              relEnd = Math.min(clipDuration, relEnd);
               const hw = String(s.highlightWord || s.highlight || '').trim();
               return {
                 id: String(s.id || `sub-${idx + 1}-${sIdx + 1}`),
-                start: relStart,
-                end: relEnd,
+                start: Math.round(relStart * 100) / 100,
+                end: Math.round(relEnd * 100) / 100,
                 text: String(s.text || '').trim(),
                 highlight: hw || undefined,
                 highlightWord: hw || undefined,
               };
             });
+            const nearZeroCnt = captions.filter((cap) => cap.start <= 0.15).length;
+            const hasSquashedOrBad =
+              captions.some(
+                (cap, ci) =>
+                  cap.end - cap.start < 0.35 ||
+                  (ci > 0 && (cap.start < captions[ci - 1].end - 0.08 || cap.start < captions[ci - 1].start - 0.02))
+              ) ||
+              (captions.length >= 2 && nearZeroCnt >= 2) ||
+              (captions.length >= 3 && captions[captions.length - 1].end - captions[0].start < clipDuration * 0.45);
+            if (hasSquashedOrBad && captions.length > 0) {
+              const weights = captions.map((cap) => Math.max(1, cap.text.replace(/\s+/g, '').length));
+              const totalChars = Math.max(1, weights.reduce((a, b) => a + b, 0));
+              let cursor = 0;
+              captions.forEach((cap, ci) => {
+                const dur = clipDuration * (weights[ci] / totalChars);
+                cap.start = Math.round(cursor * 100) / 100;
+                cap.end =
+                  ci === captions.length - 1
+                    ? Math.round(clipDuration * 100) / 100
+                    : Math.round(Math.min(clipDuration, cursor + dur) * 100) / 100;
+                cap.end = Math.max(Math.min(clipDuration, cap.start + 0.35), cap.end);
+                cursor += dur;
+              });
+            }
 
             return {
               id: String(c.id || `clip-${Date.now()}-${idx + 1}`),
@@ -270,6 +310,7 @@ export default function App() {
           channelName: uploadedFile ? 'File Video Lokal' : 'YouTube Source',
           totalDuration: `${mins}:${secs}`,
           thumbnailUrl: mappedClips[0]?.thumbnailUrl || CLIP_THUMBNAILS[0],
+          fullTranscript: Array.isArray(payload.fullTranscript) ? payload.fullTranscript : [],
           clips: mappedClips,
         };
       } else {
@@ -325,12 +366,13 @@ export default function App() {
         clipsCount: resolvedVideoData.clips.length,
         topScore: Math.max(...resolvedVideoData.clips.map((c) => c.viralScore)),
         thumbnailUrl: resolvedVideoData.thumbnailUrl || CLIP_THUMBNAILS[0],
+        fullTranscript: resolvedVideoData.fullTranscript || [],
         videoData: resolvedVideoData,
       };
 
       setProjects((prev) => [newProject, ...prev]);
       setActiveView('results');
-      showToast(`${resolvedVideoData.clips.length} klip viral berhasil dibuat otomatis!`);
+      showToast(`${resolvedVideoData.clips.length} klip vertikal pilihan siap ditonton atau diedit!`);
     } catch (err: any) {
       console.error('handleProcessVideo error:', err);
       showToast(err?.message || 'Terjadi kendala saat memproses video. Silakan coba lagi.');

@@ -1299,7 +1299,7 @@
       left: 50%;
       width: max-content;
       max-width: 88%;
-      top: 54%;
+      top: 56%;
       bottom: auto;
       transform: translate(-50%, -50%);
       pointer-events: none;
@@ -1600,8 +1600,8 @@
       top: 76%;
       left: 50%;
       width: max-content;
-      max-width: 82%;
-      max-height: 24%;
+      max-width: 88%;
+      max-height: 36%;
       overflow: hidden;
       transform: translate(-50%, -50%);
       z-index: 7;
@@ -1612,17 +1612,24 @@
       max-width: 100%;
       max-height: 100%;
       overflow: hidden;
-      padding: 0.3rem 0.65rem !important;
-      font-size: 0.68rem;
-      line-height: 1.25;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      text-align: center;
+      white-space: normal;
+      overflow-wrap: break-word;
     }
 
     .hook-banner-overlay > div > span {
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-align: center;
+      white-space: normal;
+      overflow-wrap: break-word;
+      line-height: 1.35;
     }
 
     .hook-box-white {
@@ -1658,18 +1665,44 @@
       transition: border-color 0.12s ease;
     }
 
+    .rt-words-flex {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      column-gap: 0.3em;
+      row-gap: 0.16em;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .rt-stacked-coral-line {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      column-gap: 0.3em;
+      row-gap: 0.1em;
+    }
+
     .rt-word-span {
       display: inline-block;
+      white-space: nowrap;
+      paint-order: stroke fill;
       transition: transform 0.08s ease-out, color 0.08s ease-out;
     }
 
     .rt-word-active {
       display: inline-block;
+      white-space: nowrap;
+      paint-order: stroke fill;
       transform: scale(1.08);
     }
 
     .rt-word-kinetic {
       display: inline-block;
+      white-space: nowrap;
+      paint-order: stroke fill;
       transform: scale(1.35);
       transform-origin: center center;
       font-weight: 900;
@@ -1696,16 +1729,17 @@
       animation: rtWordPopIn 0.2s cubic-bezier(0.22, 1.4, 0.36, 1) both;
     }
 
-    /* 7 Kinetic Subtitle Stage Layouts */
+    /* Kinetic Subtitle Stage Layouts */
     .rt-kolase-wrap {
       display: inline-flex;
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 0.22em 0.28em;
+      gap: 0.22em 0.32em;
     }
     .rt-kolase-pill {
       display: inline-block;
+      white-space: nowrap;
       padding: 0.12em 0.44em;
       border-radius: 0.34em;
       font-weight: 900;
@@ -1729,12 +1763,12 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.04em;
+      gap: 0.06em;
       line-height: 0.96;
     }
-    .rt-bertumpuk-row-top { font-size: 1.32em; font-weight: 900; }
-    .rt-bertumpuk-row-mid { font-size: 0.78em; font-weight: 800; letter-spacing: 0.03em; }
-    .rt-bertumpuk-row-bot { font-size: 1.12em; font-weight: 900; }
+    .rt-bertumpuk-row-top { font-size: 1.32em; font-weight: 900; display: inline-flex; flex-wrap: wrap; justify-content: center; column-gap: 0.3em; }
+    .rt-bertumpuk-row-mid { font-size: 0.78em; font-weight: 800; letter-spacing: 0.03em; display: inline-flex; flex-wrap: wrap; justify-content: center; column-gap: 0.3em; }
+    .rt-bertumpuk-row-bot { font-size: 1.12em; font-weight: 900; display: inline-flex; flex-wrap: wrap; justify-content: center; column-gap: 0.3em; }
 
     .rt-kombo-wrap {
       display: flex;
@@ -1748,22 +1782,26 @@
       flex-wrap: wrap;
       align-items: baseline;
       justify-content: center;
-      gap: 0.22em;
+      column-gap: 0.3em;
+      row-gap: 0.12em;
     }
-    .rt-kombo-lg { font-size: 1.24em; font-weight: 900; }
-    .rt-kombo-sm { font-size: 0.74em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .rt-kombo-lg { font-size: 1.24em; font-weight: 900; white-space: nowrap; paint-order: stroke fill; }
+    .rt-kombo-sm { font-size: 0.74em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; paint-order: stroke fill; }
 
     .rt-tumbuh-wrap {
       display: inline-flex;
       flex-wrap: wrap;
       align-items: baseline;
       justify-content: center;
-      gap: 0.14em 0.26em;
+      column-gap: 0.32em;
+      row-gap: 0.16em;
       line-height: 1.08;
     }
     .rt-tumbuh-word {
       display: inline-block;
+      white-space: nowrap;
       font-weight: 900;
+      paint-order: stroke fill;
       transform-origin: center center;
     }
 
@@ -1771,33 +1809,38 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.1em;
+      gap: 0.12em;
       line-height: 1.08;
     }
     .rt-acak-row-a {
       display: inline-flex;
-      gap: 0.28em;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 0.3em;
       transform: translateX(-7%);
     }
     .rt-acak-row-b {
       display: inline-flex;
-      gap: 0.28em;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 0.3em;
       transform: translateX(8%);
     }
-    .rt-acak-word { display: inline-block; font-weight: 900; }
+    .rt-acak-word { display: inline-block; white-space: nowrap; font-weight: 900; paint-order: stroke fill; }
 
     .rt-multibaris-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.08em;
+      gap: 0.1em;
       line-height: 1.12;
     }
     .rt-multibaris-row {
       display: inline-flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.24em;
+      column-gap: 0.3em;
+      row-gap: 0.12em;
     }
     .rt-multibaris-slide {
       display: inline-block;
@@ -1810,7 +1853,7 @@
       align-items: center;
       justify-content: center;
       white-space: nowrap;
-      gap: 0.26em;
+      column-gap: 0.3em;
       max-width: 100%;
     }
 
@@ -2396,6 +2439,14 @@
       will-change: transform;
     }
 
+    .clip-card-video-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background-color: #071324;
+      pointer-events: none;
+    }
+
     /* Compact OpusClip Card & True 9:16 YouTube Center-Crop Mask */
     .clip-result-card {
       border-radius: 12px !important;
@@ -2434,11 +2485,12 @@
 
     .yt-crop-frame {
       position: absolute !important;
-      top: -6.25% !important;
-      left: -128% !important;
-      width: 356% !important;
-      height: 112.5% !important;
-      transform: scale(1.14) !important;
+      top: 0 !important;
+      left: 50% !important;
+      width: 316% !important;
+      max-width: none !important;
+      height: 100% !important;
+      transform: translateX(-50%) !important;
       transform-origin: center center !important;
       pointer-events: none !important;
       border: 0 !important;
@@ -2471,8 +2523,8 @@
     .clip-result-card .hook-banner-overlay {
       left: 50%;
       width: max-content;
-      max-width: 82%;
-      max-height: 24%;
+      max-width: 88%;
+      max-height: 36%;
       overflow: hidden;
     }
 
@@ -5376,6 +5428,7 @@
             <div class="mb-4">
               <label for="configTargetDuration" class="form-label small fw-bold text-navy">Durasi Klip</label>
               <select id="configTargetDuration" class="form-select" onchange="syncConfigSummary()">
+                <option value="auto">Otomatis</option>
                 <option value="15_30" selected>15 - 30 detik</option>
                 <option value="30_60">30 - 60 detik</option>
                 <option value="60_90">60 - 90 detik</option>
@@ -6525,9 +6578,9 @@
                     <div
                       id="editorSubtitleOverlay"
                       class="sub-safe-zone editor-sub-free editor-overlay-draggable"
-                      style="left: 50%; top: 54%; bottom: auto; transform: translate(-50%, -50%); z-index: 10;"
+                      style="left: 50%; top: 56%; bottom: auto; transform: translate(-50%, -50%); z-index: 10;"
                     >
-                      <span id="editorSubtitleDragReadout" class="editor-sub-coord-readout d-none">X: 50% · Y: 54%</span>
+                      <span id="editorSubtitleDragReadout" class="editor-sub-coord-readout d-none">X: 50% · Y: 56%</span>
                       <span id="editorSubtitleText" class="d-inline-block px-2 py-1 fw-bold" style="display: none;"></span>
                     </div>
                   </div>
@@ -7236,87 +7289,101 @@
                   <div id="hookRichStudioMount" class="capcut-drawer-surface"></div>
                 </div>
 
-                <!-- Pane 4: Keterangan (Subtitle Verbatim + Unified 5-Tab Typography & Motion Studio) -->
+                <!-- Pane 4: Keterangan (Unified 5-Tab Styling Studio First + Collapsible Subtitle Text List) -->
                 <div id="editorDrawer-captions" class="editor-drawer-pane d-none">
                   <div class="capcut-drawer-surface mb-2">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-1">
                       <div class="d-flex flex-wrap align-items-center gap-1">
-                        <button type="button" class="btn btn-sm btn-capcut-cyan py-0 px-2" style="height: 24px; font-size: 0.68rem;" onclick="addNewSubtitleBlock()">
+                        <button type="button" class="btn btn-sm btn-capcut-cyan py-0 px-2" style="height: 24px; font-size: 0.67rem;" onclick="addNewSubtitleBlock()">
                           <i class="bi bi-plus-circle-fill me-1"></i>+ Subtitle
                         </button>
-                        <button type="button" id="btnGenerateSubtitlesAi" class="btn btn-sm btn-capcut-ghost py-0 px-2" style="height: 24px; font-size: 0.68rem;" onclick="generateAutoSubtitlesWithAI()">
+                        <button type="button" id="btnGenerateSubtitlesAi" class="btn btn-sm btn-capcut-ghost py-0 px-2" style="height: 24px; font-size: 0.67rem;" onclick="generateAutoSubtitlesWithAI()">
                           <i class="bi bi-stars text-primary me-1"></i>&#10024; Buat Subtitle Otomatis (AI)
                         </button>
-                        <button type="button" id="btnTidySubtitlesAi" class="btn btn-sm btn-capcut-ghost py-0 px-2" style="height: 24px; font-size: 0.68rem;" onclick="tidyEditorSubtitlesWithAI()">
+                        <button type="button" id="btnTidySubtitlesAi" class="btn btn-sm btn-capcut-ghost py-0 px-2" style="height: 24px; font-size: 0.67rem;" onclick="tidyEditorSubtitlesWithAI()">
                           <i class="bi bi-magic text-primary me-1"></i>&#10024; Rapikan Subtitle (AI)
                         </button>
                       </div>
-                      <div class="btn-group btn-group-sm" role="group" aria-label="Posisi Cepat Subtitle">
-                        <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.64rem;" onclick="applyQuickPositionPreset('subtitle','top')">Atas</button>
-                        <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.64rem;" onclick="applyQuickPositionPreset('subtitle','center')">Tengah</button>
-                        <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.64rem;" onclick="applyQuickPositionPreset('subtitle','left')">Kiri</button>
-                        <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.64rem;" onclick="applyQuickPositionPreset('subtitle','right')">Kanan</button>
-                        <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.64rem;" onclick="applyQuickPositionPreset('subtitle','bottom')">Bawah</button>
-                      </div>
+                      <button
+                        type="button"
+                        id="btnToggleSubtitleListAccordion"
+                        class="btn btn-sm btn-capcut-ghost py-0 px-2 d-flex align-items-center gap-1 fw-bold"
+                        style="height: 24px; font-size: 0.67rem;"
+                        onclick="toggleSubtitleListAccordion()"
+                        aria-expanded="false"
+                        title="Buka atau tutup daftar &amp; edit teks subtitle"
+                      >
+                        <i class="bi bi-list-ul text-primary"></i>
+                        <span>Daftar &amp; Edit Teks</span>
+                        <span id="editorSubtitleCountBadge" class="badge neu-badge font-mono-tabular" style="font-size: 0.58rem;">0</span>
+                        <i id="editorSubtitleAccordionIcon" class="bi bi-chevron-down" style="font-size: 0.62rem;"></i>
+                      </button>
                     </div>
 
-                    <div class="row g-2 align-items-end">
-                      <div class="col-12 col-xl-6">
-                        <label for="propOverlayText" class="form-label mb-1">Teks Subtitle Terpilih</label>
-                        <textarea id="propOverlayText" rows="2" class="form-control form-control-sm fw-bold" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" placeholder="Ketik atau sunting kata subtitle..."></textarea>
+                    <div id="editorSubtitleAccordionBody" class="d-none mt-2 pt-2 border-top" style="border-color: rgba(148, 163, 184, 0.28) !important;">
+                      <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-2">
+                        <span class="small fw-bold text-navy" style="font-size: 0.66rem;">Posisi Cepat Subtitle</span>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Posisi Cepat Subtitle">
+                          <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.63rem;" onclick="applyQuickPositionPreset('subtitle','top')">Atas</button>
+                          <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.63rem;" onclick="applyQuickPositionPreset('subtitle','center')">Tengah</button>
+                          <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.63rem;" onclick="applyQuickPositionPreset('subtitle','left')">Kiri</button>
+                          <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.63rem;" onclick="applyQuickPositionPreset('subtitle','right')">Kanan</button>
+                          <button type="button" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.63rem;" onclick="applyQuickPositionPreset('subtitle','bottom')">Bawah</button>
+                        </div>
                       </div>
-                      <div class="col-12 col-xl-6">
-                        <div class="row g-1 align-items-end">
-                          <div class="col-3">
-                            <label for="propOverlayStart" class="form-label mb-1">Mulai (dtk)</label>
-                            <input type="number" step="0.1" min="0" id="propOverlayStart" class="form-control form-control-sm font-mono-tabular" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" />
-                          </div>
-                          <div class="col-3">
-                            <label for="propOverlayEnd" class="form-label mb-1">Selesai (dtk)</label>
-                            <input type="number" step="0.1" min="0.2" id="propOverlayEnd" class="form-control form-control-sm font-mono-tabular" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" />
-                          </div>
-                          <div class="col-3">
-                            <div class="d-flex justify-content-between align-items-center mb-0">
-                              <label for="propOverlayPosXRange" class="form-label mb-0">X (%)</label>
-                              <input type="number" step="1" min="5" max="95" id="propOverlayPosX" value="50" class="form-control form-control-sm font-mono-tabular py-0 px-1 text-center" style="width: 44px; height: 20px; font-size: 0.64rem;" oninput="updateSelectedOverlayProperties('number')" onchange="pushEditorHistorySnapshot()" />
+
+                      <div class="row g-2 align-items-end mb-2">
+                        <div class="col-12 col-xl-6">
+                          <label for="propOverlayText" class="form-label mb-1">Teks Subtitle Terpilih</label>
+                          <textarea id="propOverlayText" rows="2" class="form-control form-control-sm fw-bold" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" placeholder="Ketik atau sunting kata subtitle..."></textarea>
+                        </div>
+                        <div class="col-12 col-xl-6">
+                          <div class="row g-1 align-items-end">
+                            <div class="col-3">
+                              <label for="propOverlayStart" class="form-label mb-1">Mulai (dtk)</label>
+                              <input type="number" step="0.1" min="0" id="propOverlayStart" class="form-control form-control-sm font-mono-tabular" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" />
                             </div>
-                            <input type="range" id="propOverlayPosXRange" class="form-range mb-0" min="5" max="95" step="1" value="50" oninput="updateSelectedOverlayProperties('range')" onchange="pushEditorHistorySnapshot()" />
-                          </div>
-                          <div class="col-3">
-                            <div class="d-flex justify-content-between align-items-center mb-0">
-                              <label for="propOverlayPosYRange" class="form-label mb-0">Y (%)</label>
-                              <input type="number" step="1" min="5" max="95" id="propOverlayPosY" value="54" class="form-control form-control-sm font-mono-tabular py-0 px-1 text-center" style="width: 44px; height: 20px; font-size: 0.64rem;" oninput="updateSelectedOverlayProperties('number')" onchange="pushEditorHistorySnapshot()" />
+                            <div class="col-3">
+                              <label for="propOverlayEnd" class="form-label mb-1">Selesai (dtk)</label>
+                              <input type="number" step="0.1" min="0.2" id="propOverlayEnd" class="form-control form-control-sm font-mono-tabular" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" />
                             </div>
-                            <input type="range" id="propOverlayPosYRange" class="form-range mb-0" min="5" max="95" step="1" value="54" oninput="updateSelectedOverlayProperties('range')" onchange="pushEditorHistorySnapshot()" />
-                          </div>
-                          <div class="col-6 mt-1">
-                            <label for="propSubScale" class="form-label mb-0">Skala: <strong id="propSubScaleVal" class="text-primary font-mono-tabular">100%</strong></label>
-                            <input type="range" id="propSubScale" class="form-range mb-0" min="50" max="180" step="2" value="100" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" />
-                          </div>
-                          <div class="col-6 mt-1 d-flex align-items-center justify-content-end">
-                            <label class="form-check form-switch m-0 small" style="cursor: pointer; font-size: 0.63rem;" title="Samakan koordinat X/Y saat subtitle digeser">
-                              <input class="form-check-input" type="checkbox" role="switch" id="editorBatchSubPosSwitch" checked onchange="handleBatchSubPosToggle(this.checked)" />
-                              <span>Samakan Posisi Semua</span>
-                            </label>
+                            <div class="col-3">
+                              <div class="d-flex justify-content-between align-items-center mb-0">
+                                <label for="propOverlayPosXRange" class="form-label mb-0">X (%)</label>
+                                <input type="number" step="1" min="5" max="95" id="propOverlayPosX" value="50" class="form-control form-control-sm font-mono-tabular py-0 px-1 text-center" style="width: 44px; height: 20px; font-size: 0.64rem;" oninput="updateSelectedOverlayProperties('number')" onchange="pushEditorHistorySnapshot()" />
+                              </div>
+                              <input type="range" id="propOverlayPosXRange" class="form-range mb-0" min="5" max="95" step="1" value="50" oninput="updateSelectedOverlayProperties('range')" onchange="pushEditorHistorySnapshot()" />
+                            </div>
+                            <div class="col-3">
+                              <div class="d-flex justify-content-between align-items-center mb-0">
+                                <label for="propOverlayPosYRange" class="form-label mb-0">Y (%)</label>
+                                <input type="number" step="1" min="5" max="95" id="propOverlayPosY" value="54" class="form-control form-control-sm font-mono-tabular py-0 px-1 text-center" style="width: 44px; height: 20px; font-size: 0.64rem;" oninput="updateSelectedOverlayProperties('number')" onchange="pushEditorHistorySnapshot()" />
+                              </div>
+                              <input type="range" id="propOverlayPosYRange" class="form-range mb-0" min="5" max="95" step="1" value="54" oninput="updateSelectedOverlayProperties('range')" onchange="pushEditorHistorySnapshot()" />
+                            </div>
+                            <div class="col-6 mt-1">
+                              <label for="propSubScale" class="form-label mb-0">Skala: <strong id="propSubScaleVal" class="text-primary font-mono-tabular">100%</strong></label>
+                              <input type="range" id="propSubScale" class="form-range mb-0" min="50" max="180" step="2" value="100" oninput="updateSelectedOverlayProperties()" onchange="pushEditorHistorySnapshot()" />
+                            </div>
+                            <div class="col-6 mt-1 d-flex align-items-center justify-content-end">
+                              <label class="form-check form-switch m-0 small" style="cursor: pointer; font-size: 0.63rem;" title="Samakan koordinat X/Y saat subtitle digeser">
+                                <input class="form-check-input" type="checkbox" role="switch" id="editorBatchSubPosSwitch" checked onchange="handleBatchSubPosToggle(this.checked)" />
+                                <span>Samakan Posisi Semua</span>
+                              </label>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <!-- Clickable Subtitle Blocks List & Sequential Append -->
-                  <div class="capcut-drawer-surface mb-2">
-                    <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
-                      <span class="small fw-bold text-navy d-flex align-items-center gap-1" style="font-size: 0.7rem;">
-                        <i class="bi bi-list-ul text-primary"></i>Daftar Subtitle
-                        <span id="editorSubtitleCountBadge" class="badge neu-badge font-mono-tabular" style="font-size: 0.6rem;">0</span>
-                      </span>
-                      <button type="button" class="btn btn-sm btn-capcut-ghost py-0 px-2 fw-bold" style="height: 23px; font-size: 0.66rem;" onclick="appendNextSubtitleRow()">
-                        <i class="bi bi-plus-lg text-primary me-1"></i>+ Tambah Baris Berikutnya
-                      </button>
-                    </div>
-                    <div id="editorSubtitleListContainer" class="editor-subtitle-list-box">
-                      <div class="text-center text-secondary small py-2" style="font-size: 0.7rem;">Belum ada subtitle. Ketik di atas atau klik + Subtitle.</div>
+                      <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                        <span class="small fw-bold text-navy" style="font-size: 0.66rem;">Daftar Baris Subtitle</span>
+                        <button type="button" class="btn btn-sm btn-capcut-ghost py-0 px-2 fw-bold" style="height: 22px; font-size: 0.64rem;" onclick="appendNextSubtitleRow()">
+                          <i class="bi bi-plus-lg text-primary me-1"></i>+ Tambah Baris Berikutnya
+                        </button>
+                      </div>
+                      <div id="editorSubtitleListContainer" class="editor-subtitle-list-box">
+                        <div class="text-center text-secondary small py-2" style="font-size: 0.7rem;">Belum ada subtitle. Ketik di atas atau klik + Subtitle.</div>
+                      </div>
                     </div>
                   </div>
 
@@ -9264,9 +9331,9 @@
 
     const TEXT_TEMPLATES_CATALOG = [
       {
-        id: "default",
-        label: "Default",
-        cat: "classic",
+        id: "mozi_pop",
+        label: "Mozi Pop",
+        cat: "trending",
         fontFamily: "'Montserrat', sans-serif",
         fontSize: 22,
         opacity: 100,
@@ -9284,6 +9351,72 @@
         emphasisMode: "color_highlight",
         uppercase: true,
         accentType: "none"
+      },
+      {
+        id: "karaoke_pill",
+        label: "Karaoke Pill",
+        cat: "trending",
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 19,
+        opacity: 100,
+        color: "#FFFFFF",
+        highlightColor: "#FACC15",
+        strokeColor: "#0A192F",
+        strokeWidth: 2,
+        glowColor: "#000000",
+        glowBlur: 0,
+        bgColor: "#0A192F",
+        bgRadius: 32,
+        bgPadding: 10,
+        textEffect: "none",
+        animation: "pop",
+        emphasisMode: "color_highlight",
+        uppercase: true,
+        accentType: "none"
+      },
+      {
+        id: "simple_clean",
+        label: "Simple Clean",
+        cat: "classic",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        fontSize: 19,
+        opacity: 100,
+        color: "#FFFFFF",
+        highlightColor: "#FACC15",
+        strokeColor: "#000000",
+        strokeWidth: 2.5,
+        glowColor: "#000000",
+        glowBlur: 0,
+        bgColor: "rgba(7, 19, 36, 0.52)",
+        bgRadius: 8,
+        bgPadding: 6,
+        textEffect: "none",
+        animation: "fade",
+        emphasisMode: "color_highlight",
+        uppercase: true,
+        accentType: "none"
+      },
+      {
+        id: "handwritten_glow",
+        label: "Handwritten Glow",
+        cat: "podcast",
+        fontFamily: "'Caveat', cursive",
+        fontSize: 24,
+        opacity: 100,
+        color: "#FDE047",
+        highlightColor: "#FACC15",
+        strokeColor: "#071324",
+        strokeWidth: 2.5,
+        glowColor: "#FACC15",
+        glowBlur: 12,
+        bgColor: "transparent",
+        bgRadius: 8,
+        bgPadding: 4,
+        textEffect: "none",
+        animation: "pop",
+        emphasisMode: "color_highlight",
+        uppercase: false,
+        accentType: "handwritten_underline"
       },
       {
         id: "the_quick",
@@ -9566,7 +9699,7 @@
         bgRadius: 8,
         bgPadding: 4,
         textEffect: "none",
-        animation: "pop",
+        animation: "single_yellow_pop",
         emphasisMode: "color_highlight",
         uppercase: false,
         accentType: "single_yellow_pop"
@@ -9642,8 +9775,8 @@
     ];
 
     const TEXT_LAYER_SWATCHES = {
-      text: ["#FFFFFF", "#000000", "#0A192F", "#FACC15", "#EF4444", "#2563EB", "#10B981", "#F97316"],
-      highlight: ["#FACC15", "#EF4444", "#38BDF8", "#4ADE80"],
+      text: ["#FFFFFF", "#FACC15", "#38BDF8", "#4ADE80", "#F43F5E", "#000000", "#0A192F", "#2563EB"],
+      highlight: ["#FACC15", "#38BDF8", "#4ADE80", "#F43F5E", "#EF4444"],
       stroke: ["#000000", "#FFFFFF", "#0A192F", "#2563EB", "#EF4444", "#FACC15"],
       glow: ["#38BDF8", "#FACC15", "#EF4444", "#A855F7", "#4ADE80", "#FFFFFF"],
       background: ["transparent", "#FFFFFF", "#000000", "#0A192F", "#2563EB", "#DC2626", "#FACC15"]
@@ -9679,6 +9812,7 @@
       { id: "acak", label: "Acak", icon: "bi-shuffle" },
       { id: "multibaris", label: "Multibaris", icon: "bi-justify-left" },
       { id: "satu_baris", label: "Satu Baris", icon: "bi-dash-lg" },
+      { id: "single_yellow_pop", label: "Single Yellow Pop", icon: "bi-lightning-charge-fill" },
       { id: "bounce_pop", label: "Memantul ke Luar", icon: "bi-arrows-expand" },
       { id: "kinetic_scale", label: "Penskalaan Kata", icon: "bi-type-bold" },
       { id: "word_highlight", label: "Sorotan Kata", icon: "bi-highlighter" },
@@ -9806,6 +9940,9 @@
           bgGradient = "linear-gradient(135deg, #0A192F 0%, #1E3A8A 68%, #92400E 100%)";
           bgBorderColor = "#FACC15";
         }
+      } else if (tpl && tpl.id === "karaoke_pill") {
+        bgGradient = "linear-gradient(135deg, rgba(10, 25, 47, 0.94) 0%, rgba(37, 99, 235, 0.94) 100%)";
+        bgBorderColor = "rgba(255, 255, 255, 0.35)";
       }
 
       const rawAnim = obj.animation ? (obj.animation === "karaoke" ? "none" : obj.animation) : "";
@@ -9875,7 +10012,7 @@
         const backOut = 1 + c3 * u * u * u + c1 * u * u;
         scale = t < 1 ? (0.55 + 0.45 * backOut) : 1.0;
         alpha = Math.min(1, e / 0.08);
-      } else if (animMode === "pop") {
+      } else if (animMode === "pop" || animMode === "single_yellow_pop") {
         const t = Math.min(1, e / 0.16);
         const ease = 1 - Math.pow(1 - t, 3);
         scale = 0.82 + 0.18 * ease;
@@ -11479,17 +11616,10 @@
       const hasAbs = sub.start_sec !== undefined && sub.end_sec !== undefined;
       const sStart = hasAbs ? Number(sub.start_sec) : ((Number(clipStartSec) || 0) + (Number(sub.start) || 0));
       const rawEnd = hasAbs ? Number(sub.end_sec) : ((Number(clipStartSec) || 0) + (Number(sub.end) || 2.5));
-      const sEnd = Math.max(sStart + 0.15, rawEnd);
-      const dur = Math.max(0.15, sEnd - sStart);
-      const progress = Math.min(0.999, Math.max(0, (curTime - sStart) / dur));
-      const weights = words.map(estimateWordSpeechWeight);
-      const totalW = weights.reduce(function (acc, val) { return acc + val; }, 0);
-      let cumulative = 0;
-      for (let i = 0; i < words.length; i++) {
-        cumulative += weights[i] / totalW;
-        if (progress < cumulative) return i;
-      }
-      return words.length - 1;
+      const sEnd = Math.max(sStart + 0.1, rawEnd);
+      const dur = Math.max(0.1, sEnd - sStart);
+      const progress = Math.max(0, Math.min(0.9999, (curTime - sStart) / dur));
+      return Math.min(words.length - 1, Math.floor(progress * words.length));
     }
 
     function buildRichTextAnimatedInnerHtml(displayStr, style, activeWordIdx, motion) {
@@ -11517,9 +11647,9 @@
       if (inMode === "word_by_word") {
         const words = displayStr.split(/\s+/).filter(Boolean);
         const showWords = Math.max(1, Math.ceil(words.length * Math.max(0, Math.min(1, m.wordRevealFrac !== undefined ? m.wordRevealFrac : 1))));
-        return words.map(function (w, idx) {
+        return '<span class="rt-words-flex">' + words.map(function (w, idx) {
           return '<span class="rt-word-span" style="opacity:' + (idx < showWords ? "1" : "0") + ';">' + escapeHtml(w) + '</span>';
-        }).join(" ");
+        }).join(" ") + '</span>';
       }
       return escapeHtml(displayStr);
     }
@@ -11627,11 +11757,12 @@
       const isGoldGrad = style.textEffect === "gold_gradient";
       const targetIdx = (typeof activeWordIdx === "number" && activeWordIdx >= 0 && activeWordIdx < words.length)
         ? activeWordIdx
-        : (words.length - 1);
-      const hlWordIdx = resolveHighlightWordIndex(style.highlightWord, words);
+        : 0;
+      const subAnim = style.animation || "none";
+      const isSingleWordPop = style.accentType === "single_yellow_pop" || subAnim === "single_yellow_pop";
 
-      if (style.accentType === "single_yellow_pop") {
-        const singleW = words[targetIdx] !== undefined ? words[targetIdx] : (hlWordIdx !== -1 ? words[hlWordIdx] : words[0]);
+      if (isSingleWordPop) {
+        const singleW = words[targetIdx] !== undefined ? words[targetIdx] : words[0];
         return '<span class="rt-word-active" style="color:' + escapeHtml(style.highlightColor || "#FACC15") + ';">' + escapeHtml(singleW) + "</span>";
       }
 
@@ -11644,17 +11775,16 @@
             const safeW = escapeHtml(w);
             const curIdx = gIdx++;
             const hiddenCls = (isWordReveal && curIdx > targetIdx) ? " rt-word-hidden" : "";
-            const isKw = (hlWordIdx !== -1 && curIdx === hlWordIdx) || (hlWordIdx === -1 && curIdx % 2 === 1);
-            const col = isKw ? (style.highlightColor || "#F87171") : style.color;
-            const cls = (curIdx === targetIdx || (hlWordIdx !== -1 && curIdx === hlWordIdx)) ? "rt-word-active" : "rt-word-span";
+            const isAct = curIdx === targetIdx;
+            const col = isAct ? (style.highlightColor || "#F87171") : style.color;
+            const cls = isAct ? "rt-word-active" : "rt-word-span";
             return '<span class="' + cls + hiddenCls + '" style="color:' + escapeHtml(col) + ';">' + safeW + "</span>";
           });
-          coralLines.push("<div>" + lineParts.join(" ") + "</div>");
+          coralLines.push('<div class="rt-stacked-coral-line">' + lineParts.join(" ") + "</div>");
         }
         return '<div class="rt-stacked-coral-wrap">' + coralLines.join("") + "</div>";
       }
 
-      const subAnim = style.animation || "none";
       const isStaticFull = Boolean(m.showAllWordsStatic);
       const isProgressiveWord = !isStaticFull;
       const hlAccentCol = (style.highlightColor && style.highlightColor !== "none") ? style.highlightColor : "#FACC15";
@@ -11666,7 +11796,7 @@
           const cCls = "rt-kolase-c" + (i % 3);
           const actCls = i === targetIdx ? " rt-kolase-active rt-anim-pop-word" : "";
           return '<span class="rt-kolase-pill ' + cCls + actCls + hiddenCls + '">' + safeW + "</span>";
-        }).join("");
+        }).join(" ");
         return '<div class="rt-kolase-wrap">' + pillHtml + "</div>";
       }
 
@@ -11712,7 +11842,7 @@
             const popCls = isAct ? " rt-anim-pop-word" : "";
             const col = isAct ? hlAccentCol : (isLg ? style.color : "#E2E8F0");
             return '<span class="' + sizeCls + popCls + hiddenCls + '" style="color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
-          }).join("");
+          }).join(" ");
           return '<div class="rt-kombo-row">' + inner + "</div>";
         }).join("") + "</div>";
       }
@@ -11728,7 +11858,7 @@
           const col = isAct ? hlAccentCol : style.color;
           const popCls = isAct ? " rt-anim-pop-word" : "";
           return '<span class="rt-tumbuh-word' + popCls + hiddenCls + '" style="font-size:' + sc.toFixed(2) + 'em;transform:rotate(' + rot + 'deg);color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
-        }).join("");
+        }).join(" ");
         return '<div class="rt-tumbuh-wrap">' + parts + "</div>";
       }
 
@@ -11746,7 +11876,7 @@
             const yJit = idx % 2 === 0 ? "-1.5px" : "1.5px";
             const popCls = isAct ? " rt-anim-pop-word" : "";
             return '<span class="rt-acak-word' + popCls + hiddenCls + '" style="color:' + escapeHtml(col) + ';transform:translateY(' + yJit + ');">' + escapeHtml(w) + "</span>";
-          }).join("");
+          }).join(" ");
           return '<div class="' + rowCls + '">' + inner + "</div>";
         }).join("") + "</div>";
       }
@@ -11766,7 +11896,7 @@
             const col = isAct ? (idx % 2 === 0 ? "#FACC15" : "#38BDF8") : style.color;
             const slideCls = isAct ? " rt-multibaris-slide" : "";
             return '<span class="rt-word-span' + slideCls + hiddenCls + '" style="color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
-          }).join("");
+          }).join(" ");
           return '<div class="rt-multibaris-row">' + inner + "</div>";
         }).join("") + "</div>";
       }
@@ -11778,15 +11908,14 @@
           const col = isAct ? ((style.highlightColor && style.highlightColor !== "none") ? style.highlightColor : "#38BDF8") : style.color;
           const cls = isAct ? "rt-word-active" : "rt-word-span";
           return '<span class="' + cls + '" style="color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
-        }).join("");
+        }).join(" ");
         return '<div class="rt-satubaris-wrap" style="font-size:' + sbFontScale.toFixed(2) + 'em;">' + inner + "</div>";
       }
 
       const wordHtml = words.map(function (w, i) {
         const safeW = escapeHtml(w);
         const hiddenCls = (isWordReveal && i > targetIdx) ? " rt-word-hidden" : "";
-        const isHlKeyword = hlWordIdx !== -1 && i === hlWordIdx && (!isWordReveal || i <= targetIdx);
-        const isTarget = i === targetIdx || isHlKeyword;
+        const isTarget = i === targetIdx;
         if (style.accentType === "blue_pill_highlight" && isTarget) {
           return '<span class="rt-word-active rt-blue-pill-word' + hiddenCls + '">' + safeW + "</span>";
         }
@@ -11798,10 +11927,10 @@
           return '<span class="rt-word-active' + hiddenCls + '" style="color:' + escapeHtml(style.highlightColor) + ';">' + safeW + "</span>";
         }
         const goldCls = isGoldGrad ? " rt-gold-gradient-word" : "";
-        return '<span class="rt-word-span' + goldCls + hiddenCls + '">' + safeW + "</span>";
+        return '<span class="rt-word-span' + goldCls + hiddenCls + '" style="color:' + escapeHtml(style.color) + ';">' + safeW + "</span>";
       }).join(" ");
 
-      return wordHtml;
+      return '<span class="rt-words-flex">' + wordHtml + '</span>';
     }
 
     function applyRichTextDomElement(boxEl, textEl, itemObj, kind, styleKey, activeWordIdx, stageEl, motion) {
@@ -11877,7 +12006,7 @@
       } else if (style.bgGradient) {
         boxEl.style.background = style.bgGradient;
         boxEl.style.padding = kind === "hook"
-          ? (Math.max(3, Math.round(padDomPx * 0.45)) + "px " + Math.max(6, padDomPx + 2) + "px")
+          ? (Math.max(6, Math.round(padDomPx * 0.68)) + "px " + Math.max(11, Math.round(padDomPx * 1.1) + 4) + "px")
           : (Math.max(4, Math.round(padDomPx * 0.6)) + "px " + Math.max(8, padDomPx + 4) + "px");
         boxEl.style.borderRadius = radDomPx + "px";
         if (style.bgBorderColor) boxEl.style.border = "1.5px solid " + style.bgBorderColor;
@@ -11885,7 +12014,7 @@
       } else if (style.bgColor && style.bgColor !== "transparent") {
         boxEl.style.background = style.bgColor;
         boxEl.style.padding = kind === "hook"
-          ? (Math.max(2, Math.round(padDomPx * 0.42)) + "px " + Math.max(6, padDomPx + 2) + "px")
+          ? (Math.max(6, Math.round(padDomPx * 0.65)) + "px " + Math.max(11, Math.round(padDomPx * 1.1) + 4) + "px")
           : (Math.max(3, Math.round(padDomPx * 0.55)) + "px " + Math.max(7, padDomPx + 3) + "px");
         boxEl.style.borderRadius = radDomPx + "px";
         if (style.bgBorderColor) boxEl.style.border = "1.5px solid " + style.bgBorderColor;
@@ -12470,6 +12599,7 @@
     }
 
     function getDurationPresetBounds(presetValue) {
+      if (presetValue === "auto" || presetValue === "otomatis") return { minSeconds: 15, maxSeconds: 60 };
       if (presetValue === "30_60") return { minSeconds: 30, maxSeconds: 60 };
       if (presetValue === "60_90") return { minSeconds: 60, maxSeconds: 90 };
       if (presetValue === "custom") {
@@ -13084,6 +13214,7 @@
         status: "processing",
         stageLabel: "",
         progress: 12,
+        fullTranscript: [],
         clips: [],
         errorMessage: null,
         style: selectedStyle,
@@ -13210,6 +13341,7 @@
             title: newProject.title,
             author: newProject.author,
             thumbnailUrl: newProject.thumbnailUrl,
+            targetDuration: targetDuration,
             minSeconds: minSeconds,
             maxSeconds: maxSeconds,
             momentPrompt: momentPrompt,
@@ -13230,6 +13362,7 @@
           throw new Error("Gemini API tidak mengembalikan segmen klip.");
         }
 
+        newProject.fullTranscript = (data && Array.isArray(data.fullTranscript)) ? data.fullTranscript : [];
         if (data && data.videoTitle) {
           newProject.title = data.videoTitle;
         }
@@ -13240,6 +13373,7 @@
         const rootStreamUrl = (data && (data.streamUrl || data.mp4Url || data.videoUrl)) || "";
         const normalizedResult = normalizeClipsWithDurationGuard({
           rawClips: rawClips,
+          fullTranscript: newProject.fullTranscript,
           newProject: newProject,
           projectId: projectId,
           minSeconds: minSeconds,
@@ -13289,7 +13423,7 @@
         newProject.progress = 100;
         newProject.status = "done";
         renderProjectsGrid();
-        showToast("Selesai! " + newProject.clips.length + " klip diurutkan dari skor viral tertinggi siap ditinjau.");
+        showToast("Selesai! " + newProject.clips.length + " klip vertikal pilihan siap ditonton atau diedit.");
       } catch (err) {
         clearInterval(progressTimer);
         newProject.status = "error";
@@ -13327,15 +13461,203 @@
       return "https://i.ytimg.com/vi/" + videoId + "/" + frameFile;
     }
 
+    function clampTranscriptSegmentsClient(rawSegs, durationHint) {
+      const cleaned = [];
+      const sorted = (Array.isArray(rawSegs) ? rawSegs : [])
+        .map(function (s) {
+          const st = Math.max(0, Number(s && (s.start !== undefined ? s.start : s.start_sec)) || 0);
+          const en = Math.max(st + 0.12, Number(s && (s.end !== undefined ? s.end : s.end_sec)) || (st + 1.5));
+          const txt = String((s && s.text) || "").replace(/\s+/g, " ").trim();
+          const rawWords = Array.isArray(s && s.words) ? s.words : [];
+          return { start: st, end: en, text: txt, rawWords: rawWords };
+        })
+        .filter(function (s) { return s.text.length > 0; })
+        .sort(function (a, b) { return a.start - b.start; });
+
+      sorted.forEach(function (seg) {
+        const clampedStart = cleaned.length > 0 && seg.start < cleaned[cleaned.length - 1].end
+          ? cleaned[cleaned.length - 1].end
+          : seg.start;
+        const clampedEnd = Math.max(clampedStart + 0.12, durationHint > 0 ? Math.min(durationHint, seg.end) : seg.end);
+        const tokens = seg.text.split(/\s+/).filter(Boolean);
+        let words = [];
+        if (seg.rawWords.length > 0) {
+          words = seg.rawWords
+            .map(function (w) {
+              const ws = Math.max(clampedStart, Math.min(clampedEnd - 0.04, Number(w && (w.start !== undefined ? w.start : w.start_sec)) || clampedStart));
+              const we = Math.min(clampedEnd, Math.max(ws + 0.05, Number(w && (w.end !== undefined ? w.end : w.end_sec)) || (ws + 0.25)));
+              return { word: String((w && (w.word || w.text)) || "").trim(), start: Math.round(ws * 100) / 100, end: Math.round(we * 100) / 100 };
+            })
+            .filter(function (w) { return w.word.length > 0; });
+          const spanTotal = Math.max(0.15, clampedEnd - clampedStart);
+          const hasCollapsedWords = words.length > 1 && (
+            words.some(function (w, wi) { return wi > 0 && Math.abs(w.start - words[wi - 1].start) < 0.02; }) ||
+            (words[words.length - 1].end - words[0].start) < spanTotal * 0.35
+          );
+          if (hasCollapsedWords) {
+            words = [];
+          }
+        }
+        if (words.length === 0 && tokens.length > 0) {
+          const weights = tokens.map(function (t) { return estimateWordSpeechWeight(t); });
+          const sumW = Math.max(1, weights.reduce(function (a, b) { return a + b; }, 0));
+          const span = Math.max(0.15, clampedEnd - clampedStart);
+          let cur = clampedStart;
+          words = tokens.map(function (tok, ti) {
+            const nxt = ti === tokens.length - 1 ? clampedEnd : Math.min(clampedEnd, cur + span * (weights[ti] / sumW));
+            const row = { word: tok, start: Math.round(cur * 100) / 100, end: Math.round(Math.max(cur + 0.05, nxt) * 100) / 100 };
+            cur = nxt;
+            return row;
+          });
+        }
+        cleaned.push({
+          start: Math.round(clampedStart * 100) / 100,
+          end: Math.round(clampedEnd * 100) / 100,
+          text: words.map(function (w) { return w.word; }).join(" ") || seg.text,
+          words: words
+        });
+      });
+      return cleaned;
+    }
+
+    function enforceSequentialAntiSquashSubtitles(subList, clipStartSec, clipDurationSec) {
+      if (!Array.isArray(subList) || subList.length === 0) return [];
+      const safeStart = Math.max(0, Number(clipStartSec) || 0);
+      const segDur = Math.max(0.8, Number(clipDurationSec) || 15);
+      let needsDistribution = false;
+      let nearZeroCount = 0;
+
+      for (let i = 0; i < subList.length; i++) {
+        const s = subList[i];
+        const st = Number(s.start);
+        const en = Number(s.end);
+        const dur = en - st;
+        if (!Number.isFinite(st) || !Number.isFinite(en) || dur < 0.35) {
+          needsDistribution = true;
+          break;
+        }
+        if (st <= 0.15) nearZeroCount++;
+        if (i > 0) {
+          const prev = subList[i - 1];
+          if (st < Number(prev.end) - 0.08 || st < Number(prev.start) - 0.02) {
+            needsDistribution = true;
+            break;
+          }
+        }
+      }
+
+      if (!needsDistribution && subList.length >= 2 && nearZeroCount >= 2) {
+        needsDistribution = true;
+      }
+      if (!needsDistribution && subList.length >= 3) {
+        const firstStart = Number(subList[0].start) || 0;
+        const lastEnd = Number(subList[subList.length - 1].end) || 0;
+        if ((lastEnd - firstStart) < segDur * 0.45) {
+          needsDistribution = true;
+        }
+      }
+
+      if (needsDistribution) {
+        const charWeights = subList.map(function (s) {
+          const clean = String(s.text || "").replace(/\s+/g, "");
+          return Math.max(1, clean.length);
+        });
+        const totalChars = Math.max(1, charWeights.reduce(function (a, b) { return a + b; }, 0));
+        let cursor = 0;
+        for (let i = 0; i < subList.length; i++) {
+          const blockDur = segDur * (charWeights[i] / totalChars);
+          const relStart = Math.round(cursor * 100) / 100;
+          const relEnd = i === subList.length - 1
+            ? Math.round(segDur * 100) / 100
+            : Math.round(Math.min(segDur, cursor + blockDur) * 100) / 100;
+          subList[i].start = relStart;
+          subList[i].end = Math.max(Math.min(segDur, relStart + 0.35), relEnd);
+          subList[i].start_sec = Math.round((safeStart + subList[i].start) * 100) / 100;
+          subList[i].end_sec = Math.round((safeStart + subList[i].end) * 100) / 100;
+          cursor += blockDur;
+        }
+      } else {
+        for (let i = 0; i < subList.length; i++) {
+          const cur = subList[i];
+          cur.start = Math.round(Math.max(0, Math.min(segDur - 0.25, Number(cur.start) || 0)) * 100) / 100;
+          cur.end = Math.round(Math.min(segDur, Math.max(cur.start + 0.35, Number(cur.end) || (cur.start + 0.5))) * 100) / 100;
+          if (i > 0 && cur.start < subList[i - 1].end) {
+            cur.start = subList[i - 1].end;
+            if (cur.end < cur.start + 0.2) cur.end = Math.min(segDur, Math.round((cur.start + 0.35) * 100) / 100);
+          }
+          cur.start_sec = Math.round((safeStart + cur.start) * 100) / 100;
+          cur.end_sec = Math.round((safeStart + cur.end) * 100) / 100;
+        }
+      }
+      return subList;
+    }
+
+    function sliceExactSubtitlesFromTranscriptClient(fullTranscript, clipStartSec, clipEndSec, clipIdx) {
+      const segDur = Math.max(1, clipEndSec - clipStartSec);
+      const wordStream = [];
+      (Array.isArray(fullTranscript) ? fullTranscript : []).forEach(function (seg) {
+        if (!seg || seg.end <= clipStartSec || seg.start >= clipEndSec) return;
+        const wList = Array.isArray(seg.words) && seg.words.length > 0 ? seg.words : [];
+        wList.forEach(function (w) {
+          const mid = (Number(w.start) + Number(w.end)) / 2;
+          if (mid >= clipStartSec - 0.08 && mid <= clipEndSec + 0.08 && w.word) {
+            const relS = Math.max(0, Math.min(segDur - 0.08, Number(w.start) - clipStartSec));
+            const relE = Math.min(segDur, Math.max(relS + 0.08, Number(w.end) - clipStartSec));
+            wordStream.push({ word: String(w.word).trim(), relStart: relS, relEnd: relE });
+          }
+        });
+      });
+      if (wordStream.length === 0) return [];
+
+      const blocks = [];
+      let i = 0;
+      while (i < wordStream.length) {
+        const rem = wordStream.length - i;
+        const take = rem <= 4 ? rem : (rem === 5 ? 3 : 3);
+        const slice = wordStream.slice(i, i + take);
+        i += take;
+        const bStart = Math.round(Math.max(0, slice[0].relStart) * 100) / 100;
+        const bEnd = Math.round(Math.min(segDur, Math.max(bStart + 0.16, slice[slice.length - 1].relEnd)) * 100) / 100;
+        const wordsArr = slice.map(function (x) { return x.word; });
+        blocks.push({
+          id: "sub-" + (clipIdx || 0) + "-" + (blocks.length + 1),
+          start: bStart,
+          end: bEnd,
+          start_sec: Math.round((clipStartSec + bStart) * 100) / 100,
+          end_sec: Math.round((clipStartSec + bEnd) * 100) / 100,
+          text: wordsArr.join(" "),
+          highlightWord: pickBestHighlightWordClient(wordsArr, ""),
+          posX: 50,
+          posY: 56
+        });
+      }
+      return enforceSequentialAntiSquashSubtitles(blocks, clipStartSec, segDur);
+    }
+
+    function getTranscriptVolumeGuidanceClient(videoDurationSec, targetDuration) {
+      if (videoDurationSec < 60) {
+        return { minClips: 1, maxClips: 2, label: "Video pendek (< 60 detik): WAJIB hasilkan hanya 1 sampai 2 klip utuh terbaik (atau 1 klip full-duration), JANGAN memotong jadi banyak fragmen." };
+      }
+      if (videoDurationSec <= 90) {
+        return { minClips: 1, maxClips: 3, label: "Video singkat (0:30-1:30): ekstrak 1 sampai 3 klip bernilai tinggi saja." };
+      }
+      if (videoDurationSec <= 600) {
+        return { minClips: 3, maxClips: 8, label: "Video menengah (1:30-10:00): ekstrak 3 sampai 8 klip momen paling kuat dan utuh." };
+      }
+      if (targetDuration === "15_30") {
+        return { minClips: 8, maxClips: 25, label: "Video panjang (> 10 menit): ekstrak 8 sampai 25+ klip (15-30 detik/klip) hanya pada poin berretensi tinggi." };
+      }
+      return { minClips: 8, maxClips: 25, label: "Video panjang (> 10 menit): ekstrak 8 sampai 25+ klip momen lengkap bernilai tinggi." };
+    }
+
     async function processYoutubeClientSideFallback(opts) {
       let resolvedTitle = opts.title || ("Video YouTube (" + opts.videoId + ")");
       let resolvedAuthor = opts.author || "YouTube";
       let resolvedThumb = opts.thumbnailUrl || ("https://i.ytimg.com/vi/" + opts.videoId + "/hqdefault.jpg");
       const canonicalYoutubeUrl = "https://www.youtube.com/watch?v=" + opts.videoId;
-      const MIN_DYNAMIC_COUNT = 20;
 
       if (typeof opts.onStageChange === "function") {
-        opts.onStageChange("", 40);
+        opts.onStageChange("", 32);
       }
 
       try {
@@ -13353,44 +13675,191 @@
         throw new Error("Backend /api/auto-clip tidak tersedia dan Gemini API key tidak ditemukan pada environment/Settings.");
       }
 
-      const pass1Prompt = [
-        "Anda adalah ahli transkripsi audio, speech-to-text alignment engineer, dan produser video pendek viral (PASS 1).",
+      const buildGeminiEndpoint = function (modelName) {
+        return "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(modelName) + ":generateContent?key=" + encodeURIComponent(apiKey);
+      };
+
+      const fetchGeminiWithRetry = async function (modelName, bodyObj, optsRetry) {
+        const maxRetries = (optsRetry && optsRetry.maxRetries !== undefined) ? optsRetry.maxRetries : 2;
+        const fallbackTextModel = optsRetry && optsRetry.fallbackTextModel ? optsRetry.fallbackTextModel : "";
+        let lastRes = null;
+        let lastPayload = null;
+
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          const r = await fetch(buildGeminiEndpoint(modelName), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyObj)
+          });
+          const p = await r.json().catch(function () { return null; });
+          if (r.ok) {
+            return { res: r, payload: p };
+          }
+          lastRes = r;
+          lastPayload = p;
+          if (r.status !== 429 && r.status !== 503) break;
+          if (attempt >= maxRetries) break;
+          const errMsg = (p && p.error && p.error.message) ? String(p.error.message) : "";
+          const m = errMsg.match(/retry in\s+([\d.]+)\s*s/i);
+          const waitMs = m ? Math.min(18000, Math.max(1500, Math.ceil(parseFloat(m[1]) * 1000) + 800)) : (2200 * Math.pow(2, attempt));
+          await new Promise(function (resolve) { setTimeout(resolve, waitMs); });
+        }
+
+        if (fallbackTextModel && lastRes && (lastRes.status === 429 || lastRes.status === 503)) {
+          const fbBody = JSON.parse(JSON.stringify(bodyObj));
+          if (fbBody.generationConfig && fbBody.generationConfig.thinkingConfig) {
+            delete fbBody.generationConfig.thinkingConfig;
+          }
+          const fbRes = await fetch(buildGeminiEndpoint(fallbackTextModel), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fbBody)
+          });
+          const fbPayload = await fbRes.json().catch(function () { return null; });
+          return { res: fbRes, payload: fbPayload };
+        }
+
+        return { res: lastRes, payload: lastPayload };
+      };
+
+      const throwFriendlyGeminiErr = function (resObj, payloadObj, stageLabel) {
+        const statusNum = resObj ? resObj.status : 500;
+        const msg = (payloadObj && payloadObj.error && payloadObj.error.message) ? payloadObj.error.message : ("Gemini HTTP " + statusNum);
+        if (statusNum === 429 || statusNum === 503 || /RESOURCE_EXHAUSTED|quota exceeded/i.test(msg)) {
+          throw new Error("Batas kuota permintaan/token Gemini API (429 RESOURCE_EXHAUSTED) tercapai sementara saat " + stageLabel + ". Silakan tunggu beberapa detik lalu coba lagi, atau pilih API key berbayar di Settings > Secrets.");
+        }
+        const isRestricted = statusNum === 400 || statusNum === 403 || statusNum === 404 || /private|unavailable|restricted|fileUri/i.test(msg);
+        throw new Error(
+          isRestricted
+            ? ("Video YouTube tidak dapat diproses langsung oleh Gemini AI (kemungkinan bersifat privat, dibatasi usia/wilayah, atau tidak didukung). Detail: " + msg)
+            : msg
+        );
+      };
+
+      // STAGE 1: Mandatory Full Video-to-Text Transcription BEFORE Any Clipping
+      const stage1Prompt = [
+        "TAHAP 1 — TRANSKRIPSI AUDIO PENUH (WAJIB SEBELUM MEMOTONG KLIP).",
         "Anda menerima VIDEO YOUTUBE ASLI melalui fileData multimodal:",
         "- YouTube URL: " + canonicalYoutubeUrl,
-        "- Video ID: " + opts.videoId,
-        "- Judul Video: " + resolvedTitle,
+        "- Judul: " + resolvedTitle,
         "- Channel: " + resolvedAuthor,
-        "- Jumlah Klip WAJIB: MINIMAL " + MIN_DYNAMIC_COUNT + " KLIP UNIK. Jika video panjang atau kaya dengan banyak insight bernilai tinggi, framework, atau momen actionable, EKSTRAK SECARA DINAMIS 25 sampai 35+ KLIP unik sepanjang video!",
-        "- Gaya Subtitle: " + (opts.style || "mozi_pop"),
-        opts.momentPrompt ? ("- Fokus Momen: " + opts.momentPrompt) : "- Fokus Momen: Sebar merata dari awal, tengah, hingga akhir video",
-        opts.referenceInstructions ? ("- Referensi Gaya Editan: " + opts.referenceInstructions) : "",
         "",
-        "ATURAN TIMELINE NON-OVERLAPPING & SEBARAN PENUH (WAJIB DIPATUHI):",
-        "1. Dengarkan seluruh video dari detik 0 hingga selesai; isi `video_duration_sec` dengan durasi total sebenarnya.",
-        "2. Ekstrak MINIMAL " + MIN_DYNAMIC_COUNT + " segmen (dan skalakan dinamis ke 25-35+ segmen jika banyak insight bernilai tinggi) secara kronologis dari awal, tengah, hingga akhir video (target " + opts.minSeconds + "-" + opts.maxSeconds + " detik per segmen).",
-        "3. WAJIB memastikan timestamp TIDAK TUMPANG TINDIH: `clips[i+1].start_seconds >= clips[i].end_seconds` untuk setiap i!",
-        "4. Setiap klip WAJIB memiliki `candidate_id` unik, `title` unik, dan TEPAT SATU `hook_headline` unik (maks 6-8 kata tanpa subjudul).",
-        "5. Tulis `full_transcript` verbatim apa adanya lalu pecah menjadi blok `subtitles` berisi **2 sampai 4 KATA UTUH** berdasarkan timing akustik ucapan nyata (DILARANG membagi durasi kalimat secara matematis/merata!). Isi `start_sec`, `end_sec`, `start`, `end`, `text`, dan `highlightWord` (1 kata kunci terkuat dalam blok tersebut) secara berurutan tanpa tumpang tindih (`subtitles[i].end_sec <= subtitles[i+1].start_sec`).",
-        "6. Sertakan 1 `broll_moments` (2.5-3.5 detik) berisi `headline` 2-3 kata Indonesia, `visual_keyword` bahasa Inggris KONKRET, `visual_queries` (array 3-4 kueri pencarian Pixabay bahasa Inggris yang spesifik & literal menggambarkan objek/aktivitas pada momen tersebut, DILARANG istilah alam/abstrak umum seperti 'nature/field/landscape/abstract'), `topic_keywords`, `spoken_quote`, dan `category_tag`."
-      ].filter(Boolean).join("\n");
+        "TUGAS ANDA:",
+        "1. Dengarkan seluruh video dari 0.0 detik hingga akhir dan isi `video_duration_sec` dengan durasi total video sebenarnya.",
+        "2. Transkripsikan seluruh ucapan verbatim ke dalam `fullTranscript` secara berurutan (1 kalimat/frasa utuh per item, `start` dan `end` dalam detik).",
+        "3. Pada setiap item `fullTranscript`, isi array `words` berisi kata demi kata beserta timing akustik `word`, `start`, dan `end` dalam detik (berurutan tanpa tumpang tindih).",
+        "4. JANGAN memotong klip dulu dan JANGAN membuat ringkasan. Hanya transkripsi lengkap dan akurat."
+      ].join("\n");
 
-      const geminiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(apiKey);
-
-      const pass1Schema = {
+      const stage1Schema = {
         type: "OBJECT",
         properties: {
           video_duration_sec: { type: "NUMBER" },
+          fullTranscript: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                start: { type: "NUMBER" },
+                end: { type: "NUMBER" },
+                text: { type: "STRING" },
+                words: {
+                  type: "ARRAY",
+                  items: {
+                    type: "OBJECT",
+                    properties: {
+                      word: { type: "STRING" },
+                      start: { type: "NUMBER" },
+                      end: { type: "NUMBER" }
+                    },
+                    required: ["word", "start", "end"]
+                  }
+                }
+              },
+              required: ["start", "end", "text", "words"]
+            }
+          }
+        },
+        required: ["video_duration_sec", "fullTranscript"]
+      };
+
+      const stage1Call = await fetchGeminiWithRetry("gemini-2.5-flash", {
+        contents: [
+          {
+            parts: [
+              { fileData: { fileUri: canonicalYoutubeUrl } },
+              { text: stage1Prompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.0,
+          maxOutputTokens: 65536,
+          thinkingConfig: { thinkingBudget: 512 },
+          responseMimeType: "application/json",
+          responseSchema: stage1Schema
+        }
+      }, { maxRetries: 2 });
+
+      if (!stage1Call.res || !stage1Call.res.ok) {
+        throwFriendlyGeminiErr(stage1Call.res, stage1Call.payload, "Tahap 1 Transkripsi");
+      }
+
+      const stage1Txt = stage1Call.payload && stage1Call.payload.candidates && stage1Call.payload.candidates[0] && stage1Call.payload.candidates[0].content && stage1Call.payload.candidates[0].content.parts
+        ? stage1Call.payload.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
+        : "";
+      const stage1Parsed = JSON.parse(stage1Txt || "{}");
+      const rawTranscriptSegs = Array.isArray(stage1Parsed.fullTranscript) ? stage1Parsed.fullTranscript : [];
+      const maxTrEnd = rawTranscriptSegs.reduce(function (mx, s) { return Math.max(mx, Number(s && s.end) || 0); }, 0);
+      const detectedDurationSec = Math.max(10, Number(stage1Parsed.video_duration_sec) || maxTrEnd || 60);
+      const fullTranscript = clampTranscriptSegmentsClient(rawTranscriptSegs, detectedDurationSec);
+
+      if (typeof opts.onStageChange === "function") {
+        opts.onStageChange("", 64);
+      }
+
+      // STAGE 2: Semantic Viral Moment Selection Driven by fullTranscript
+      const guidance = getTranscriptVolumeGuidanceClient(detectedDurationSec, opts.targetDuration || "auto");
+      const indexedTranscriptLines = fullTranscript.map(function (seg, idx) {
+        return "[" + idx + "] (" + seg.start.toFixed(2) + "s -> " + seg.end.toFixed(2) + "s): " + seg.text;
+      }).join("\n");
+
+      const stage2Prompt = [
+        "TAHAP 2 — SELEKSI MOMEN VIRAL SEMANTIK BERBASIS TRANSKRIP PENUH.",
+        "- Judul Video: " + resolvedTitle,
+        "- Durasi Total Video: " + detectedDurationSec.toFixed(1) + " detik",
+        "- Target Durasi Klip Pilihan User: " + (opts.targetDuration === "auto" ? "Otomatis (15-60 detik per momen utuh)" : (opts.minSeconds + "-" + opts.maxSeconds + " detik")),
+        "- Aturan Skala Jumlah Klip: " + guidance.label,
+        opts.momentPrompt ? ("- Fokus Momen Prioritas: " + opts.momentPrompt) : "- Fokus Momen: Hook terkuat, pernyataan kontroversial/penasaran, insight actionable, dan alur cerita lengkap",
+        opts.referenceInstructions ? ("- Referensi Gaya Editan: " + opts.referenceInstructions) : "",
+        "",
+        "ATURAN MUTLAK PEMOTONGAN SEMANTIK:",
+        "1. Setiap klip WAJIB berupa PEMIKIRAN UTUH (dimulai dari awal kalimat pembuka/hook hingga kesimpulan/punchline selesai — JANGAN memotong di tengah kalimat!).",
+        "2. DURASI MINIMUM KETAT: Setiap klip WAJIB berdurasi minimal 12 detik (kecuali jika total video sumber < 12 detik). DILARANG membuat fragmen pendek 2-5 detik.",
+        "3. KUALITAS DI ATAS KUANTITAS: JANGAN memaksakan 20 klip dan JANGAN membuat duplikat seperti '(Bagian 1)' / '(Bagian 2)'. Pilih " + guidance.minClips + " sampai " + guidance.maxClips + " momen non-overlapping paling bernilai saja.",
+        "4. Untuk setiap klip terpilih, berikan 1 `hook_headline` pendek (maks 6-8 kata tanpa subjudul), `title` deskriptif unik, skor evaluasi jujur (55-99) `hook_score`, `insight_score`, `flow_score`, `emotion_score`, `alasan_viral` singkat Bahasa Indonesia, serta 1 `broll_moments` dengan `visual_queries` bahasa Inggris yang KONKRET & LITERAL.",
+        "",
+        "TRANSKRIP LENGKAP VIDEO:",
+        indexedTranscriptLines
+      ].filter(Boolean).join("\n");
+
+      const stage2Schema = {
+        type: "OBJECT",
+        properties: {
           clips: {
             type: "ARRAY",
             items: {
               type: "OBJECT",
               properties: {
-                candidate_id: { type: "STRING" },
                 title: { type: "STRING" },
                 hook_headline: { type: "STRING" },
-                full_transcript: { type: "STRING" },
                 start_seconds: { type: "NUMBER" },
                 end_seconds: { type: "NUMBER" },
+                hook_score: { type: "NUMBER" },
+                insight_score: { type: "NUMBER" },
+                flow_score: { type: "NUMBER" },
+                emotion_score: { type: "NUMBER" },
+                alasan_viral: { type: "STRING" },
                 broll_moments: {
                   type: "ARRAY",
                   items: {
@@ -13410,230 +13879,136 @@
                     },
                     required: ["start_sec", "end_sec", "spoken_quote", "visual_keyword", "visual_queries", "headline", "category_tag"]
                   }
-                },
-                subtitles: {
-                  type: "ARRAY",
-                  items: {
-                    type: "OBJECT",
-                    properties: {
-                      start_sec: { type: "NUMBER" },
-                      end_sec: { type: "NUMBER" },
-                      start: { type: "NUMBER" },
-                      end: { type: "NUMBER" },
-                      text: { type: "STRING" },
-                      highlightWord: { type: "STRING" }
-                    },
-                    required: ["start_sec", "end_sec", "text", "highlightWord"]
-                  }
                 }
               },
-              required: ["candidate_id", "title", "hook_headline", "full_transcript", "start_seconds", "end_seconds", "subtitles"]
+              required: ["title", "hook_headline", "start_seconds", "end_seconds", "hook_score", "insight_score", "flow_score", "emotion_score", "alasan_viral"]
             }
           }
         },
         required: ["clips"]
       };
 
-      const res = await fetch(geminiEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { fileData: { fileUri: canonicalYoutubeUrl } },
-                { text: pass1Prompt }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.0,
-            maxOutputTokens: 65536,
-            thinkingConfig: { thinkingBudget: 1024 },
-            responseMimeType: "application/json",
-            responseSchema: pass1Schema
-          }
-        })
-      });
-
-      const payload = await res.json().catch(function () { return null; });
-      if (!res.ok) {
-        const msg = (payload && payload.error && payload.error.message) ? payload.error.message : ("Gemini HTTP " + res.status);
-        const isRestricted = res.status === 400 || res.status === 403 || res.status === 404 || /private|unavailable|restricted|fileUri/i.test(msg);
-        throw new Error(
-          isRestricted
-            ? ("Video YouTube tidak dapat diproses langsung oleh Gemini AI (kemungkinan bersifat privat, dibatasi usia/wilayah, atau tidak didukung). Detail: " + msg)
-            : msg
-        );
-      }
-
-      const rawText = payload && payload.candidates && payload.candidates[0] && payload.candidates[0].content && payload.candidates[0].content.parts
-        ? payload.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
-        : "";
-      const parsed = JSON.parse(rawText || "{}");
-      const candidateClips = (Array.isArray(parsed.clips) ? parsed.clips : []).map(function (c, idx) {
-        return Object.assign({}, c, {
-          candidate_id: String(c.candidate_id || ("cand-" + (idx + 1))),
-          start_seconds: Math.max(0, Number(c.start_seconds !== undefined ? c.start_seconds : c.start_sec) || 0),
-          end_seconds: Math.max(0, Number(c.end_seconds !== undefined ? c.end_seconds : c.end_sec) || 0)
-        });
-      });
-
-      const maxCandEnd = candidateClips.reduce(function (mx, c) { return Math.max(mx, Number(c.end_seconds) || 0); }, 0);
-      const detectedDurationSec = Math.max(Number(parsed.video_duration_sec) || 0, maxCandEnd, 180);
-
-      // PASS 1B: Gap-fill if fewer than MIN_DYNAMIC_COUNT clips returned
-      if (candidateClips.length < MIN_DYNAMIC_COUNT && detectedDurationSec >= 25) {
-        try {
-          const sortedEx = candidateClips.slice().sort(function (a, b) { return a.start_seconds - b.start_seconds; });
-          const missingWins = [];
-          const slotDur = detectedDurationSec / MIN_DYNAMIC_COUNT;
-          for (let si = 0; si < MIN_DYNAMIC_COUNT; si++) {
-            const wS = Math.round(si * slotDur * 100) / 100;
-            const wE = Math.round((si + 1) * slotDur * 100) / 100;
-            const mid = (wS + wE) / 2;
-            const has = sortedEx.some(function (ex) { return ex.start_seconds <= mid && ex.end_seconds >= mid; });
-            if (!has) missingWins.push({ start: wS, end: wE });
-          }
-          const need = Math.max(0, MIN_DYNAMIC_COUNT - candidateClips.length);
-          if (need > 0 && missingWins.length > 0) {
-            const gapPrompt = [
-              "PASS 1B — EKSTRAKSI " + need + " KLIP TAMBAHAN NON-OVERLAPPING.",
-              "Isi segmen pada jendela waktu kosong berikut (total video " + detectedDurationSec.toFixed(1) + "s):",
-              missingWins.slice(0, need + 3).map(function (w, wi) { return "- Slot #" + (wi + 1) + ": " + w.start + "s - " + w.end + "s"; }).join("\n"),
-              "Judul yang sudah dipakai (JANGAN ulangi): " + candidateClips.map(function (c) { return c.title; }).slice(0, 20).join(" | "),
-              "Kembalikan clips berjumlah " + need + " dengan full_transcript verbatim, subtitles (2-4 kata berdasarkan timing akustik nyata + highlightWord), title unik, dan hook_headline unik."
-            ].join("\n");
-            const gapRes = await fetch(geminiEndpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{ parts: [{ fileData: { fileUri: canonicalYoutubeUrl } }, { text: gapPrompt }] }],
-                generationConfig: {
-                  temperature: 0.0,
-                  maxOutputTokens: 32768,
-                  thinkingConfig: { thinkingBudget: 512 },
-                  responseMimeType: "application/json",
-                  responseSchema: pass1Schema
-                }
-              })
-            });
-            if (gapRes.ok) {
-              const gJson = await gapRes.json().catch(function () { return null; });
-              const gTxt = gJson && gJson.candidates && gJson.candidates[0] && gJson.candidates[0].content && gJson.candidates[0].content.parts
-                ? gJson.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
-                : "";
-              const gParsed = JSON.parse(gTxt || "{}");
-              if (gParsed && Array.isArray(gParsed.clips)) {
-                gParsed.clips.forEach(function (gc, gi) {
-                  candidateClips.push(Object.assign({}, gc, {
-                    candidate_id: String(gc.candidate_id || ("cand-gap-" + (gi + 1))),
-                    start_seconds: Math.max(0, Number(gc.start_seconds !== undefined ? gc.start_seconds : gc.start_sec) || 0),
-                    end_seconds: Math.max(0, Number(gc.end_seconds !== undefined ? gc.end_seconds : gc.end_sec) || 0)
-                  }));
-                });
-              }
-            }
-          }
-        } catch (gapErr) {
-          console.warn("Client YouTube Pass 1B warning:", gapErr);
+      const stage2Call = await fetchGeminiWithRetry("gemini-2.5-flash", {
+        contents: [{ parts: [{ text: stage2Prompt }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingBudget: 512 },
+          responseMimeType: "application/json",
+          responseSchema: stage2Schema
         }
+      }, { maxRetries: 3, fallbackTextModel: "gemini-3.1-flash-lite" });
+
+      if (!stage2Call.res || !stage2Call.res.ok) {
+        throwFriendlyGeminiErr(stage2Call.res, stage2Call.payload, "Tahap 2 Seleksi Momen");
       }
 
-      // PASS 2: Critical Viral Audit & Weighted Scoring (68-98%)
       if (typeof opts.onStageChange === "function") {
-        opts.onStageChange("", 72);
+        opts.onStageChange("", 82);
       }
 
-      const auditedMap = {};
-      if (candidateClips.length > 0) {
-        try {
-          const auditSummary = candidateClips.map(function (c) {
-            return {
-              candidate_id: c.candidate_id,
-              title: c.title,
-              hook_headline: c.hook_headline,
-              duration_sec: Math.round(((Number(c.end_seconds) || 0) - (Number(c.start_seconds) || 0)) * 10) / 10,
-              full_transcript: String(c.full_transcript || "").slice(0, 260)
-            };
-          });
-          const pass2Prompt = [
-            "Anda adalah Viral Content Director (PASS 2 - Audit Viral & Pembobotan Skor Akurat untuk " + auditSummary.length + " Klip).",
-            "Evaluasi setiap kandidat secara KRITIS pada skala 55-99 per kriteria (JANGAN beri nilai sama rata):",
-            "1) hook_score (35%): Kekuatan hook 3 detik pertama.",
-            "2) insight_score (30%): Kepadatan tips/edukasi/pesan bernilai.",
-            "3) flow_score (20%): Alur cerita utuh dan tajam.",
-            "4) emotion_score (15%): Energi penyampaian & dorongan interaksi.",
-            "Tulis alasan_viral singkat Bahasa Indonesia (1 kalimat).",
-            JSON.stringify(auditSummary)
-          ].join("\n");
+      const stage2Txt = stage2Call.payload && stage2Call.payload.candidates && stage2Call.payload.candidates[0] && stage2Call.payload.candidates[0].content && stage2Call.payload.candidates[0].content.parts
+        ? stage2Call.payload.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
+        : "";
+      const stage2Parsed = JSON.parse(stage2Txt || "{}");
+      let rawClips = Array.isArray(stage2Parsed.clips) ? stage2Parsed.clips : [];
 
-          const p2Res = await fetch(geminiEndpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: pass2Prompt }] }],
-              generationConfig: {
-                maxOutputTokens: 32768,
-                thinkingConfig: { thinkingBudget: 512 },
-                responseMimeType: "application/json",
-                responseSchema: {
-                  type: "OBJECT",
-                  properties: {
-                    evaluations: {
-                      type: "ARRAY",
-                      items: {
-                        type: "OBJECT",
-                        properties: {
-                          candidate_id: { type: "STRING" },
-                          hook_score: { type: "NUMBER" },
-                          insight_score: { type: "NUMBER" },
-                          flow_score: { type: "NUMBER" },
-                          emotion_score: { type: "NUMBER" },
-                          alasan_viral: { type: "STRING" }
-                        },
-                        required: ["candidate_id", "hook_score", "insight_score", "flow_score", "emotion_score", "alasan_viral"]
-                      }
-                    }
-                  },
-                  required: ["evaluations"]
-                }
-              }
-            })
-          });
-          if (p2Res.ok) {
-            const p2Data = await p2Res.json().catch(function () { return null; });
-            const p2Text = p2Data && p2Data.candidates && p2Data.candidates[0] && p2Data.candidates[0].content && p2Data.candidates[0].content.parts
-              ? p2Data.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
-              : "";
-            const p2Parsed = JSON.parse(p2Text || "{}");
-            if (p2Parsed && Array.isArray(p2Parsed.evaluations)) {
-              p2Parsed.evaluations.forEach(function (ev) {
-                if (ev && ev.candidate_id) auditedMap[String(ev.candidate_id)] = ev;
-              });
-            }
+      if (rawClips.length === 0) {
+        rawClips = [{
+          title: resolvedTitle,
+          hook_headline: resolvedTitle.split(/\s+/).slice(0, 7).join(" "),
+          start_seconds: 0,
+          end_seconds: Math.min(detectedDurationSec, Math.max(12, Math.min(detectedDurationSec, 55))),
+          hook_score: 86,
+          insight_score: 85,
+          flow_score: 84,
+          emotion_score: 82,
+          alasan_viral: "Segmen utama pilihan AI berdasarkan alur pembuka hingga penutup video."
+        }];
+      }
+
+      // STAGE 3: Non-overlap validation, >=12s check, exact word-level subtitle slicing from 0.0s, and descending sort
+      const minClipDur = detectedDurationSec < 12 ? Math.max(4, detectedDurationSec * 0.8) : 12;
+      const sortedByStart = rawClips
+        .map(function (c, idx) {
+          let cs = Math.max(0, Math.min(detectedDurationSec - minClipDur, Number(c.start_seconds !== undefined ? c.start_seconds : c.start_sec) || 0));
+          let ce = Math.min(detectedDurationSec, Math.max(cs + minClipDur, Number(c.end_seconds !== undefined ? c.end_seconds : c.end_sec) || (cs + Math.min(45, detectedDurationSec - cs))));
+          if (fullTranscript.length > 0) {
+            const firstSeg = fullTranscript.find(function (seg) { return seg.end > cs && seg.start <= cs + 3.0; });
+            if (firstSeg && Math.abs(firstSeg.start - cs) <= 2.5) cs = firstSeg.start;
+            const lastSeg = fullTranscript.slice().reverse().find(function (seg) { return seg.start < ce && seg.end >= ce - 3.0; });
+            if (lastSeg && Math.abs(lastSeg.end - ce) <= 2.5 && (lastSeg.end - cs) >= minClipDur) ce = lastSeg.end;
           }
-        } catch (auditErr) {
-          console.warn("Client Pass 2 audit fallback:", auditErr);
+          return Object.assign({}, c, { _origIdx: idx, start_seconds: Math.round(cs * 100) / 100, end_seconds: Math.round(ce * 100) / 100 });
+        })
+        .sort(function (a, b) { return a.start_seconds - b.start_seconds; });
+
+      const validatedClips = [];
+      let prevEnd = 0;
+      const maxAllowed = guidance.maxClips;
+
+      for (let i = 0; i < sortedByStart.length && validatedClips.length < maxAllowed; i++) {
+        const cur = sortedByStart[i];
+        let cStart = Math.max(prevEnd, cur.start_seconds);
+        let cEnd = cur.end_seconds;
+        if (cEnd - cStart < minClipDur) {
+          cEnd = Math.min(detectedDurationSec, cStart + minClipDur);
         }
+        if (cEnd - cStart < minClipDur) continue;
+        prevEnd = cEnd;
+
+        const subs = sliceExactSubtitlesFromTranscriptClient(fullTranscript, cStart, cEnd, validatedClips.length);
+        const transcriptSnippet = fullTranscript
+          .filter(function (s) { return s.end > cStart && s.start < cEnd; })
+          .map(function (s) { return s.text; })
+          .join(" ")
+          .trim();
+
+        const clampCrit = function (val, def) { return Math.min(99, Math.max(55, Math.round(Number(val) || def))); };
+        const hook = clampCrit(cur.hook_score, 82);
+        const insight = clampCrit(cur.insight_score, 80);
+        const flow = clampCrit(cur.flow_score, 79);
+        const emotion = clampCrit(cur.emotion_score, 78);
+        const viralScore = Math.min(98, Math.max(65, Math.round(hook * 0.35 + insight * 0.30 + flow * 0.20 + emotion * 0.15)));
+
+        const cleanHook = String(cur.hook_headline || cur.title || "").split(/[\r\n|]+/)[0].trim().split(/\s+/).filter(Boolean).slice(0, 8).join(" ");
+        validatedClips.push({
+          candidate_id: "clip-" + (validatedClips.length + 1),
+          title: String(cur.title || ("Momen Viral #" + (validatedClips.length + 1))).trim(),
+          hook_headline: cleanHook || String(cur.title || "").split(/\s+/).slice(0, 7).join(" "),
+          full_transcript: transcriptSnippet,
+          start_seconds: Math.round(cStart * 100) / 100,
+          end_seconds: Math.round(cEnd * 100) / 100,
+          start_sec: Math.round(cStart * 100) / 100,
+          end_sec: Math.round(cEnd * 100) / 100,
+          viral_score: viralScore,
+          score_breakdown: { hook: hook, insight: insight, flow: flow, emotion: emotion },
+          alasan_viral: String(cur.alasan_viral || ("Hook kuat (" + hook + "%) dengan insight padat (" + insight + "%).")).trim(),
+          subtitles: subs,
+          broll_moments: Array.isArray(cur.broll_moments) ? cur.broll_moments : []
+        });
       }
 
-      const scored = candidateClips.map(function (c, idx) {
-        const ev = auditedMap[String(c.candidate_id)] || {};
-        const clampCrit = function (val, def) { return Math.min(99, Math.max(58, Math.round(Number(val) || def))); };
-        const hook = clampCrit(ev.hook_score, 74 + ((idx * 5 + 2) % 24));
-        const insight = clampCrit(ev.insight_score, 72 + ((idx * 7 + 3) % 19));
-        const flow = clampCrit(ev.flow_score, 71 + ((idx * 3 + 9) % 23));
-        const emotion = clampCrit(ev.emotion_score, 70 + ((idx * 11 + 4) % 25));
-        const calibrated = Math.min(98, Math.max(68, Math.round(hook * 0.35 + insight * 0.30 + flow * 0.20 + emotion * 0.15)));
-        return Object.assign({}, c, {
-          viral_score: calibrated,
-          score_breakdown: { hook: hook, insight: insight, flow: flow, emotion: emotion },
-          alasan_viral: String(ev.alasan_viral || ("Hook pembuka " + hook + "% dengan insight " + insight + "% dan alur cerita " + flow + "%.")).trim()
+      if (validatedClips.length === 0) {
+        const fbEnd = Math.min(detectedDurationSec, Math.max(minClipDur, detectedDurationSec));
+        validatedClips.push({
+          candidate_id: "clip-1",
+          title: resolvedTitle,
+          hook_headline: resolvedTitle.split(/\s+/).slice(0, 7).join(" "),
+          full_transcript: fullTranscript.map(function (s) { return s.text; }).join(" ").trim(),
+          start_seconds: 0,
+          end_seconds: Math.round(fbEnd * 100) / 100,
+          start_sec: 0,
+          end_sec: Math.round(fbEnd * 100) / 100,
+          viral_score: 88,
+          score_breakdown: { hook: 88, insight: 87, flow: 88, emotion: 85 },
+          alasan_viral: "Klip utuh bernilai tinggi dari awal hingga akhir pemikiran pembicara.",
+          subtitles: sliceExactSubtitlesFromTranscriptClient(fullTranscript, 0, fbEnd, 0),
+          broll_moments: []
         });
-      });
+      }
 
-      scored.sort(function (a, b) { return (Number(b.viral_score) || 0) - (Number(a.viral_score) || 0); });
+      validatedClips.sort(function (a, b) { return (Number(b.viral_score) || 0) - (Number(a.viral_score) || 0); });
 
       return {
         videoId: opts.videoId,
@@ -13641,7 +14016,8 @@
         authorName: resolvedAuthor,
         thumbnailUrl: resolvedThumb,
         videoDurationSec: Math.round(detectedDurationSec * 100) / 100,
-        clips: scored
+        fullTranscript: fullTranscript,
+        clips: validatedClips
       };
     }
 
@@ -13711,32 +14087,40 @@
       const nonEmptyRaw = (Array.isArray(rawSubs) ? rawSubs : []).filter(function (s) {
         return s && String(s.text || "").trim().length > 0;
       });
+      if (nonEmptyRaw.length === 0) return [];
+
+      // Detect whether incoming subtitles use absolute source timestamps (>= safeStart - 0.5) or clip-relative [0..segDur]
       const absMatches = nonEmptyRaw.filter(function (s) {
-        const aS = Number(s.start_sec);
-        const aE = Number(s.end_sec);
-        return !isNaN(aS) && !isNaN(aE) && aE > safeStart + 0.05 && aS < safeEnd - 0.05;
+        const hasRel = s.start !== undefined && Number(s.start) >= 0 && Number(s.start) <= segDur + 0.5;
+        const aS = Number(s.start_sec !== undefined ? s.start_sec : s.start);
+        const aE = Number(s.end_sec !== undefined ? s.end_sec : s.end);
+        if (hasRel && s.start_sec === undefined) return false;
+        return !isNaN(aS) && !isNaN(aE) && safeStart > 1.5 && aS >= safeStart - 0.5 && aE <= safeEnd + 1.5;
       }).length;
-      const maxRawEnd = nonEmptyRaw.reduce(function (mx, s) {
-        const v = Number(!isNaN(Number(s.end_sec)) ? s.end_sec : s.end) || 0;
+      const maxRawRelOrAbs = nonEmptyRaw.reduce(function (mx, s) {
+        const v = Number(s.end_sec !== undefined ? s.end_sec : s.end) || 0;
         return Math.max(mx, v);
       }, 0);
-      const treatAsClipRelative = absMatches === 0 && nonEmptyRaw.length > 0 && safeStart > 1.0 && maxRawEnd <= segDur + 1.5;
+      const inputsAreAbsolute = absMatches > 0 || (safeStart > 1.5 && maxRawRelOrAbs > segDur + 1.5);
 
       const rawFilteredSubs = nonEmptyRaw
         .map(function (s, sIdx) {
-          let subStartSec = Number(s.start_sec);
-          let subEndSec = Number(s.end_sec);
-          if (isNaN(subStartSec)) {
-            const relS = Math.max(0, Number(s.start) || 0);
-            subStartSec = safeStart + relS;
-          } else if (treatAsClipRelative) {
-            subStartSec = safeStart + Math.max(0, subStartSec);
-          }
-          if (isNaN(subEndSec)) {
-            const relE = Number(s.end);
-            subEndSec = !isNaN(relE) ? (safeStart + relE) : (subStartSec + 1.2);
-          } else if (treatAsClipRelative) {
-            subEndSec = safeStart + Math.max(0, subEndSec);
+          let relStart;
+          let relEnd;
+          if (inputsAreAbsolute) {
+            const rawAbsS = !isNaN(Number(s.start_sec)) ? Number(s.start_sec) : (Number(s.start) || safeStart);
+            const rawAbsE = !isNaN(Number(s.end_sec)) ? Number(s.end_sec) : (Number(s.end) || rawAbsS);
+            relStart = rawAbsS - safeStart;
+            relEnd = rawAbsE - safeStart;
+          } else {
+            const hasRelStart = s.start !== undefined && !isNaN(Number(s.start));
+            const hasRelEnd = s.end !== undefined && !isNaN(Number(s.end));
+            relStart = hasRelStart
+              ? Number(s.start)
+              : (!isNaN(Number(s.start_sec)) ? (Number(s.start_sec) >= safeStart - 0.5 && safeStart > 1.5 ? Number(s.start_sec) - safeStart : Number(s.start_sec)) : 0);
+            relEnd = hasRelEnd
+              ? Number(s.end)
+              : (!isNaN(Number(s.end_sec)) ? (Number(s.end_sec) >= safeStart - 0.5 && safeStart > 1.5 ? Number(s.end_sec) - safeStart : Number(s.end_sec)) : relStart);
           }
           const cleanText = collapseConsecutiveDuplicateWords(
             String(s.text || "")
@@ -13745,13 +14129,14 @@
               .trim()
           );
           return {
+            _origIdx: sIdx,
             id: s.id || ("sub-" + cleanIdx + "-" + sIdx),
-            rawStartSec: subStartSec,
-            rawEndSec: subEndSec,
+            relStart: Math.max(0, Number(relStart) || 0),
+            relEnd: Math.max(0, Number(relEnd) || 0),
             text: cleanText,
             highlightWord: String(s.highlightWord || s.highlight || "").trim(),
             posX: s.posX !== undefined ? s.posX : 50,
-            posY: s.posY !== undefined ? s.posY : 54,
+            posY: s.posY !== undefined ? s.posY : 56,
             scalePercent: s.scalePercent !== undefined ? s.scalePercent : 100,
             templateId: s.templateId,
             fontFamily: s.fontFamily || defStyle.fontFamily,
@@ -13773,17 +14158,30 @@
           };
         })
         .filter(function (s) {
-          return s.text.length > 0 && s.rawEndSec > safeStart && s.rawStartSec < safeEnd;
+          if (s.text.length === 0) return false;
+          // Never drop collapsed 0..0 blocks; only drop blocks clearly past the clip boundary
+          if (s.relStart > segDur + 0.5) return false;
+          return true;
         })
         .map(function (s) {
-          const clampedStart = Math.max(safeStart, Math.min(safeEnd - 0.15, s.rawStartSec));
-          const clampedEnd = Math.min(safeEnd, Math.max(clampedStart + 0.15, s.rawEndSec));
+          const clampedRelStart = Math.max(0, Math.min(segDur - 0.15, s.relStart));
+          const clampedRelEnd = Math.min(segDur, Math.max(clampedRelStart, s.relEnd));
           return Object.assign({}, s, {
-            start_sec: Math.round(clampedStart * 100) / 100,
-            end_sec: Math.round(clampedEnd * 100) / 100
+            start_sec: Math.round((safeStart + clampedRelStart) * 100) / 100,
+            end_sec: Math.round((safeStart + clampedRelEnd) * 100) / 100
           });
-        })
-        .sort(function (a, b) { return a.start_sec - b.start_sec; });
+        });
+
+      // Preserve strict chronological spoken order on ties/squashed timestamps; only sort when timestamps are genuinely non-collapsed
+      const hasDistinctOrderedTiming = rawFilteredSubs.length > 1 && rawFilteredSubs.every(function (s, idx) {
+        return idx === 0 || (s.relEnd - s.relStart >= 0.25 && s.relStart >= rawFilteredSubs[idx - 1].relStart - 0.05);
+      });
+      if (hasDistinctOrderedTiming) {
+        rawFilteredSubs.sort(function (a, b) {
+          const diff = a.start_sec - b.start_sec;
+          return Math.abs(diff) > 0.01 ? diff : (a._origIdx - b._origIdx);
+        });
+      }
 
       // Step 2: Deduplicate adjacent overlapping, truncated, or repeated words across blocks iteratively
       const deduplicatedSubs = [];
@@ -13885,7 +14283,7 @@
             chunkedSubs.push(Object.assign({}, s, {
               id: s.id + "-p" + (gIdx + 1),
               start_sec: cursor,
-              end_sec: Math.max(cursor + 0.16, nextCursor),
+              end_sec: Math.max(cursor, nextCursor),
               _words: grp,
               highlightWord: pickBestHighlightWordClient(grp, s.highlightWord)
             }));
@@ -13912,11 +14310,10 @@
         }
       }
 
-      // Step 4: Normalize strictly relative to 0.0s of clip's local timeline & enforce block[i].end <= block[i+1].start
-      balancedSubs.sort(function (a, b) { return a.start_sec - b.start_sec; });
+      // Step 4: Normalize strictly relative to 0.0s of clip's local timeline while preserving chronological spoken order
       const filteredSubs = balancedSubs.map(function (b) {
-        const relS = Math.round(Math.max(0, Math.min(segDur - 0.14, b.start_sec - safeStart)) * 100) / 100;
-        const relE = Math.round(Math.min(segDur, Math.max(relS + 0.18, b.end_sec - safeStart)) * 100) / 100;
+        const relS = Math.round(Math.max(0, Math.min(segDur, b.start_sec - safeStart)) * 100) / 100;
+        const relE = Math.round(Math.min(segDur, Math.max(relS, b.end_sec - safeStart)) * 100) / 100;
         const cleanWords = collapseConsecutiveDuplicateWords(b._words.join(" ")).split(/\s+/).filter(Boolean);
         return {
           id: b.id,
@@ -13949,36 +14346,16 @@
         };
       });
 
-      for (let i = 0; i < filteredSubs.length - 1; i++) {
-        const curSub = filteredSubs[i];
-        const nextSub = filteredSubs[i + 1];
-        if (nextSub.start < curSub.start + 0.12) {
-          nextSub.start = Math.min(segDur - 0.12, Math.round((curSub.start + 0.12) * 100) / 100);
-          nextSub.end = Math.max(nextSub.start + 0.12, nextSub.end);
-        }
-        const gap = nextSub.start - curSub.end;
-        if (gap > 0 && gap < 0.25) {
-          curSub.end = nextSub.start;
-        } else if (curSub.end > nextSub.start) {
-          curSub.end = nextSub.start;
-        }
-        curSub.start_sec = Math.round((safeStart + curSub.start) * 100) / 100;
-        curSub.end_sec = Math.round((safeStart + curSub.end) * 100) / 100;
-      }
-      if (filteredSubs.length > 0) {
-        const lastS = filteredSubs[filteredSubs.length - 1];
-        lastS.end = Math.round(Math.min(segDur, Math.max(lastS.start + 0.14, lastS.end)) * 100) / 100;
-        lastS.start_sec = Math.round((safeStart + lastS.start) * 100) / 100;
-        lastS.end_sec = Math.round((safeStart + lastS.end) * 100) / 100;
-      }
-      return filteredSubs;
+      return enforceSequentialAntiSquashSubtitles(filteredSubs, safeStart, segDur);
     }
 
     function normalizeClipsWithDurationGuard(params) {
       const rawClipsInput = Array.isArray(params.rawClips) ? params.rawClips : [];
+      const fullTranscriptList = Array.isArray(params.fullTranscript)
+        ? params.fullTranscript
+        : (params.newProject && Array.isArray(params.newProject.fullTranscript) ? params.newProject.fullTranscript : []);
       const newProject = params.newProject;
       const projectId = params.projectId;
-      const desiredCount = Math.max(20, Math.min(40, rawClipsInput.length >= 20 ? rawClipsInput.length : 20));
       const minSeconds = params.minSeconds;
       const maxSeconds = params.maxSeconds;
       const selectedStyle = params.selectedStyle;
@@ -13992,70 +14369,45 @@
         const e = Number(it.end_sec !== undefined ? it.end_sec : it.end_seconds) || 0;
         return Math.max(mx, e);
       }, 0);
-      const srcDur = newProject.mode === "local" && baseSrcDur > 0
-        ? baseSrcDur
-        : Math.max(baseSrcDur, maxRawEnd, desiredCount * minSeconds);
+      const srcDur = Math.max(baseSrcDur, maxRawEnd, 10);
+      const minClipGuard = srcDur < 12 ? Math.max(3, Math.round(srcDur * 0.6)) : 12;
 
-      // Partition timeline strictly into >= desiredCount sequential non-overlapping slots
+      // Sort chronologically solely to verify non-overlapping semantic moments without fabricating duplicates
       const sortedInput = rawClipsInput.slice().sort(function (a, b) {
         const aS = Number(a.start_sec !== undefined ? a.start_sec : a.start_seconds) || 0;
         const bS = Number(b.start_sec !== undefined ? b.start_sec : b.start_seconds) || 0;
         return aS - bS;
       });
       const rawClips = [];
-      const slotSpan = Math.max(1.5, srcDur / desiredCount);
-      const usedIdx = {};
       const seenTitles = {};
       const seenHooks = {};
 
-      for (let i = 0; i < desiredCount; i++) {
-        const winStart = Math.round(i * slotSpan * 100) / 100;
-        const winEnd = Math.round(((i + 1) * slotSpan) * 100) / 100;
-        const winDur = Math.max(1.5, winEnd - winStart);
-        const winMid = (winStart + winEnd) / 2;
-
-        let bestCi = -1;
-        let bestDist = Infinity;
-        for (let ci = 0; ci < sortedInput.length; ci++) {
-          if (usedIdx[ci]) continue;
-          const cand = sortedInput[ci];
-          const cS = Number(cand.start_sec !== undefined ? cand.start_sec : cand.start_seconds) || 0;
-          const cE = Math.max(cS + 1, Number(cand.end_sec !== undefined ? cand.end_sec : cand.end_seconds) || (cS + minSeconds));
-          const dist = Math.abs(((cS + cE) / 2) - winMid);
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestCi = ci;
-          }
-        }
-
-        let item = bestCi !== -1 ? sortedInput[bestCi] : null;
-        if (bestCi !== -1) usedIdx[bestCi] = true;
-        if (!item && sortedInput.length > 0) {
-          item = sortedInput[Math.min(sortedInput.length - 1, Math.floor((i / desiredCount) * sortedInput.length))];
-        }
-        item = item || {};
-
-        const effMin = Math.min(winDur, minSeconds);
-        const effMax = Math.min(winDur, Math.max(effMin, maxSeconds));
+      for (let i = 0; i < sortedInput.length; i++) {
+        const item = sortedInput[i] || {};
         const candStart = Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds);
         const candEnd = Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds);
-        const rawDur = (Number.isFinite(candStart) && Number.isFinite(candEnd) && candEnd > candStart) ? (candEnd - candStart) : effMax;
-        const prefDur = Math.max(effMin, Math.min(effMax, rawDur));
 
-        let cStart = Number.isFinite(candStart)
-          ? Math.max(winStart, Math.min(winEnd - prefDur, candStart))
-          : winStart;
-        let cEnd = Math.min(winEnd, cStart + prefDur);
+        let cStart = Number.isFinite(candStart) ? Math.max(0, candStart) : (rawClips.length > 0 ? rawClips[rawClips.length - 1].end_sec : 0);
         if (rawClips.length > 0 && cStart < rawClips[rawClips.length - 1].end_sec) {
           cStart = rawClips[rawClips.length - 1].end_sec;
-          cEnd = Math.max(cStart + Math.min(1.5, winEnd - cStart), Math.min(winEnd, cStart + prefDur));
+        }
+        let cEnd = Number.isFinite(candEnd) && candEnd > cStart
+          ? Math.min(srcDur, candEnd)
+          : Math.min(srcDur, cStart + Math.max(minClipGuard, Math.min(maxSeconds || 45, srcDur - cStart)));
+
+        if (cEnd - cStart < minClipGuard) {
+          cEnd = Math.min(srcDur, cStart + minClipGuard);
+        }
+        if (cEnd - cStart < Math.min(minClipGuard, srcDur * 0.5)) {
+          continue;
         }
         cStart = Math.round(cStart * 100) / 100;
-        cEnd = Math.round(Math.max(cStart + 1.0, cEnd) * 100) / 100;
+        cEnd = Math.round(cEnd * 100) / 100;
 
-        let uTitle = String(item.title || ("Momen Viral #" + (i + 1))).trim();
+        let uTitle = String(item.title || ("Momen Viral #" + (rawClips.length + 1))).trim();
         if (seenTitles[uTitle.toLowerCase()]) {
-          uTitle = uTitle + " (Bagian " + (i + 1) + ")";
+          const ftTopic = String(item.full_transcript || "").trim().split(/\s+/).filter(Boolean).slice(0, 5).join(" ");
+          uTitle = ftTopic ? (ftTopic + " (" + formatSeconds(cStart) + ")") : (uTitle + " [" + formatSeconds(cStart) + "]");
         }
         seenTitles[uTitle.toLowerCase()] = true;
 
@@ -14063,10 +14415,10 @@
         uHook = uHook.split(/\s+/).filter(Boolean).slice(0, 8).join(" ");
         if (!uHook || seenHooks[uHook.toLowerCase()]) {
           const ftWords = String(item.full_transcript || "").trim().split(/\s+/).filter(Boolean);
-          const seedSlice = ftWords.slice(Math.min(ftWords.length - 1, (i % 4) * 3), Math.min(ftWords.length, (i % 4) * 3 + 6));
+          const seedSlice = ftWords.slice(0, Math.min(ftWords.length, 6));
           uHook = seedSlice.length >= 3
             ? seedSlice.join(" ").replace(/[,.;:]+$/, "")
-            : ("Sorotan #" + (i + 1) + ": " + uTitle.split(/\s+/).slice(0, 4).join(" "));
+            : uTitle.split(/\s+/).slice(0, 7).join(" ");
           uHook = uHook.split(/\s+/).filter(Boolean).slice(0, 8).join(" ");
         }
         seenHooks[uHook.toLowerCase()] = true;
@@ -14127,7 +14479,9 @@
         const cStart = Math.round(Math.max(0, Number(item.start_sec !== undefined ? item.start_sec : item.start_seconds) || 0) * 100) / 100;
         const cEnd = Math.round(Math.max(cStart + 1.0, Number(item.end_sec !== undefined ? item.end_sec : item.end_seconds) || (cStart + 1.5)) * 100) / 100;
         const segDur = Math.max(1.0, cEnd - cStart);
-        const rawSubs = Array.isArray(item.subtitles) ? item.subtitles : [];
+        const rawSubs = (Array.isArray(item.subtitles) && item.subtitles.length > 0)
+          ? item.subtitles
+          : sliceExactSubtitlesFromTranscriptClient(fullTranscriptList, cStart, cEnd, idx);
         const rawBrolls = Array.isArray(item.broll_moments) ? item.broll_moments : [];
         const itemStreamUrl = item.mp4Url || item.streamUrl || item.videoUrl || rootStreamUrl || "";
         const playableVideoUrl = newProject.mode === "local" ? newProject.objectUrl : itemStreamUrl;
@@ -14276,7 +14630,7 @@
           flipX: false,
           canvasBg: { mode: "none", blurLevel: 2, color: "#000000", gradient: "", imageUrl: "", imageBlur: 0 },
           autoReframe: { enabled: Boolean(effectiveEffects.autoReframe), aspectRatio: "9:16", cameraSpeed: "normal", keyframes: [] },
-          subtitleBottomPercent: 46,
+          subtitleBottomPercent: 44,
           hookYPercent: recipeHookY,
           subtitleSyncOffset: 0,
           _sfxInitialized: false,
@@ -14465,7 +14819,7 @@
       generatedClips = proj.clips;
       document.getElementById("resultsHeadingTitle").textContent = proj.title;
       document.getElementById("resultsSubtitle").textContent =
-        generatedClips.length + " klip vertikal siap ditonton, diedit, atau diunduh.";
+        generatedClips.length + " klip vertikal pilihan siap ditonton atau diedit.";
       renderResultsGrid();
       switchView("view-results");
     }
@@ -14581,10 +14935,19 @@
             if (infoTime !== null && !isNaN(infoTime)) {
               youtubeInfoStateMap[cid].time = infoTime;
               const matchedClip = generatedClips.find(function (c) { return c.id === cid; });
-              if (matchedClip && youtubeInfoStateMap[cid].state === 1 && typeof matchedClip._syncYoutubeOverlayAtTime === "function") {
-                if (infoTime >= matchedClip.end_sec) {
-                  try { p.seekTo(matchedClip.start_sec, true); } catch (e) {}
-                } else {
+              const cState = matchedClip && matchedClip._cardState;
+              if (matchedClip && youtubeInfoStateMap[cid].state === 1 && (!cState || (!cState.isScrubbing && performance.now() >= cState.seekHoldUntilMs))) {
+                if (infoTime >= matchedClip.end_sec - 0.06) {
+                  if (cState) {
+                    cState.isPlaying = false;
+                    cState.localTime = cState.clipDuration;
+                  }
+                  try { p.pauseVideo(); } catch (e) {}
+                  setCardPlayButtonState(cid, false, false);
+                  if (typeof matchedClip._syncCardUI === "function") {
+                    matchedClip._syncCardUI(matchedClip.end_sec);
+                  }
+                } else if (typeof matchedClip._syncYoutubeOverlayAtTime === "function") {
                   const isMuted = typeof p.isMuted === "function" ? p.isMuted() : Boolean(matchedClip._ytMuted);
                   matchedClip._syncYoutubeOverlayAtTime(infoTime, !isMuted);
                 }
@@ -14628,6 +14991,18 @@
       });
     });
 
+    function setCardPlayButtonState(clipId, playing, loading) {
+      const playBtn = document.getElementById("card-play-btn-" + clipId);
+      if (!playBtn) return;
+      if (loading) {
+        playBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      } else if (playing) {
+        playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+      } else {
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+      }
+    }
+
     function toggleCardPlay(clipId) {
       const videoEl = document.getElementById("card-video-" + clipId);
       const clip = generatedClips.find(function (c) { return c.id === clipId; });
@@ -14636,16 +15011,60 @@
         toggleYoutubeCardPlay(clipId);
         return;
       }
-      const cStart = clip.start_sec;
-      const cEnd = clip.end_sec;
+      const cStart = Number(clip.start_sec) || 0;
+      const cEnd = Number(clip.end_sec) || (cStart + 15);
+      const segDur = Math.max(1.0, cEnd - cStart);
+      if (!clip._cardState) {
+        clip._cardState = { isPlaying: false, localTime: 0, clipDuration: segDur, isScrubbing: false, seekHoldUntilMs: 0 };
+      }
+      const st = clip._cardState;
 
-      if (videoEl.paused) {
-        if (videoEl.currentTime < cStart || videoEl.currentTime >= cEnd) {
-          videoEl.currentTime = cStart;
+      if (!st.isPlaying || videoEl.paused || videoEl.ended) {
+        let resumeOffset = Number(st.localTime) || 0;
+        if (resumeOffset >= segDur - 0.1 || videoEl.ended) {
+          resumeOffset = 0;
+          st.localTime = 0;
+          st.seekHoldUntilMs = performance.now() + 700;
+          const seekSlider = document.getElementById("card-seek-" + clipId);
+          if (seekSlider) seekSlider.value = "0";
         }
-        videoEl.play().catch(function () {});
+        const targetAbs = Math.max(cStart, Math.min(cEnd - 0.05, cStart + resumeOffset));
+        const mediaDur = Number(videoEl.duration);
+        const safeTarget = Number.isFinite(mediaDur) && mediaDur > 0.2
+          ? Math.max(0, Math.min(mediaDur - 0.05, targetAbs))
+          : targetAbs;
+        if (Math.abs((Number(videoEl.currentTime) || 0) - safeTarget) > 0.12 || resumeOffset === 0) {
+          try { videoEl.currentTime = safeTarget; } catch (e) {}
+        }
+        const coverImgEl = document.getElementById("card-cover-img-" + clipId);
+        if (coverImgEl) coverImgEl.classList.add("d-none");
+        st.isPlaying = true;
+        setCardPlayButtonState(clipId, true, false);
+        if (typeof clip._syncCardUI === "function") {
+          clip._syncCardUI(cStart + resumeOffset);
+        }
+        const playPromise = videoEl.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(function () {
+            // Retry muted if unmuted autoplay was blocked by browser policy
+            if (!videoEl.muted) {
+              videoEl.muted = true;
+              const muteBtn = document.getElementById("card-mute-btn-" + clipId);
+              if (muteBtn) muteBtn.innerHTML = '<i class="bi bi-volume-mute-fill"></i>';
+              videoEl.play().catch(function () {
+                st.isPlaying = false;
+                setCardPlayButtonState(clipId, false, false);
+              });
+            } else {
+              st.isPlaying = false;
+              setCardPlayButtonState(clipId, false, false);
+            }
+          });
+        }
       } else {
+        st.isPlaying = false;
         videoEl.pause();
+        setCardPlayButtonState(clipId, false, false);
       }
     }
 
@@ -14667,26 +15086,46 @@
     function toggleYoutubeCardPlay(clipId) {
       const clip = generatedClips.find(function (c) { return c.id === clipId; });
       if (!clip || !clip.videoId) return;
+      const cStart = Number(clip.start_sec) || 0;
+      const cEnd = Number(clip.end_sec) || (cStart + 15);
+      const segDur = Math.max(1.0, cEnd - cStart);
+      if (!clip._cardState) {
+        clip._cardState = { isPlaying: false, localTime: 0, clipDuration: segDur, isScrubbing: false, seekHoldUntilMs: 0 };
+      }
+      const st = clip._cardState;
       const existingPlayer = youtubeCardPlayers[clipId];
       if (!existingPlayer) {
-        playYoutubeClipCard(clipId);
+        if (st.localTime >= segDur - 0.1) st.localTime = 0;
+        playYoutubeClipCard(clipId, st.localTime);
         return;
       }
       try {
         const state = typeof existingPlayer.getPlayerState === "function" ? existingPlayer.getPlayerState() : -1;
-        if (window.YT && state === window.YT.PlayerState.PLAYING) {
+        const isActuallyPlaying = window.YT && state === window.YT.PlayerState.PLAYING;
+        if (isActuallyPlaying || st.isPlaying) {
+          st.isPlaying = false;
           existingPlayer.pauseVideo();
+          setCardPlayButtonState(clipId, false, false);
         } else {
-          if (typeof existingPlayer.getCurrentTime === "function") {
-            const cur = existingPlayer.getCurrentTime();
-            if (cur < clip.start_sec || cur >= clip.end_sec) {
-              existingPlayer.seekTo(clip.start_sec, true);
-            }
+          let resumeOffset = Number(st.localTime) || 0;
+          if (resumeOffset >= segDur - 0.1 || (window.YT && state === window.YT.PlayerState.ENDED)) {
+            resumeOffset = 0;
+            st.localTime = 0;
+            const seekSlider = document.getElementById("card-seek-" + clipId);
+            if (seekSlider) seekSlider.value = "0";
           }
+          const targetAbs = Math.max(cStart, Math.min(cEnd - 0.05, cStart + resumeOffset));
+          st.seekHoldUntilMs = performance.now() + 900;
+          st.isPlaying = true;
+          setCardPlayButtonState(clipId, true, false);
+          existingPlayer.seekTo(targetAbs, true);
           existingPlayer.playVideo();
+          if (typeof clip._syncCardUI === "function") {
+            clip._syncCardUI(targetAbs);
+          }
         }
       } catch (e) {
-        playYoutubeClipCard(clipId);
+        playYoutubeClipCard(clipId, st.localTime);
       }
     }
 
@@ -14746,15 +15185,17 @@
     function applyVideoCropPanSizing(videoEl, isNormalOrBlurMode, aspectKey) {
       if (!videoEl) return;
       if (isNormalOrBlurMode) {
-        videoEl.classList.remove("video-crop-pan", "thumb-cover");
+        videoEl.classList.remove("video-crop-pan", "thumb-cover", "clip-card-video-cover");
         videoEl.classList.add("video-contain");
         videoEl.style.width = "";
         videoEl.style.height = "";
         return;
       }
-      videoEl.classList.remove("video-contain", "thumb-cover");
+      videoEl.classList.remove("video-contain", "thumb-cover", "clip-card-video-cover");
       videoEl.classList.add("video-crop-pan");
-      const boxRatio = getWorkspaceAspectRatioValue(activeClip, videoEl);
+      const boxRatio = (aspectKey && WORKSPACE_ASPECT_MAP[aspectKey])
+        ? WORKSPACE_ASPECT_MAP[aspectKey]
+        : getWorkspaceAspectRatioValue(activeClip, videoEl);
       if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
         const natRatio = videoEl.videoWidth / videoEl.videoHeight;
         if (natRatio > boxRatio) {
@@ -14827,18 +15268,27 @@
         const styleKey = SUBTITLE_STYLE_META[clip.style] ? clip.style : "mozi_pop";
         const initialSub = findActiveSubtitleWithLeadIn(clip.subtitles, clip.start_sec, clip.start_sec);
         const initSubPosX = initialSub && initialSub.posX !== undefined ? initialSub.posX : 50;
-        const initSubPosY = initialSub && initialSub.posY !== undefined ? initialSub.posY : 54;
+        const initSubPosY = initialSub && initialSub.posY !== undefined ? initialSub.posY : 56;
         const bd = clip.score_breakdown || { hook: clip.score, insight: clip.score, flow: clip.score, emotion: clip.score };
         const ytFrameCover = !isPlayableMp4 && clip.videoId
           ? (clip.coverImage || getYoutubeFrameCoverUrl(clip.videoId, clip.start_sec, clip.sourceDuration || (currentResultProject && currentResultProject.sourceDuration) || 180))
           : "";
+
+        const cardState = {
+          isPlaying: false,
+          localTime: 0,
+          clipDuration: segDur,
+          isScrubbing: false,
+          seekHoldUntilMs: 0
+        };
+        clip._cardState = cardState;
 
         const mediaHtml = isPlayableMp4
           ? `<div class="clip-video-viewport">
                <div id="card-video-pan-${clip.id}" class="editor-video-pan-stage" onclick="toggleCardPlay('${clip.id}')" style="cursor: pointer;">
                  <video
                    id="card-video-${clip.id}"
-                   class="${clip.bgMode === "blur" ? "video-contain" : "video-crop-pan"}"
+                   class="clip-card-video-cover"
                    src="${clip.videoUrl}"
                    poster="${clip.coverImage || ""}"
                    playsinline
@@ -14876,10 +15326,10 @@
               type="range"
               id="card-seek-${clip.id}"
               class="clip-range-slider mb-1"
-              min="${clip.start_sec}"
-              max="${clip.end_sec}"
+              min="0"
+              max="${segDur}"
               step="0.05"
-              value="${clip.start_sec}"
+              value="0"
               aria-label="Geser Waktu Klip"
             />
             <div class="d-flex align-items-center justify-content-between text-white gap-1">
@@ -15086,18 +15536,21 @@
               wrap.style.left = (h.posX !== undefined ? h.posX : 50) + "%";
               wrap.style.top = (h.posY !== undefined ? h.posY : (clip.hookYPercent !== undefined ? clip.hookYPercent : 76)) + "%";
               wrap.style.width = "max-content";
-              wrap.style.maxWidth = "82%";
-              wrap.style.maxHeight = "24%";
+              wrap.style.maxWidth = "88%";
+              wrap.style.maxHeight = "36%";
               wrap.style.overflow = "hidden";
               wrap.style.transform = "translate(-50%, -50%) scale(" + hScale.toFixed(3) + ")";
               const boxEl = document.createElement("div");
               const textSpan = document.createElement("span");
-              textSpan.className = "lh-sm";
               textSpan.style.display = "-webkit-box";
-              textSpan.style.webkitLineClamp = "2";
+              textSpan.style.webkitLineClamp = "3";
               textSpan.style.webkitBoxOrient = "vertical";
               textSpan.style.overflow = "hidden";
               textSpan.style.textOverflow = "ellipsis";
+              textSpan.style.textAlign = "center";
+              textSpan.style.whiteSpace = "normal";
+              textSpan.style.overflowWrap = "break-word";
+              textSpan.style.lineHeight = "1.35";
               boxEl.appendChild(textSpan);
               wrap.appendChild(boxEl);
               cardTextLayersHost.appendChild(wrap);
@@ -15123,10 +15576,15 @@
 
         renderCardTextLayersAt(0);
 
-        function syncCardUIAtTime(curTime, isPlayingAudioActive) {
-          const relElapsed = Math.max(0, Math.min(segDur, curTime - clip.start_sec));
-          if (seekSlider) {
-            seekSlider.value = Math.max(clip.start_sec, Math.min(clip.end_sec, curTime));
+        function syncCardUIAtTime(curTime, isPlayingAudioActive, allowHoldOverride) {
+          const rawRel = Math.max(0, Math.min(segDur, curTime - clip.start_sec));
+          const underHold = !allowHoldOverride && (cardState.isScrubbing || performance.now() < cardState.seekHoldUntilMs);
+          const relElapsed = underHold ? Math.max(0, Math.min(segDur, cardState.localTime)) : rawRel;
+          if (!underHold) {
+            cardState.localTime = relElapsed;
+          }
+          if (seekSlider && (!cardState.isScrubbing || allowHoldOverride)) {
+            seekSlider.value = String(relElapsed);
           }
           if (timeLabel) {
             timeLabel.textContent = formatSeconds(relElapsed) + " / " + formatSeconds(segDur);
@@ -15334,7 +15792,7 @@
               const subScale = Math.max(0.5, Math.min(1.8, (Number(activeSub.scalePercent) || 100) / 100));
               if (subWrap) {
                 subWrap.style.left = (activeSub.posX !== undefined ? activeSub.posX : 50) + "%";
-                subWrap.style.top = (activeSub.posY !== undefined ? activeSub.posY : 54) + "%";
+                subWrap.style.top = (activeSub.posY !== undefined ? activeSub.posY : 56) + "%";
                 subWrap.style.bottom = "auto";
                 subWrap.style.transform = "translate(-50%, -50%) scale(" + subScale.toFixed(3) + ")";
               }
@@ -15384,76 +15842,154 @@
 
         clip._syncCardUI = function (overrideTime) {
           if (typeof overrideTime === "number") {
-            syncCardUIAtTime(overrideTime, false);
+            syncCardUIAtTime(overrideTime, cardState.isPlaying && !clip._ytMuted, true);
           } else if (isPlayableMp4 && videoEl) {
-            syncCardUIAtTime(videoEl.currentTime, !videoEl.paused && !videoEl.muted);
+            syncCardUIAtTime(videoEl.currentTime, !videoEl.paused && !videoEl.muted, false);
           } else if (!isPlayableMp4 && youtubeCardPlayers[clip.id] && typeof youtubeCardPlayers[clip.id].getCurrentTime === "function") {
-            syncCardUIAtTime(youtubeCardPlayers[clip.id].getCurrentTime(), false);
+            syncCardUIAtTime(youtubeCardPlayers[clip.id].getCurrentTime(), cardState.isPlaying && !clip._ytMuted, false);
           } else {
-            syncCardUIAtTime(Number(seekSlider ? seekSlider.value : clip.start_sec) || clip.start_sec, false);
+            syncCardUIAtTime(clip.start_sec + cardState.localTime, false, true);
           }
         };
 
+        function handleCardScrubCommit(targetOffset, finishScrub) {
+          const clampedOffset = Math.max(0, Math.min(segDur, Number(targetOffset) || 0));
+          const targetAbs = clip.start_sec + clampedOffset;
+          cardState.localTime = clampedOffset;
+          cardState.seekHoldUntilMs = performance.now() + 900;
+          if (finishScrub) cardState.isScrubbing = false;
+
+          if (isPlayableMp4 && videoEl) {
+            const coverImgEl = document.getElementById("card-cover-img-" + clip.id);
+            if (coverImgEl) coverImgEl.classList.add("d-none");
+            const mediaDur = Number(videoEl.duration);
+            const safeTarget = Number.isFinite(mediaDur) && mediaDur > 0.2
+              ? Math.max(0, Math.min(mediaDur - 0.05, targetAbs))
+              : targetAbs;
+            if (videoEl.readyState >= 1) {
+              try { videoEl.currentTime = safeTarget; } catch (e) {}
+            }
+            if (clampedOffset >= segDur - 0.08 && cardState.isPlaying) {
+              cardState.isPlaying = false;
+              videoEl.pause();
+              setCardPlayButtonState(clip.id, false, false);
+            } else if (cardState.isPlaying && videoEl.paused && clampedOffset < segDur - 0.08) {
+              videoEl.play().catch(function () {});
+            }
+            syncCardUIAtTime(targetAbs, cardState.isPlaying && !videoEl.muted, true);
+          } else {
+            const ytThumb = document.getElementById("card-yt-thumb-" + clip.id);
+            const ytPoster = document.getElementById("card-yt-poster-" + clip.id);
+            if (ytThumb) ytThumb.classList.add("d-none");
+            if (ytPoster) ytPoster.classList.add("d-none");
+            const ytPlayer = youtubeCardPlayers[clip.id];
+            if (ytPlayer && typeof ytPlayer.seekTo === "function") {
+              try {
+                ytPlayer.seekTo(targetAbs, true);
+                if (clampedOffset >= segDur - 0.08 && cardState.isPlaying) {
+                  cardState.isPlaying = false;
+                  ytPlayer.pauseVideo();
+                  setCardPlayButtonState(clip.id, false, false);
+                } else if (cardState.isPlaying && clampedOffset < segDur - 0.08) {
+                  ytPlayer.playVideo();
+                }
+              } catch (e) {}
+            } else if (cardState.isPlaying) {
+              playYoutubeClipCard(clip.id, clampedOffset);
+            }
+            syncCardUIAtTime(targetAbs, cardState.isPlaying && !clip._ytMuted, true);
+          }
+        }
+
+        if (seekSlider) {
+          seekSlider.addEventListener("pointerdown", function () {
+            cardState.isScrubbing = true;
+          });
+          seekSlider.addEventListener("input", function () {
+            cardState.isScrubbing = true;
+            handleCardScrubCommit(Number(this.value) || 0, false);
+          });
+          seekSlider.addEventListener("change", function () {
+            handleCardScrubCommit(Number(this.value) || 0, true);
+          });
+          ["pointerup", "mouseup", "touchend"].forEach(function (evName) {
+            seekSlider.addEventListener(evName, function () {
+              cardState.isScrubbing = false;
+            });
+          });
+        }
+
         if (isPlayableMp4 && videoEl) {
           function animateCardSmooth() {
-            if (!videoEl || videoEl.paused) {
+            if (!videoEl || videoEl.paused || !cardState.isPlaying) {
               previewZoomRaf = null;
               return;
             }
-            if (videoEl.currentTime >= clip.end_sec) {
-              videoEl.currentTime = clip.start_sec;
+            if (!cardState.isScrubbing && performance.now() >= cardState.seekHoldUntilMs) {
+              const relNow = (Number(videoEl.currentTime) || 0) - clip.start_sec;
+              if (relNow >= segDur - 0.06 || videoEl.ended) {
+                cardState.isPlaying = false;
+                cardState.localTime = segDur;
+                videoEl.pause();
+                setCardPlayButtonState(clip.id, false, false);
+                syncCardUIAtTime(clip.end_sec, false, true);
+                previewZoomRaf = null;
+                return;
+              }
+              syncCardUIAtTime(videoEl.currentTime, !videoEl.muted, false);
             }
-            syncCardUIAtTime(videoEl.currentTime, !videoEl.muted);
             previewZoomRaf = requestAnimationFrame(animateCardSmooth);
           }
 
           const coverImgEl = document.getElementById("card-cover-img-" + clip.id);
           videoEl.addEventListener("loadedmetadata", function () {
-            applyVideoCropPanSizing(videoEl, isNormalUnCroppedFit(clip), clip.cropAspectRatio || "asli");
-            videoEl.currentTime = clip.start_sec;
-            syncCardUIAtTime(clip.start_sec, false);
+            if (clip.autoReframe && clip.autoReframe.enabled) {
+              applyVideoCropPanSizing(videoEl, false, "9:16");
+            } else {
+              videoEl.classList.remove("video-contain", "video-crop-pan");
+              videoEl.classList.add("clip-card-video-cover");
+            }
+            const targetOffset = Math.max(0, Math.min(segDur, Number(cardState.localTime) || 0));
+            const targetAbs = clip.start_sec + targetOffset;
+            const mediaDur = Number(videoEl.duration);
+            const safeTarget = Number.isFinite(mediaDur) && mediaDur > 0.2
+              ? Math.max(0, Math.min(mediaDur - 0.05, targetAbs))
+              : targetAbs;
+            try { videoEl.currentTime = safeTarget; } catch (e) {}
+            syncCardUIAtTime(targetAbs, false, true);
           });
           videoEl.addEventListener("play", function () {
             if (coverImgEl) coverImgEl.classList.add("d-none");
-            if (videoEl.currentTime < clip.start_sec || videoEl.currentTime >= clip.end_sec) {
-              videoEl.currentTime = clip.start_sec;
-            }
-            if (playBtn) playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            cardState.isPlaying = true;
+            setCardPlayButtonState(clip.id, true, false);
             if (!previewZoomRaf) {
               previewZoomRaf = requestAnimationFrame(animateCardSmooth);
             }
           });
           videoEl.addEventListener("pause", function () {
-            if (playBtn) playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            cardState.isPlaying = false;
+            setCardPlayButtonState(clip.id, false, false);
             if (previewZoomRaf) {
               cancelAnimationFrame(previewZoomRaf);
               previewZoomRaf = null;
             }
           });
-          if (seekSlider) {
-            seekSlider.addEventListener("input", function () {
-              if (coverImgEl) coverImgEl.classList.add("d-none");
-              const targetTime = Math.max(clip.start_sec, Math.min(clip.end_sec, Number(this.value) || clip.start_sec));
-              videoEl.currentTime = targetTime;
-              syncCardUIAtTime(targetTime, false);
-            });
-          }
+          videoEl.addEventListener("ended", function () {
+            cardState.isPlaying = false;
+            cardState.localTime = segDur;
+            setCardPlayButtonState(clip.id, false, false);
+            syncCardUIAtTime(clip.end_sec, false, true);
+          });
           videoEl.addEventListener("seeked", function () {
             if (coverImgEl && !videoEl.paused) coverImgEl.classList.add("d-none");
-            syncCardUIAtTime(videoEl.currentTime, !videoEl.paused && !videoEl.muted);
+            if (!cardState.isScrubbing && performance.now() >= cardState.seekHoldUntilMs) {
+              syncCardUIAtTime(videoEl.currentTime, !videoEl.paused && !videoEl.muted, false);
+            }
           });
         } else {
-          if (seekSlider) {
-            seekSlider.addEventListener("input", function () {
-              const targetTime = Math.max(clip.start_sec, Math.min(clip.end_sec, Number(this.value) || clip.start_sec));
-              const ytPlayer = youtubeCardPlayers[clip.id];
-              if (ytPlayer && typeof ytPlayer.seekTo === "function") {
-                ytPlayer.seekTo(targetTime, true);
-              }
-              syncCardUIAtTime(targetTime, false);
-            });
-          }
-          clip._syncYoutubeOverlayAtTime = syncCardUIAtTime;
+          clip._syncYoutubeOverlayAtTime = function (absT, isAudioOn) {
+            syncCardUIAtTime(absT, isAudioOn, false);
+          };
         }
       });
     }
@@ -15485,22 +16021,32 @@
     }
 
     // Mount Cropped 9:16 YouTube IFrame Player API + 60fps requestAnimationFrame Sync
-    function playYoutubeClipCard(clipId) {
+    function playYoutubeClipCard(clipId, initialOffsetOverride) {
       const clip = generatedClips.find(function (c) { return c.id === clipId; });
       if (!clip || !clip.videoId) return;
 
       const mountEl = document.getElementById("card-yt-mount-" + clipId);
       const thumbEl = document.getElementById("card-yt-thumb-" + clipId);
       const posterOverlay = document.getElementById("card-yt-poster-" + clipId);
-      const playBtn = document.getElementById("card-play-btn-" + clipId);
       const seekSlider = document.getElementById("card-seek-" + clipId);
-      const initialSeek = seekSlider ? (Number(seekSlider.value) || clip.start_sec) : clip.start_sec;
-      const targetStart = Math.max(clip.start_sec, Math.min(clip.end_sec - 0.5, initialSeek));
+      const cStart = Number(clip.start_sec) || 0;
+      const cEnd = Number(clip.end_sec) || (cStart + 15);
+      const segDur = Math.max(1.0, cEnd - cStart);
+      if (!clip._cardState) {
+        clip._cardState = { isPlaying: false, localTime: 0, clipDuration: segDur, isScrubbing: false, seekHoldUntilMs: 0 };
+      }
+      const cardState = clip._cardState;
+      const startOffset = initialOffsetOverride !== undefined
+        ? Math.max(0, Math.min(segDur - 0.1, Number(initialOffsetOverride) || 0))
+        : (seekSlider ? Math.max(0, Math.min(segDur - 0.1, Number(seekSlider.value) || 0)) : cardState.localTime);
+      const targetStart = Math.max(cStart, Math.min(cEnd - 0.1, cStart + startOffset));
 
       if (!mountEl) return;
       mountEl.classList.remove("d-none");
       if (posterOverlay) posterOverlay.classList.add("d-none");
-      if (playBtn) playBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      cardState.localTime = startOffset;
+      cardState.seekHoldUntilMs = performance.now() + 1200;
+      setCardPlayButtonState(clipId, false, true);
 
       if (youtubeSyncTimers[clipId]) {
         cancelAnimationFrame(youtubeSyncTimers[clipId]);
@@ -15541,7 +16087,7 @@
                   ifr.contentWindow.postMessage(JSON.stringify({ event: "listening", id: playerDivId }), "*");
                 }
               } catch (e) {}
-              youtubeInfoStateMap[clipId] = { state: 1, time: targetStart };
+              youtubeInfoStateMap[clipId] = { state: -1, time: targetStart, startedAtMs: performance.now(), initialStart: targetStart, fallbackMutedTried: false };
               try {
                 if (clip._ytMuted) p.mute();
                 else p.unMute();
@@ -15558,24 +16104,29 @@
               if (!youtubeInfoStateMap[clipId]) youtubeInfoStateMap[clipId] = { state: -1, time: null };
               youtubeInfoStateMap[clipId].state = ev.data;
               if (ev.data === window.YT.PlayerState.PLAYING) {
+                cardState.isPlaying = true;
                 if (thumbEl) thumbEl.classList.add("d-none");
                 if (posterOverlay) posterOverlay.classList.add("d-none");
-                if (playBtn) playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+                setCardPlayButtonState(clipId, true, false);
                 startYoutubeCardRafLoop(clip, ev.target);
               } else if (ev.data === window.YT.PlayerState.PAUSED) {
-                if (playBtn) playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+                cardState.isPlaying = false;
+                setCardPlayButtonState(clipId, false, false);
               } else if (ev.data === window.YT.PlayerState.ENDED) {
-                try {
-                  ev.target.seekTo(clip.start_sec, true);
-                  ev.target.playVideo();
-                } catch (e) {}
+                cardState.isPlaying = false;
+                cardState.localTime = segDur;
+                setCardPlayButtonState(clipId, false, false);
+                if (typeof clip._syncCardUI === "function") {
+                  clip._syncCardUI(cEnd);
+                }
               }
             }
           }
         });
         youtubeCardPlayers[clipId] = player;
       }).catch(function (err) {
-        if (playBtn) playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        cardState.isPlaying = false;
+        setCardPlayButtonState(clipId, false, false);
         if (posterOverlay) posterOverlay.classList.remove("d-none");
         showToast("Gagal memuat pemutar YouTube: " + (err && err.message ? err.message : "Koneksi terputus"));
       });
@@ -15588,7 +16139,7 @@
         clearInterval(youtubeSyncTimers[clip.id]);
       }
 
-      // True 60fps requestAnimationFrame loop locked strictly to live YouTube player.getCurrentTime() ONLY while PLAYING (state === 1)
+      const cardState = clip._cardState || { isPlaying: false, localTime: 0, clipDuration: Math.max(1, clip.end_sec - clip.start_sec), isScrubbing: false, seekHoldUntilMs: 0 };
       let lastPollAt = 0;
       let lastReportedYtSec = null;
       let lastReportedWallMs = 0;
@@ -15603,7 +16154,28 @@
           const infoRec = youtubeInfoStateMap[clip.id];
           const isPlaying = (window.YT && apiState === window.YT.PlayerState.PLAYING) || (apiState === -1 && infoRec && infoRec.state === 1);
 
+          // Autoplay watchdog: if unmuted autoplay was blocked or stalled after 900ms, retry muted cleanly or sync icon to Play
+          if (!isPlaying && infoRec && !infoRec.fallbackMutedTried && infoRec.startedAtMs && (nowMs - infoRec.startedAtMs > 900)) {
+            infoRec.fallbackMutedTried = true;
+            if (apiState !== 2 && apiState !== 0) {
+              try {
+                player.mute();
+                clip._ytMuted = true;
+                const muteBtn = document.getElementById("card-mute-btn-" + clip.id);
+                if (muteBtn) muteBtn.innerHTML = '<i class="bi bi-volume-mute-fill"></i>';
+                player.playVideo();
+              } catch (e) {}
+            } else {
+              cardState.isPlaying = false;
+              setCardPlayButtonState(clip.id, false, false);
+            }
+          }
+
           if (isPlaying) {
+            if (!cardState.isPlaying) {
+              cardState.isPlaying = true;
+              setCardPlayButtonState(clip.id, true, false);
+            }
             if (!lastPollAt || nowMs - lastPollAt >= 120) {
               lastPollAt = nowMs;
               const ifr = typeof player.getIframe === "function" ? player.getIframe() : null;
@@ -15613,22 +16185,25 @@
             }
             const rawYtTime = typeof player.getCurrentTime === "function"
               ? Number(player.getCurrentTime())
-              : (infoRec && infoRec.time !== null ? Number(infoRec.time) : clip.start_sec);
+              : (infoRec && infoRec.time !== null ? Number(infoRec.time) : (clip.start_sec + cardState.localTime));
 
-            if (!isNaN(rawYtTime)) {
+            if (!isNaN(rawYtTime) && !cardState.isScrubbing && nowMs >= cardState.seekHoldUntilMs) {
               if (lastReportedYtSec === null || Math.abs(rawYtTime - lastReportedYtSec) > 0.004) {
                 lastReportedYtSec = rawYtTime;
                 lastReportedWallMs = nowMs;
               }
-              // Sub-frame interpolation strictly bounded (< 160ms) between YT iframe postMessage ticks, zero drift on pause/buffer
               const driftSpan = Math.min(0.16, Math.max(0, (nowMs - lastReportedWallMs) / 1000));
               const rate = typeof player.getPlaybackRate === "function" ? (Number(player.getPlaybackRate()) || 1) : (clip.videoSpeed || 1);
               const curTime = rawYtTime + driftSpan * rate;
 
-              if (curTime >= clip.end_sec) {
-                lastReportedYtSec = clip.start_sec;
-                lastReportedWallMs = nowMs;
-                player.seekTo(clip.start_sec, true);
+              if (curTime >= clip.end_sec - 0.06) {
+                cardState.isPlaying = false;
+                cardState.localTime = cardState.clipDuration;
+                try { player.pauseVideo(); } catch (e) {}
+                setCardPlayButtonState(clip.id, false, false);
+                if (typeof clip._syncCardUI === "function") {
+                  clip._syncCardUI(clip.end_sec);
+                }
               } else {
                 const isMuted = typeof player.isMuted === "function" ? player.isMuted() : Boolean(clip._ytMuted);
                 if (typeof clip._syncYoutubeOverlayAtTime === "function") {
@@ -15638,6 +16213,12 @@
             }
           } else {
             lastReportedYtSec = null;
+            if (apiState === 2 || apiState === 0) {
+              if (cardState.isPlaying) {
+                cardState.isPlaying = false;
+                setCardPlayButtonState(clip.id, false, false);
+              }
+            }
           }
         } catch (e) {}
 
@@ -15754,16 +16335,14 @@
       const maxWidthRatio = isHook ? 0.82 : 0.88;
       const maxWidth = Math.max(Math.round(canvas.width * 0.40), Math.min(Math.round(canvas.width * maxWidthRatio), Math.round(sideRoomPx)));
       const words = displayText.split(/\s+/).filter(Boolean);
-      const isSingleWordPop = !isHook && style.accentType === "single_yellow_pop";
+      const subAnim = !isHook ? (style.animation || "none") : "none";
+      const isSingleWordPop = !isHook && (style.accentType === "single_yellow_pop" || subAnim === "single_yellow_pop");
       const isStackedCoral = !isHook && style.accentType === "stacked_coral";
       const isBluePillSub = !isHook && style.accentType === "blue_pill_highlight";
       const isChromeGlow = !isHook && style.accentType === "chrome_glow";
       const targetWordIdx = (typeof activeWordIdx === "number" && activeWordIdx >= 0 && activeWordIdx < words.length)
         ? activeWordIdx
-        : Math.max(0, words.length - 1);
-      const hlWordIdx = !isHook ? resolveHighlightWordIndex(style.highlightWord, words) : -1;
-
-      const subAnim = !isHook ? (style.animation || "none") : "none";
+        : 0;
       const isKineticPreset = !isHook && KINETIC_SUBTITLE_ANIM_IDS.indexOf(subAnim) !== -1;
 
       if (isKineticPreset && words.length > 0) {
@@ -15965,7 +16544,8 @@
         let maxKinW = 0;
         let totalKinH = 0;
         kineticRows.forEach(function (row) {
-          const wordGap = Math.round(baseFontPx * 0.25);
+          ctx.font = "900 " + baseFontPx + "px " + style.fontFamily;
+          const wordGap = Math.max(ctx.measureText(" ").width, Math.round(baseFontPx * 0.30));
           let rowW = 0;
           row.tokens.forEach(function (tok, tIdx) {
             ctx.font = "900 " + tok.fontPx + "px " + style.fontFamily;
@@ -16326,8 +16906,10 @@
 
       lines.forEach(function (line, i) {
         const yPos = startY + textOffsetY + i * lineHeight;
-        const lineWords = line.split(" ").filter(Boolean);
-        const totalW = ctx.measureText(line).width;
+        const lineWords = line.split(/\s+/).filter(Boolean);
+        const spaceW = Math.max(ctx.measureText(" ").width, Math.round(fontPx * 0.30));
+        const wordWidths = lineWords.map(function (w) { return ctx.measureText(w).width; });
+        const totalW = wordWidths.reduce(function (acc, val) { return acc + val; }, 0) + Math.max(0, lineWords.length - 1) * spaceW;
 
         if (isLiveStream || isHaveQuestion) {
           const lPillW = Math.min(canvas.width * 0.90, totalW + Math.max(28, padCanvas * 2));
@@ -16386,13 +16968,10 @@
 
         let cursorX = lineAlignOffset;
         lineWords.forEach(function (w, wIdx) {
-          const wordWithSpace = wIdx < lineWords.length - 1 ? w + " " : w;
-          const wWidth = ctx.measureText(wordWithSpace).width;
-          const pureWidth = ctx.measureText(w).width;
+          const pureWidth = wordWidths[wIdx];
           const centerX = cursorX + pureWidth / 2;
           const curGlobalIdx = globalWordCounter;
-          const isHlKeyword = hlWordIdx !== -1 && curGlobalIdx === hlWordIdx && (!motion.isWordReveal || curGlobalIdx <= targetWordIdx);
-          const isAccentWord = isSingleWordPop ? true : (curGlobalIdx === targetWordIdx || isHlKeyword);
+          const isAccentWord = isSingleWordPop ? true : (curGlobalIdx === targetWordIdx);
           const isWordHidden = isSingleWordPop
             ? false
             : (isWordByWord
@@ -16436,6 +17015,7 @@
 
             if (strokeCanvasW > 0 && !(isBluePillSub && isAccentWord)) {
               ctx.lineJoin = "round";
+              ctx.lineCap = "round";
               ctx.lineWidth = strokeCanvasW;
               ctx.strokeStyle = style.strokeColor;
               if (isChromeGlow) {
@@ -16469,8 +17049,7 @@
             } else if (isBluePillSub && isAccentWord) {
               ctx.fillStyle = "#FFFFFF";
             } else if (isStackedCoral) {
-              const useCoralHl = (hlWordIdx !== -1 && curGlobalIdx === hlWordIdx) || (hlWordIdx === -1 && curGlobalIdx % 2 === 1);
-              ctx.fillStyle = useCoralHl ? (style.highlightColor || "#F87171") : style.color;
+              ctx.fillStyle = (curGlobalIdx === targetWordIdx) ? (style.highlightColor || "#F87171") : style.color;
             } else if (isChromeGlow) {
               const chromeGrad = ctx.createLinearGradient(0, -fontPx * 0.55, 0, fontPx * 0.55);
               chromeGrad.addColorStop(0, "#FFFFFF");
@@ -16492,7 +17071,7 @@
             ctx.restore();
           }
 
-          cursorX += wWidth;
+          cursorX += pureWidth + (wIdx < lineWords.length - 1 ? spaceW : 0);
           globalWordCounter++;
         });
 
@@ -17260,11 +17839,11 @@
             });
           }
 
-          // 3) Synchronized Burned-In Subtitles (Y: 54% + Custom X/Y + Word-by-Word Pop/Slide on top of B-Roll)
+          // 3) Synchronized Burned-In Subtitles (Y: 56% + Custom X/Y + Word-by-Word Pop/Slide on top of B-Roll)
           const adjSubTime = curTime - (Number(clip.subtitleSyncOffset) || 0);
           const activeSub = findActiveSubtitleWithLeadIn(clip.subtitles, clip.start_sec, adjSubTime);
           if (activeSub) {
-            drawCanvasStyledSubtitle(ctx, vCanvas, activeSub, styleKey, adjSubTime, clip.subtitleBottomPercent !== undefined ? clip.subtitleBottomPercent : 46);
+            drawCanvasStyledSubtitle(ctx, vCanvas, activeSub, styleKey, adjSubTime, clip.subtitleBottomPercent !== undefined ? clip.subtitleBottomPercent : 44);
           }
 
           ctx.restore();
@@ -17368,7 +17947,7 @@
         nativeHeight: Number(clip.nativeHeight) || 0,
         canvasBg: ensureCanvasBgState(clip),
         autoReframe: ensureAutoReframeState(clip),
-        subtitleBottomPercent: clip.subtitleBottomPercent !== undefined ? clip.subtitleBottomPercent : 46,
+        subtitleBottomPercent: clip.subtitleBottomPercent !== undefined ? clip.subtitleBottomPercent : 44,
         hookYPercent: clip.hookYPercent !== undefined ? clip.hookYPercent : 76,
         subtitleSyncOffset: clip.subtitleSyncOffset || 0,
         syncSubtitlePosAll: clip.syncSubtitlePosAll !== false,
@@ -17420,7 +17999,7 @@
         activeClip.nativeHeight = Number(snap.nativeHeight) || 0;
         activeClip.canvasBg = snap.canvasBg || { mode: "none", blurLevel: 2, color: "#000000", gradient: "", imageUrl: "", imageBlur: 0 };
         activeClip.autoReframe = snap.autoReframe || { enabled: false, aspectRatio: "9:16", cameraSpeed: "normal", keyframes: [] };
-        activeClip.subtitleBottomPercent = snap.subtitleBottomPercent !== undefined ? snap.subtitleBottomPercent : 46;
+        activeClip.subtitleBottomPercent = snap.subtitleBottomPercent !== undefined ? snap.subtitleBottomPercent : 44;
         activeClip.hookYPercent = snap.hookYPercent !== undefined ? snap.hookYPercent : 76;
         activeClip.subtitleSyncOffset = snap.subtitleSyncOffset || 0;
         activeClip.syncSubtitlePosAll = snap.syncSubtitlePosAll !== false;
@@ -17977,6 +18556,15 @@
           searchCanvasBgPixabay("minimal aesthetic background");
         }
       }
+      if (tabKey === "captions" && activeClip && Array.isArray(activeClip.subtitles) && activeClip.subtitles.length > 0) {
+        const curMatch = findActiveSubtitleWithLeadIn(activeClip.subtitles, activeClip.start_sec, activeClip.start_sec + editorCurrentTime);
+        if (curMatch) {
+          selectedSubtitleId = curMatch.id;
+        } else if (!activeClip.subtitles.some(function (s) { return s.id === selectedSubtitleId; })) {
+          selectedSubtitleId = activeClip.subtitles[0].id;
+        }
+        editorSelectedTarget = "subtitle";
+      }
       updateCropGridOverlayVisibility();
       refreshContextualPropertiesPanel();
     }
@@ -18105,7 +18693,7 @@
       if (!clip.cropAspectRatio) clip.cropAspectRatio = "asli";
       ensureCanvasBgState(clip);
       ensureAutoReframeState(clip);
-      if (clip.subtitleBottomPercent === undefined) clip.subtitleBottomPercent = 46;
+      if (clip.subtitleBottomPercent === undefined) clip.subtitleBottomPercent = 44;
       if (clip.hookYPercent === undefined) clip.hookYPercent = 76;
       if (clip.subtitleSyncOffset === undefined) clip.subtitleSyncOffset = 0;
 
@@ -18195,9 +18783,17 @@
       clip.subtitles.forEach(function (s, sIdx) {
         if (!s.id) s.id = "sub-" + clip.id + "-" + sIdx;
         if (s.posX === undefined) s.posX = 50;
-        if (s.posY === undefined) s.posY = 54;
+        if (s.posY === undefined) s.posY = 56;
         if (s.scalePercent === undefined) s.scalePercent = 100;
+        // Convert absolute source timestamps if they still carry clip.start_sec offset
+        if (clip.start_sec > 1.5 && Number(s.start) >= clip.start_sec - 0.5 && Number(s.end) <= (clip.end_sec || clip.start_sec + segDur) + 1.5) {
+          s.start = Math.max(0, Number(s.start) - clip.start_sec);
+          s.end = Math.max(s.start, Number(s.end) - clip.start_sec);
+        }
       });
+      if (clip.subtitles.length > 0 && typeof enforceSequentialAntiSquashSubtitles === "function") {
+        enforceSequentialAntiSquashSubtitles(clip.subtitles, clip.start_sec, segDur);
+      }
 
       if (!Array.isArray(clip.videoSegments) || clip.videoSegments.length === 0) {
         clip.videoSegments = [{
@@ -18908,7 +19504,7 @@
       if (editorBatchApplySubPos && Array.isArray(activeClip.subtitles) && activeClip.subtitles.length > 0) {
         const refSub = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; }) || activeClip.subtitles[0];
         const px = Math.max(5, Math.min(95, refSub && refSub.posX !== undefined ? Number(refSub.posX) : 50));
-        const py = Math.max(5, Math.min(95, refSub && refSub.posY !== undefined ? Number(refSub.posY) : 54));
+        const py = Math.max(5, Math.min(95, refSub && refSub.posY !== undefined ? Number(refSub.posY) : 56));
         activeClip.subtitles.forEach(function (s) {
           s.posX = px;
           s.posY = py;
@@ -19640,6 +20236,22 @@
       inputEl.value = "";
     }
 
+    function setSubtitleListAccordionOpen(isOpen) {
+      const bodyEl = document.getElementById("editorSubtitleAccordionBody");
+      const btnEl = document.getElementById("btnToggleSubtitleListAccordion");
+      const iconEl = document.getElementById("editorSubtitleAccordionIcon");
+      if (!bodyEl) return;
+      bodyEl.classList.toggle("d-none", !isOpen);
+      if (btnEl) btnEl.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      if (iconEl) iconEl.className = isOpen ? "bi bi-chevron-up" : "bi bi-chevron-down";
+    }
+
+    function toggleSubtitleListAccordion() {
+      const bodyEl = document.getElementById("editorSubtitleAccordionBody");
+      if (!bodyEl) return;
+      setSubtitleListAccordionOpen(bodyEl.classList.contains("d-none"));
+    }
+
     function renderEditorSubtitleList() {
       const container = document.getElementById("editorSubtitleListContainer");
       const badge = document.getElementById("editorSubtitleCountBadge");
@@ -19716,7 +20328,7 @@
         end_sec: Math.round((activeClip.start_sec + safeEndRel) * 100) / 100,
         text: initText,
         posX: inheritPos && refSub.posX !== undefined ? Number(refSub.posX) : 50,
-        posY: inheritPos && refSub.posY !== undefined ? Number(refSub.posY) : 54,
+        posY: inheritPos && refSub.posY !== undefined ? Number(refSub.posY) : 56,
         scalePercent: (refSub && refSub.scalePercent) || 100,
         templateId: refSub ? refSub.templateId : (clipHasCatalogTpl ? activeClip.style : undefined),
         fontFamily: (refSub && refSub.fontFamily) || styleMeta.fontFamily,
@@ -20919,8 +21531,9 @@
         if (selectFallback && item) selectedHookId = item.id;
         return item;
       }
-      const item = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; }) || activeClip.subtitles[0] || null;
-      if (selectFallback && item) selectedSubtitleId = item.id;
+      const playheadSub = findActiveSubtitleWithLeadIn(activeClip.subtitles, activeClip.start_sec, activeClip.start_sec + editorCurrentTime);
+      const item = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; }) || playheadSub || activeClip.subtitles[0] || null;
+      if ((selectFallback || !selectedSubtitleId) && item) selectedSubtitleId = item.id;
       return item;
     }
 
@@ -21146,6 +21759,9 @@
       }
       if (animId === "satu_baris") {
         return '<div class="kl-anim-satubaris"><span class="kl-anim-sb1">SATU</span><span class="kl-anim-sb2">BARIS</span><span class="kl-anim-sb3">CEPAT</span></div>';
+      }
+      if (animId === "single_yellow_pop") {
+        return '<span class="kl-single-stage" style="color:#FACC15;font-weight:900;font-size:0.76rem;-webkit-text-stroke:1.1px #000;"><span class="kl-sw kl-sw1">SINGLE</span><span class="kl-sw kl-sw2">POP</span><span class="kl-sw kl-sw3">VIRAL</span></span>';
       }
       if (animId === "bounce_pop" || animId === "pop") {
         return '<span class="kl-anim-generic-bounce">POP UP</span>';
@@ -21486,6 +22102,8 @@
           let layerDetailHtml = "";
           if (ui.layer === "text") {
             const curHex = /^#[0-9A-Fa-f]{6}$/.test(style.color) ? style.color : "#FFFFFF";
+            const hasPillBg = Boolean(style.bgColor && style.bgColor !== "transparent");
+            const nextPillBg = hasPillBg ? "transparent" : "rgba(7, 19, 36, 0.72)";
             layerDetailHtml =
               '<div class="text-studio-swatch-row">' +
                 TEXT_LAYER_SWATCHES.text.map(function (col) {
@@ -21493,7 +22111,8 @@
                   return '<button type="button" class="text-studio-swatch ' + (isAct ? "active" : "") + '" style="background:' + col + ';" onclick="updateTextStudioProp(\'' + kind + '\',\'color\',\'' + col + '\')" title="' + col + '"></button>';
                 }).join("") +
                 '<input type="color" class="form-control form-control-color p-0" style="width:26px;height:24px;" value="' + curHex + '" oninput="handleTextStudioLiveInput(\'' + kind + '\',\'color\',this.value)" onchange="finalizeTextStudioInput(\'' + kind + '\',\'color\',this.value)" title="Warna Teks Kustom" />' +
-                '<button type="button" class="text-studio-pill ms-auto ' + (style.uppercase ? "active" : "") + '" onclick="updateTextStudioProp(\'' + kind + '\',\'uppercase\',' + (!style.uppercase) + ')">AA Kapital</button>' +
+                '<button type="button" class="text-studio-pill ms-auto ' + (hasPillBg ? "active" : "") + '" onclick="updateTextStudioProp(\'' + kind + '\',\'bgColor\',\'' + nextPillBg + '\')" title="Aktifkan/Matikan Latar Pill">Latar Pill</button>' +
+                '<button type="button" class="text-studio-pill ' + (style.uppercase ? "active" : "") + '" onclick="updateTextStudioProp(\'' + kind + '\',\'uppercase\',' + (!style.uppercase) + ')">AA Kapital</button>' +
               '</div>';
           } else if (ui.layer === "highlight") {
             const curHl = /^#[0-9A-Fa-f]{6}$/.test(style.highlightColor) ? style.highlightColor : "#FACC15";
@@ -21701,7 +22320,7 @@
 
     function syncSubtitlePositionControlsUI(posX, posY) {
       const clampedX = Math.max(5, Math.min(95, Math.round(posX !== undefined ? Number(posX) : 50)));
-      const clampedY = Math.max(5, Math.min(95, Math.round(posY !== undefined ? Number(posY) : 54)));
+      const clampedY = Math.max(5, Math.min(95, Math.round(posY !== undefined ? Number(posY) : 56)));
       const posXInput = document.getElementById("propOverlayPosX");
       const posYInput = document.getElementById("propOverlayPosY");
       const posXRange = document.getElementById("propOverlayPosXRange");
@@ -22269,8 +22888,10 @@
       if (hookItem) loadHookIntoDrawer(hookItem);
       else renderUnifiedTextStudio("hook");
 
-      const subItem = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; }) || activeClip.subtitles[0];
+      const playheadSubMatch = findActiveSubtitleWithLeadIn(activeClip.subtitles, activeClip.start_sec, activeClip.start_sec + editorCurrentTime);
+      const subItem = activeClip.subtitles.find(function (s) { return s.id === selectedSubtitleId; }) || playheadSubMatch || activeClip.subtitles[0];
       if (subItem) {
+        selectedSubtitleId = subItem.id;
         loadOverlayIntoProperties(subItem, "subtitle");
       } else {
         const subTxt = document.getElementById("propOverlayText");
@@ -23820,7 +24441,7 @@
           const startClientX = ev.clientX;
           const startClientY = ev.clientY;
           const origX = item.posX !== undefined ? Number(item.posX) : 50;
-          const origY = item.posY !== undefined ? Number(item.posY) : (targetKind === "hook" ? 76 : 54);
+          const origY = item.posY !== undefined ? Number(item.posY) : (targetKind === "hook" ? 76 : 56);
           let moved = false;
 
           function onMove(moveEv) {
@@ -23878,6 +24499,8 @@
 
           function onUp() {
             el.classList.remove("is-dragging");
+            const readoutEl = document.getElementById("editorSubtitleDragReadout");
+            if (readoutEl) readoutEl.classList.add("d-none");
             showCenterGuides(false, false);
             window.removeEventListener("pointermove", onMove);
             window.removeEventListener("pointerup", onUp);
@@ -24252,20 +24875,23 @@
               layerDiv.style.left = (h.posX !== undefined ? h.posX : 50) + "%";
               layerDiv.style.top = (h.posY !== undefined ? h.posY : (activeClip.hookYPercent !== undefined ? activeClip.hookYPercent : 76)) + "%";
               layerDiv.style.width = "max-content";
-              layerDiv.style.maxWidth = "82%";
-              layerDiv.style.maxHeight = "24%";
+              layerDiv.style.maxWidth = "88%";
+              layerDiv.style.maxHeight = "36%";
               layerDiv.style.overflow = "hidden";
               layerDiv.style.transform = "translate(-50%, -50%) scale(" + hScale.toFixed(3) + ")";
               layerDiv.title = "Seret bebas 2D di kanvas";
 
               const boxDiv = document.createElement("div");
               const textSpan = document.createElement("span");
-              textSpan.className = "lh-sm";
               textSpan.style.display = "-webkit-box";
-              textSpan.style.webkitLineClamp = "2";
+              textSpan.style.webkitLineClamp = "3";
               textSpan.style.webkitBoxOrient = "vertical";
               textSpan.style.overflow = "hidden";
               textSpan.style.textOverflow = "ellipsis";
+              textSpan.style.textAlign = "center";
+              textSpan.style.whiteSpace = "normal";
+              textSpan.style.overflowWrap = "break-word";
+              textSpan.style.lineHeight = "1.35";
               boxDiv.appendChild(textSpan);
               layerDiv.appendChild(boxDiv);
 
@@ -24464,7 +25090,7 @@
       if (activeSub && subOverlay && subSpan) {
         const sScale = Math.max(0.5, Math.min(1.8, (Number(activeSub.scalePercent) || 100) / 100));
         const subX = Math.max(5, Math.min(95, Math.round(activeSub.posX !== undefined ? Number(activeSub.posX) : 50)));
-        const subY = Math.max(5, Math.min(95, Math.round(activeSub.posY !== undefined ? Number(activeSub.posY) : 54)));
+        const subY = Math.max(5, Math.min(95, Math.round(activeSub.posY !== undefined ? Number(activeSub.posY) : 56)));
         subOverlay.style.left = subX + "%";
         subOverlay.style.top = subY + "%";
         subOverlay.style.bottom = "auto";
@@ -24473,7 +25099,7 @@
         subOverlay.classList.toggle("is-selected", isSubSelected);
         if (subReadout) {
           subReadout.textContent = "X: " + subX + "% · Y: " + subY + "%";
-          subReadout.classList.toggle("d-none", !(isSubSelected || subOverlay.classList.contains("is-dragging")));
+          subReadout.classList.toggle("d-none", !subOverlay.classList.contains("is-dragging"));
         }
 
         subSpan.style.display = "inline-block";

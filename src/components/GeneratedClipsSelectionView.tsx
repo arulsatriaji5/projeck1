@@ -216,7 +216,7 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
                   </div>
 
                   {/* Playable Mini Video Player Frame */}
-                  <div className="relative aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden bg-[#071324] mb-4 group/video select-none">
+                  <div className="relative aspect-[9/16] max-h-[420px] mx-auto rounded-2xl overflow-hidden bg-[#071324] mb-4 group/video select-none">
                     <video
                       ref={(el) => { videoRefs.current[clip.id] = el; }}
                       src={videoSource}
@@ -230,7 +230,7 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
                           e.currentTarget.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
                         }
                       }}
-                      className="w-full h-full object-contain bg-[#071324]"
+                      className="w-full h-full object-cover bg-[#071324]"
                     />
 
                     {/* Contrast Scrim */}
@@ -310,7 +310,7 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
                       <MessageSquareQuote className="w-3.5 h-3.5 shrink-0" />
                       <span>Hook Pembuka (3 Detik Pertama)</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-700 font-medium italic line-clamp-2 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium italic line-clamp-3 leading-snug whitespace-normal break-words">
                       "{clip.hook}"
                     </p>
                   </div>
@@ -390,7 +390,7 @@ export const GeneratedClipsSelectionView: React.FC<GeneratedClipsSelectionViewPr
                 playsInline
                 autoPlay
                 controls
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
 
               {previewModalClip.captions && previewModalClip.captions.length > 0 && (

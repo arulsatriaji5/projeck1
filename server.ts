@@ -38,6 +38,170 @@ function getServerPixabayApiKey(overrideKey?: string): string {
   );
 }
 
+const sleepMs = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function extractGeminiErrorMeta(err: any): {
+  status: number;
+  message: string;
+  retryDelayMs: number | null;
+  isRateLimit: boolean;
+  isAuthError: boolean;
+  isNotFound: boolean;
+} {
+  const rawMsg = String(err?.message || err || "");
+  const explicitStatus = Number(err?.status || err?.code || err?.error?.code);
+  let parsedStatus = Number.isFinite(explicitStatus) ? explicitStatus : 0;
+  let parsedMsg = rawMsg;
+  let detailsRetryMs: number | null = null;
+  let msgRetryMs: number | null = null;
+
+  const jsonStart = rawMsg.indexOf("{");
+  if (jsonStart !== -1) {
+    try {
+      const obj = JSON.parse(rawMsg.slice(jsonStart));
+      const eObj = obj?.error || obj;
+      if (Number(eObj?.code)) parsedStatus = Number(eObj.code);
+      if (typeof eObj?.message === "string" && eObj.message) parsedMsg = eObj.message;
+      const details = Array.isArray(eObj?.details) ? eObj.details : [];
+      for (const d of details) {
+        if (typeof d?.retryDelay === "string") {
+          const secMatch = d.retryDelay.match(/([\d.]+)\s*s/i);
+          if (secMatch) {
+            detailsRetryMs = Math.max(detailsRetryMs || 0, Math.ceil(parseFloat(secMatch[1]) * 1000));
+          }
+        }
+      }
+    } catch {
+      // Ignore malformed JSON tail
+    }
+  }
+
+  const msgMatch =
+    rawMsg.match(/retry in\s+([\d.]+)\s*s/i) ||
+    rawMsg.match(/"retryDelay"\s*:\s*"([\d.]+)s"/i);
+  if (msgMatch) {
+    msgRetryMs = Math.ceil(parseFloat(msgMatch[1]) * 1000);
+  }
+
+  const retryDelayMs =
+    detailsRetryMs !== null || msgRetryMs !== null
+      ? Math.max(detailsRetryMs || 0, msgRetryMs || 0)
+      : null;
+
+  const isRateLimit =
+    parsedStatus === 429 ||
+    parsedStatus === 503 ||
+    /RESOURCE_EXHAUSTED|UNAVAILABLE|rate[- ]?limit|quota exceeded|429/i.test(rawMsg);
+  const isAuthError =
+    parsedStatus === 401 ||
+    parsedStatus === 403 ||
+    /PERMISSION_DENIED|API_KEY_INVALID|API key not valid/i.test(rawMsg);
+  const isNotFound =
+    parsedStatus === 404 ||
+    /NOT_FOUND|is not found for API version/i.test(rawMsg);
+
+  return {
+    status: parsedStatus || (isRateLimit ? 429 : isAuthError ? 403 : isNotFound ? 404 : 500),
+    message: parsedMsg || "Gagal memanggil Gemini API.",
+    retryDelayMs,
+    isRateLimit,
+    isAuthError,
+    isNotFound,
+  };
+}
+
+function buildFriendlyGeminiErrorMessage(err: any, fallbackLabel = "Gagal memanggil Gemini API."): { status: number; message: string } {
+  const meta = extractGeminiErrorMeta(err);
+  if (meta.isRateLimit) {
+    return {
+      status: 429,
+      message:
+        "Batas kuota permintaan/token Gemini API (429 RESOURCE_EXHAUSTED) tercapai sementara. Silakan tunggu beberapa detik lalu coba lagi, atau pilih API key berbayar di panel Settings > Secrets untuk kuota lebih tinggi.",
+    };
+  }
+  if (meta.isAuthError || /API key/i.test(meta.message)) {
+    return {
+      status: meta.status === 401 ? 401 : 403,
+      message:
+        "API key Gemini tidak valid atau belum dikonfigurasi (403/400). Periksa API key Anda di panel Settings > Secrets.",
+    };
+  }
+  if (meta.isNotFound) {
+    return {
+      status: 404,
+      message: "Model Gemini yang diminta tidak ditemukan (404 NOT_FOUND). Pastikan nama model sesuai.",
+    };
+  }
+  return {
+    status: meta.status >= 400 && meta.status < 600 ? meta.status : 500,
+    message: meta.message || fallbackLabel,
+  };
+}
+
+async function generateContentWithRetry(
+  ai: GoogleGenAI,
+  requestParams: {
+    model: string;
+    contents: any;
+    config?: Record<string, any>;
+  },
+  options?: {
+    maxRetries?: number;
+    fallbackTextModel?: string;
+  }
+) {
+  const maxRetries = options?.maxRetries ?? 3;
+  let lastError: any = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await ai.models.generateContent(requestParams);
+    } catch (err: any) {
+      lastError = err;
+      const meta = extractGeminiErrorMeta(err);
+      if (!meta.isRateLimit || attempt >= maxRetries) {
+        break;
+      }
+      // Honor server retryDelay (e.g. "Please retry in 1.85s") + 800ms cushion
+      const backoffMs =
+        meta.retryDelayMs !== null
+          ? Math.min(18000, Math.max(1500, meta.retryDelayMs + 800))
+          : Math.min(16000, 2200 * Math.pow(2, attempt));
+      await sleepMs(backoffMs);
+    }
+  }
+
+  // Optional separate-quota text model fallback on persistent 429 rate-limit
+  if (options?.fallbackTextModel && extractGeminiErrorMeta(lastError).isRateLimit) {
+    const cleanFallbackConfig: Record<string, any> = { ...(requestParams.config || {}) };
+    delete cleanFallbackConfig.thinkingConfig;
+    try {
+      return await ai.models.generateContent({
+        model: options.fallbackTextModel,
+        contents: requestParams.contents,
+        config: cleanFallbackConfig,
+      });
+    } catch (fbErr: any) {
+      const fbMeta = extractGeminiErrorMeta(fbErr);
+      if (fbMeta.isRateLimit) {
+        const waitMs =
+          fbMeta.retryDelayMs !== null
+            ? Math.min(15000, Math.max(1500, fbMeta.retryDelayMs + 700))
+            : 3000;
+        await sleepMs(waitMs);
+        return await ai.models.generateContent({
+          model: options.fallbackTextModel,
+          contents: requestParams.contents,
+          config: cleanFallbackConfig,
+        });
+      }
+      throw fbErr;
+    }
+  }
+
+  throw lastError;
+}
+
 // Initialize Turso DB table on startup
 initDatabase().catch(err => console.warn("Turso init non-fatal note:", err));
 
@@ -330,7 +494,7 @@ Ekstrak resep gaya editannya ke JSON murni:
 - editing_rules: ringkasan 1-2 kalimat bahasa Indonesia tentang gaya kotak Hook, ritme pemotongan, tata letak subtitle, dan visual B-roll dari video referensi ini.`,
     });
 
-    const resp = await ai.models.generateContent({
+    const resp = await generateContentWithRetry(ai, {
       model: "gemini-2.5-flash",
       contents: parts,
       config: {
@@ -370,7 +534,8 @@ Ekstrak resep gaya editannya ke JSON murni:
     const parsed = JSON.parse(resp.text || "{}");
     return res.json({ success: true, recipe: parsed });
   } catch (err: any) {
-    return res.status(500).json({ success: false, error: err?.message || "Gagal menganalisis video referensi." });
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal menganalisis video referensi.");
+    return res.status(friendly.status).json({ success: false, error: friendly.message });
   }
 });
 
@@ -453,8 +618,14 @@ app.post("/api/analyze-video", async (req, res) => {
     const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
     const ai = getGenAI(bodyApiKey || headerApiKey);
 
-    if (ai) {
-      const prompt = `Act as an expert viral video editor and technical director for short-form video (TikTok, YouTube Shorts, Reels).
+    if (!ai) {
+      return res.status(400).json({
+        success: false,
+        error: "GEMINI_API key belum tersedia di server (Settings > Secrets).",
+      });
+    }
+
+    const prompt = `Act as an expert viral video editor and technical director for short-form video (TikTok, YouTube Shorts, Reels).
 Analyze this input video request:
 - Video Name: ${sourceVideoName}
 - Estimated Duration: ${sourceDuration} seconds
@@ -471,58 +642,34 @@ ${promptInstructions || 'Pilih segmen 20-45 detik dengan hook terkuat.'}
 You must generate a strict technical video blueprint for client-side FFmpeg processing.
 Return ONLY valid JSON.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
-
-      if (response.text) {
-        const parsed = JSON.parse(response.text);
-        return res.json({
-          success: true,
-          model: "gemini-2.5-flash",
-          blueprint: parsed
-        });
-      }
-    }
-  } catch (err: any) {
-    console.warn("Gemini 2.5 Flash /api/analyze-video warning:", err);
-  }
-
-  const start = Math.min(10, Math.max(0, Number(sourceDuration) * 0.15));
-  const dur = Math.min(30, Math.max(15, Number(sourceDuration) * 0.5));
-  const end = start + dur;
-
-  return res.json({
-    success: true,
-    model: "gemini-2.5-flash-fallback",
-    blueprint: {
-      clip_title: "Rahasia Terbesar Hook 3 Detik FYP TikTok",
-      start_time: Math.round(start * 10) / 10,
-      end_time: Math.round(end * 10) / 10,
-      duration: Math.round(dur * 10) / 10,
-      crop_coordinates: {
-        x_offset_percent: 50,
-        y_offset_percent: 0,
-        width_ratio: 0.5625,
-        ffmpeg_crop_filter: "crop=ih*(9/16):ih:(iw-ih*(9/16))/2:0"
+    const response = await generateContentWithRetry(ai, {
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
       },
-      subtitles: [
-        { start: 0.0, end: 2.2, text: "Ternyata 90% penonton bakal scroll...", highlight: "90% penonton" },
-        { start: 2.2, end: 4.8, text: "...kalau 3 detik awal gak menarik!", highlight: "3 detik awal" },
-        { start: 4.8, end: 8.5, text: "Terapkan formula retensi ini ke semua kontenmu!", highlight: "formula retensi" },
-        { start: 8.5, end: 12.0, text: "Potong klip tanpa jeda nafas dan gunakan subtitle kuning neon.", highlight: "subtitle kuning neon" }
-      ],
-      editing_blueprint: {
-        pacing: "Fast-Paced (Zero Silence)",
-        hook_score: 97,
-        style_applied: "Hormozi Fast Hook Style (Turso Reference)"
-      }
+    }, { fallbackTextModel: "gemini-3.1-flash-lite" });
+
+    if (!response.text) {
+      return res.status(502).json({
+        success: false,
+        error: "Gemini tidak mengembalikan blueprint JSON.",
+      });
     }
-  });
+
+    const parsed = JSON.parse(response.text);
+    return res.json({
+      success: true,
+      model: "gemini-2.5-flash",
+      blueprint: parsed
+    });
+  } catch (err: any) {
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal menganalisis blueprint video.");
+    return res.status(friendly.status).json({
+      success: false,
+      error: friendly.message,
+    });
+  }
 });
 
 // ====================================================================
@@ -694,13 +841,12 @@ app.post("/api/auto-clip", async (req, res) => {
       }
     }
 
-    const MIN_DYNAMIC_CLIP_COUNT = 20;
-
     const clientSourceDur = isLocalMode
       ? Math.max(4, Number(videoDuration) || 30)
       : Math.max(0, Number(sourceEndSeconds) || 0);
 
     const audioOffset = Math.max(0, Number(audioOffsetSeconds) || 0);
+    const isAutoDuration = targetDuration === "auto" || targetDuration === "otomatis";
 
     let minSeconds = Number(req.body?.minSeconds);
     let maxSeconds = Number(req.body?.maxSeconds);
@@ -711,60 +857,19 @@ app.post("/api/auto-clip", async (req, res) => {
       } else if (targetDuration === "60_90") {
         minSeconds = 60;
         maxSeconds = 90;
+      } else if (isAutoDuration) {
+        minSeconds = 15;
+        maxSeconds = 60;
       } else {
         minSeconds = 15;
         maxSeconds = 30;
       }
     }
-    minSeconds = Math.max(3, Math.round(minSeconds));
+    minSeconds = Math.max(12, Math.round(minSeconds));
     maxSeconds = Math.max(minSeconds, Math.min(300, Math.round(maxSeconds)));
-    const durationRule = `Idealnya antara ${minSeconds} sampai ${maxSeconds} detik per klip (atau proporsional sesuai panjang jendela waktu agar minimal ${MIN_DYNAMIC_CLIP_COUNT} klip tidak tumpang tindih)`;
-
-    const promptText = isLocalMode
-      ? `Anda adalah ahli speech-to-text alignment, transkripsi verbatim, dan editor video pendek AI profesional (PASS 1 - Ekstraksi Dinamis Minimal ${MIN_DYNAMIC_CLIP_COUNT} hingga 25-35+ Klip Sepanjang Video).
-${hasAudioPayload ? "Anda menerima rekaman AUDIO ASLI (mono 16kHz WAV, tepat 16000Hz) dari file video MP4 pengguna" : "Anda menerima frame sampel dari file video MP4 lokal pengguna"}:
-- Nama File: ${fileName}
-- Total Durasi Video Penuh: ${clientSourceDur.toFixed(2)} detik (0.00s s/d ${clientSourceDur.toFixed(2)}s)
-${hasAudioPayload ? `- Catatan Timeline Audio: Detik 0.00 pada audio WAV ini berkorespondensi TEPAT 1:1 dengan detik ${audioOffset.toFixed(2)} pada timeline video asli.` : ""}
-- Jumlah Klip WAJIB: MINIMAL ${MIN_DYNAMIC_CLIP_COUNT} KLIP UNIK. Jika video padat dengan banyak insight berharga, kerangka berpikir (framework), studi kasus, atau poin actionable di sepanjang timeline, EKSTRAK SECARA DINAMIS 25 sampai 35+ KLIP unik tanpa memotong topik penting!
-- Target Durasi Klip: ${durationRule}
-- Rasio Output: ${resolvedRatio}
-- Gaya Subtitle: ${resolvedStyle}
-${momentPrompt ? `- Momen Spesifik yang Dicari: ${momentPrompt}` : ""}
-${referenceInstructions ? `- Resep Referensi Gaya Aktif: ${referenceInstructions}` : ""}
-
-ATURAN TIMELINE NON-OVERLAPPING & SEBARAN PENUH (WAJIB DIPATUHI 100%):
-1. Bagi seluruh durasi video (0.00s hingga ${clientSourceDur.toFixed(2)}s) menjadi minimal ${MIN_DYNAMIC_CLIP_COUNT} (dan hingga 25-35+ bila video kaya materi) segmen berurutan secara kronologis dari BAGIAN AWAL (0%-33%), BAGIAN TENGAH (33%-66%), hingga BAGIAN AKHIR (66%-100%).
-2. WAJIB menjaga timestamp TIDAK PERNAH TUMPANG TINDIH: \`clips[i+1].start_sec >= clips[i].end_sec\` untuk setiap klip i! Dilarang mengulang segmen intro atau segmen yang sudah dipakai.
-3. Setiap klip WAJIB memiliki sudut pandang/judul (\`title\`) dan \`hook_headline\` YANG BERBEDA & UNIK (tepat 1 judul hook utama maksimal 6-8 kata tanpa subjudul atau baris kedua).
-4. Isi \`video_duration_sec\` dengan total durasi video dalam detik (${clientSourceDur.toFixed(2)}).
-
-METODE ACOUSTIC VERBATIM ALIGNMENT & KINETIC SUBTITLE (WAJIB DIIKUTI):
-- Dengarkan audio asli secara presisi milidetik dan tuliskan ucapan verbatim di \`full_transcript\` (pertahankan istilah asli Indonesia/Inggris, dilarang membalik urutan kata).
-- DENGARKAN WAKTU UCAPAN AKUSTIK NYATA saat memecah \`subtitles\`: \`DILARANG KERAS\` membagi durasi kalimat secara matematis atau merata! Setiap blok \`subtitles\` WAJIB memiliki **2 SAMPAI 4 KATA UTUH** yang rapat, dengan \`start_sec\` & \`end_sec\` (serta \`start\` & \`end\` relatif ke awal klip) tepat sesuai momen kata tersebut mulai dan selesai terucap, berurutan non-overlapping (\`subtitles[i].end_sec <= subtitles[i+1].start_sec\`).
-- Pada setiap blok subtitle, isi \`highlightWord\` dengan **1 kata kunci paling kuat/bermakna** yang ada di dalam \`text\` blok tersebut.
-- Sertakan 1 \`broll_moments\` relevan per klip (2.5-3.5 detik) saat kata kunci konkret terucap: \`visual_queries\` berisi **3-4 query pencarian visual bahasa Inggris yang KONKRET & LITERAL** sesuai topik spesifik yang diucapkan di jendela 3 detik tersebut (contoh investasi: \`["stock market chart screen", "counting money banknotes", "financial calculator growth", "gold coins stack"]\`; DILARANG keras query alam/lapangan/langit/abstrak generik seperti "nature", "field", "sky", "abstract"), \`visual_keyword\` (query utama pertama), \`topic_keywords\` (3-5 kata kunci topik bahasa Inggris), \`headline\` 2-3 kata Indonesia, \`category_tag\`, \`spoken_quote\`.`
-      : `Anda adalah ahli speech-to-text alignment, transkripsi verbatim, dan editor video pendek AI profesional (PASS 1 - Ekstraksi Dinamis Minimal ${MIN_DYNAMIC_CLIP_COUNT} hingga 25-35+ Klip Sepanjang Video).
-Anda menerima VIDEO YOUTUBE ASLI melalui fileData multimodal:
-- YouTube URL: https://www.youtube.com/watch?v=${resolvedVideoId}
-- Video ID: ${resolvedVideoId}
-${videoTitle ? `- Judul Video: ${videoTitle}` : ""}
-${authorName ? `- Channel: ${authorName}` : ""}
-- Jumlah Klip WAJIB: MINIMAL ${MIN_DYNAMIC_CLIP_COUNT} KLIP UNIK. Jika video panjang atau kaya dengan banyak insight bernilai tinggi, framework, tips praktis, atau cerita menarik, EKSTRAK SECARA DINAMIS 25 sampai 35+ KLIP unik sepanjang video!
-- Target Durasi Klip: ${durationRule}
-- Rasio Output: ${resolvedRatio}
-- Gaya Subtitle: ${resolvedStyle}
-${momentPrompt ? `- Momen Spesifik yang Dicari: ${momentPrompt}` : ""}
-${referenceInstructions ? `- Resep Referensi Gaya Aktif: ${referenceInstructions}` : ""}
-${typeof ytCaptionHints === "string" && ytCaptionHints ? `\nReferensi Timestamp Transkrip YouTube (gunakan sebagai jangkar waktu akurat bersama audio video):\n${ytCaptionHints}\n` : ""}
-
-ATURAN TIMELINE NON-OVERLAPPING & SEBARAN PENUH (WAJIB DIPATUHI 100%):
-1. Dengarkan AUDIO & VIDEO ASLI secara utuh dari detik 0 hingga akhir video. Laporkan total durasi video sebenarnya pada field \`video_duration_sec\`.
-2. Bagi seluruh timeline video dari BAGIAN AWAL, BAGIAN TENGAH, hingga BAGIAN AKHIR menjadi MINIMAL ${MIN_DYNAMIC_CLIP_COUNT} klip (dan skalakan dinamis ke 25-35+ klip jika banyak insight/framework berharga) secara kronologis.
-3. WAJIB menjaga timestamp TIDAK PERNAH TUMPANG TINDIH: \`clips[i+1].start_sec >= clips[i].end_sec\` untuk semua i! Dilarang keras mengulang momen yang sama atau menumpuk di bagian awal saja.
-4. Setiap klip WAJIB memiliki \`candidate_id\` unik (cand-1, cand-2, ...), \`title\` unik, dan \`hook_headline\` tunggal yang unik (maksimal 6-8 kata, tanpa subjudul/baris kedua).
-5. Tuliskan \`full_transcript\` verbatim akurat untuk setiap klip lalu pecah menjadi blok \`subtitles\` berisi **2 SAMPAI 4 KATA UTUH** yang rapat berdasarkan timing akustik ucapan nyata (DILARANG membagi durasi kalimat secara matematis/merata!). Isi \`start_sec\`, \`end_sec\`, \`start\`, \`end\`, \`text\`, dan \`highlightWord\` (1 kata terkuat dalam blok tersebut) secara berurutan tanpa tumpang tindih (\`subtitles[i].end_sec <= subtitles[i+1].start_sec\`).
-6. Sertakan 1 \`broll_moments\` relevan per klip (2.5-3.5 detik) saat konsep konkret diucapkan, dengan \`visual_queries\` berisi **3-4 query pencarian bahasa Inggris KONKRET & LITERAL** sesuai topik ucapan jendela 3 detik tersebut (misal: \`["stock market chart screen", "counting money banknotes", "financial calculator growth", "gold coins stack"]\`; DILARANG query alam/lapangan/abstrak generik), \`visual_keyword\` (query utama), \`topic_keywords\` (3-5 kata topik Inggris), \`headline\` ringkas 2-3 kata, \`spoken_quote\`, dan \`category_tag\`.`;
+    const durationPrefLabel = isAutoDuration
+      ? "Otomatis (pilih rentang 15–60 detik mengikuti batas kalimat utuh alami)"
+      : `${minSeconds} sampai ${maxSeconds} detik per klip`;
 
     const baseMediaParts: Array<any> = [];
     if (!isLocalMode && resolvedVideoId) {
@@ -786,7 +891,7 @@ ATURAN TIMELINE NON-OVERLAPPING & SEBARAN PENUH (WAJIB DIPATUHI 100%):
       });
     }
     if (isLocalMode && Array.isArray(frames)) {
-      frames.slice(0, hasAudioPayload ? 6 : 8).forEach((frameItem: any) => {
+      frames.slice(0, hasAudioPayload ? 3 : 6).forEach((frameItem: any) => {
         if (frameItem?.data && typeof frameItem.data === "string") {
           const base64Payload = frameItem.data.includes(",")
             ? frameItem.data.split(",")[1]
@@ -801,37 +906,287 @@ ATURAN TIMELINE NON-OVERLAPPING & SEBARAN PENUH (WAJIB DIPATUHI 100%):
       });
     }
 
-    const pass1Schema = {
+    // =========================================================================
+    // STAGE 1: Mandatory Full Video-to-Text Transcription BEFORE Any Clipping
+    // =========================================================================
+    const stage1Prompt = isLocalMode
+      ? `Anda adalah mesin transkripsi akustik forensik presisi milidetik (STAGE 1 — Transkripsi Penuh Seluruh Video).
+${hasAudioPayload ? "Anda menerima rekaman AUDIO ASLI (mono 16kHz WAV, tepat 16000Hz) dari file MP4 pengguna." : "Anda menerima frame video MP4 lokal pengguna."}
+- Nama File: ${fileName}
+- Total Durasi Video Penuh: ${clientSourceDur.toFixed(2)} detik (0.00s s/d ${clientSourceDur.toFixed(2)}s)
+${hasAudioPayload ? `- Catatan Timeline Audio: Detik 0.00 pada audio WAV ini berkorespondensi TEPAT 1:1 dengan detik ${audioOffset.toFixed(2)} pada timeline video asli.` : ""}
+
+TUGAS WAJIB STAGE 1:
+1. Dengarkan seluruh audio dari detik awal hingga detik akhir TANPA MEMOTONG atau memilih klip terlebih dahulu.
+2. Transkripsikan SELURUH ucapan pembicara secara 100% verbatim (pertahankan bahasa asli Indonesia/Inggris/campuran secara persis) ke dalam array \`fullTranscript\`.
+3. Pecah \`fullTranscript\` berdasarkan kalimat atau klausa alami berurutan secara kronologis. Untuk setiap item, isi:
+   - \`start\`: waktu mulai kalimat dalam detik (relatif ke awal audio WAV ini).
+   - \`end\`: waktu selesai kalimat dalam detik.
+   - \`text\`: teks verbatim kalimat tersebut.
+   - \`words\`: array kata demi kata \`{ word, start, end }\` dengan timestamp mulai & selesai akurat sesuai momen setiap kata terucap.
+4. Isi \`video_title\` (judul deskriptif video) dan \`video_duration_sec\` (${clientSourceDur.toFixed(2)}).`
+      : `Anda adalah mesin transkripsi akustik forensik presisi milidetik (STAGE 1 — Transkripsi Penuh Seluruh Video YouTube).
+Anda menerima VIDEO YOUTUBE ASLI melalui fileData multimodal:
+- YouTube URL: https://www.youtube.com/watch?v=${resolvedVideoId}
+- Video ID: ${resolvedVideoId}
+${videoTitle ? `- Judul Video: ${videoTitle}` : ""}
+${authorName ? `- Channel: ${authorName}` : ""}
+${typeof ytCaptionHints === "string" && ytCaptionHints ? `\nReferensi Timestamp Transkrip YouTube (gunakan sebagai jangkar waktu akurat bersama audio video):\n${ytCaptionHints}\n` : ""}
+
+TUGAS WAJIB STAGE 1:
+1. Dengarkan seluruh video YouTube dari detik 0 hingga akhir video. Laporkan durasi total video sebenarnya dalam detik pada \`video_duration_sec\`.
+2. Transkripsikan SELURUH ucapan pembicara secara 100% verbatim (pertahankan bahasa asli Indonesia/Inggris/campuran) ke dalam array \`fullTranscript\` secara kronologis.
+3. Pecah \`fullTranscript\` berdasarkan kalimat/klausa alami berurutan. Untuk setiap item, isi:
+   - \`start\`: detik mulai kalimat pada video asli.
+   - \`end\`: detik selesai kalimat pada video asli.
+   - \`text\`: teks verbatim kalimat tersebut.
+   - \`words\`: array kata demi kata \`{ word, start, end }\` dengan timestamp akurat saat setiap kata terucap.
+4. Isi \`video_title\` dengan judul video yang akurat.`;
+
+    const stage1Schema = {
       type: Type.OBJECT,
       properties: {
         video_title: { type: Type.STRING },
         video_duration_sec: { type: Type.NUMBER },
+        fullTranscript: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              start: { type: Type.NUMBER },
+              end: { type: Type.NUMBER },
+              text: { type: Type.STRING },
+              words: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    word: { type: Type.STRING },
+                    start: { type: Type.NUMBER },
+                    end: { type: Type.NUMBER },
+                  },
+                  required: ["word", "start", "end"],
+                },
+              },
+            },
+            required: ["start", "end", "text", "words"],
+          },
+        },
+      },
+      required: ["video_duration_sec", "fullTranscript"],
+    };
+
+    const stage1Response = await generateContentWithRetry(
+      ai,
+      {
+        model: "gemini-2.5-flash",
+        contents: [...baseMediaParts, { text: stage1Prompt }],
+        config: {
+          temperature: 0.0,
+          maxOutputTokens: 65536,
+          thinkingConfig: { thinkingBudget: 512 },
+          responseMimeType: "application/json",
+          responseSchema: stage1Schema,
+        },
+      },
+      { maxRetries: 2 }
+    );
+
+    if (!stage1Response.text) {
+      return res.status(502).json({
+        success: false,
+        error: "Gemini 2.5 Flash (Stage 1 Transkripsi) tidak mengembalikan output JSON.",
+      });
+    }
+
+    const parsedStage1 = JSON.parse(stage1Response.text);
+    const rawTranscriptArr: any[] = Array.isArray(parsedStage1?.fullTranscript) ? parsedStage1.fullTranscript : [];
+    const maxTranscriptEnd = rawTranscriptArr.reduce((mx, s) => {
+      const rawEnd = Number(s?.end) || 0;
+      const adjEnd = isLocalMode && hasAudioPayload && audioOffset > 0 ? rawEnd + audioOffset : rawEnd;
+      return Math.max(mx, adjEnd);
+    }, 0);
+
+    const safeTotalDuration = isLocalMode
+      ? clientSourceDur
+      : Math.max(Number(parsedStage1?.video_duration_sec) || 0, maxTranscriptEnd, clientSourceDur, 15);
+
+    const estimateWordWeight = (word: string) => {
+      const clean = String(word || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+      if (!clean) return 1.2;
+      const vowels = clean.match(/[aeiouyàáâäèéêëìíîïòóôöùúûü]+/g);
+      return Math.max(1.5, (vowels ? vowels.length : 1) * 2 + clean.length * 0.55);
+    };
+
+    type TranscriptWordItem = { word: string; start: number; end: number };
+    type TranscriptSegItem = { start: number; end: number; text: string; words: TranscriptWordItem[] };
+
+    const normalizedFullTranscript: TranscriptSegItem[] = rawTranscriptArr
+      .map((seg: any) => {
+        const text = String(seg?.text || "").replace(/\s+/g, " ").trim();
+        if (!text) return null;
+        let sStart = Math.max(0, Number(seg?.start) || 0);
+        let sEnd = Math.max(sStart + 0.25, Number(seg?.end) || sStart + 1.5);
+        if (isLocalMode && hasAudioPayload && audioOffset > 0 && sStart < audioOffset - 0.2 && sEnd + audioOffset <= safeTotalDuration + 1.0) {
+          sStart += audioOffset;
+          sEnd += audioOffset;
+        }
+        sStart = Math.round(Math.min(safeTotalDuration - 0.2, sStart) * 100) / 100;
+        sEnd = Math.round(Math.min(safeTotalDuration, Math.max(sStart + 0.2, sEnd)) * 100) / 100;
+
+        const rawWords = Array.isArray(seg?.words) ? seg.words : [];
+        let cleanWords: TranscriptWordItem[] = rawWords
+          .map((w: any) => {
+            const wordText = String(w?.word || "").trim();
+            if (!wordText) return null;
+            let wS = Number(w?.start);
+            let wE = Number(w?.end);
+            if (!Number.isFinite(wS) || !Number.isFinite(wE)) return null;
+            if (isLocalMode && hasAudioPayload && audioOffset > 0 && wS < audioOffset - 0.2 && wE + audioOffset <= safeTotalDuration + 1.0) {
+              wS += audioOffset;
+              wE += audioOffset;
+            }
+            wS = Math.max(sStart, Math.min(sEnd - 0.05, wS));
+            wE = Math.min(sEnd, Math.max(wS + 0.06, wE));
+            return {
+              word: wordText,
+              start: Math.round(wS * 1000) / 1000,
+              end: Math.round(wE * 1000) / 1000,
+            };
+          })
+          .filter(Boolean) as TranscriptWordItem[];
+
+        if (cleanWords.length > 1) {
+          const spanSeg = Math.max(0.2, sEnd - sStart);
+          const hasCollapsed =
+            cleanWords.some((w, wi) => wi > 0 && Math.abs(w.start - cleanWords[wi - 1].start) < 0.02) ||
+            (cleanWords[cleanWords.length - 1].end - cleanWords[0].start) < spanSeg * 0.35;
+          if (hasCollapsed) {
+            cleanWords = [];
+          }
+        }
+
+        if (cleanWords.length === 0) {
+          const tokens = text.split(/\s+/).filter(Boolean);
+          const weights = tokens.map(estimateWordWeight);
+          const totalW = Math.max(1, weights.reduce((a, b) => a + b, 0));
+          const span = Math.max(0.2, sEnd - sStart);
+          let cursor = sStart;
+          cleanWords = tokens.map((tok, wi) => {
+            const wDur = (weights[wi] / totalW) * span;
+            const nextCur = wi === tokens.length - 1 ? sEnd : Math.min(sEnd, cursor + wDur);
+            const item = {
+              word: tok,
+              start: Math.round(cursor * 1000) / 1000,
+              end: Math.round(Math.max(cursor + 0.06, nextCur) * 1000) / 1000,
+            };
+            cursor = nextCur;
+            return item;
+          });
+        } else {
+          for (let wi = 1; wi < cleanWords.length; wi++) {
+            if (cleanWords[wi].start < cleanWords[wi - 1].end) {
+              cleanWords[wi].start = Math.min(cleanWords[wi - 1].end, Math.max(sStart, cleanWords[wi].end - 0.06));
+              if (cleanWords[wi].end <= cleanWords[wi].start) {
+                cleanWords[wi].end = Math.min(sEnd, Math.round((cleanWords[wi].start + 0.08) * 1000) / 1000);
+              }
+            }
+          }
+        }
+
+        return {
+          start: sStart,
+          end: sEnd,
+          text,
+          words: cleanWords,
+        };
+      })
+      .filter(Boolean) as TranscriptSegItem[];
+
+    normalizedFullTranscript.sort((a, b) => a.start - b.start);
+    for (let i = 1; i < normalizedFullTranscript.length; i++) {
+      if (normalizedFullTranscript[i].start < normalizedFullTranscript[i - 1].end) {
+        normalizedFullTranscript[i].start = Math.round(normalizedFullTranscript[i - 1].end * 100) / 100;
+        if (normalizedFullTranscript[i].end <= normalizedFullTranscript[i].start) {
+          normalizedFullTranscript[i].end = Math.round(Math.min(safeTotalDuration, normalizedFullTranscript[i].start + 0.3) * 100) / 100;
+        }
+      }
+    }
+
+    if (normalizedFullTranscript.length === 0) {
+      return res.status(502).json({
+        success: false,
+        error: "Stage 1 gagal mengekstrak ucapan/transkrip yang valid dari video.",
+      });
+    }
+
+    // =========================================================================
+    // STAGE 2: Semantic Viral Moment Selection & Scoring from fullTranscript
+    // =========================================================================
+    const isShortVideo = safeTotalDuration < 60;
+    const scaleRuleText = isShortVideo
+      ? `PERLINDUNGAN VIDEO PENDEK (< 60 detik — Durasi aktual ${safeTotalDuration.toFixed(1)}s):
+- Ekstrak HANYA 1 sampai 2 klip bernilai tinggi yang utuh (15s–40s per klip) — ATAU cukup 1 klip penuh (0s s/d ${safeTotalDuration.toFixed(1)}s) jika seluruh video membahas satu pesan utuh.
+- DILARANG KERAS memecah video pendek menjadi potongan 2–8 detik atau memaksakan banyak klip!`
+      : safeTotalDuration <= 90
+      ? `SKALA DURASI (0:30 – 1:30 — Durasi aktual ${safeTotalDuration.toFixed(1)}s):
+- Ekstrak 1 sampai 3 klip utuh bernilai tinggi berdasarkan topik lengkap yang benar-benar ada di transkrip.`
+      : safeTotalDuration <= 600
+      ? `SKALA DURASI (1:30 – 10:00 — Durasi aktual ${safeTotalDuration.toFixed(1)}s):
+- Ekstrak 3 sampai 8 klip utuh non-overlapping. Pilih HANYA momen dengan insight kuat, cerita lengkap, atau argumen tajam.`
+      : `SKALA DURASI PANJANG (10:00 – 60:00+ — Durasi aktual ${safeTotalDuration.toFixed(1)}s):
+- Ekstrak 8 sampai 25+ klip utuh non-overlapping sesuai jumlah topik/insight bernilai tinggi yang benar-benar ada di transkrip (jangan mengulang atau membuat filler).`;
+
+    const indexedTranscriptText = normalizedFullTranscript
+      .map((seg, idx) => `[#${idx} | ${seg.start.toFixed(2)}s - ${seg.end.toFixed(2)}s] ${seg.text}`)
+      .join("\n");
+
+    const stage2Prompt = `Anda adalah Viral Content Director & Editorial Producer ahli video pendek vertikal (STAGE 2 — Seleksi Momen Viral Semantik Berbasis Transkrip Penuh).
+Berikut adalah TRANSKRIP LENGKAP VIDEO (${normalizedFullTranscript.length} kalimat, total durasi ${safeTotalDuration.toFixed(2)} detik) dari Stage 1:
+
+${indexedTranscriptText}
+
+KONFIGURASI PENGGUNA:
+- Judul Video: ${parsedStage1?.video_title || videoTitle || fileName || "Video"}
+- Target Durasi Klip: ${durationPrefLabel}
+- Rasio Output: ${resolvedRatio}
+- Gaya Subtitle: ${resolvedStyle}
+${momentPrompt ? `- Fokus Momen Pengguna: ${momentPrompt}` : ""}
+${referenceInstructions ? `- Resep Referensi Gaya Aktif: ${referenceInstructions}` : ""}
+
+ATURAN EDITORIAL KETAT (WAJIB DIPATUHI 100%):
+1. ATURAN PIKIRAN UTUH & DURASI MINIMAL 12 DETIK:
+   - Setiap klip WAJIB membahas SATU topik, insight, cerita, atau argumen yang TUNTAS dari awal kalimat hingga kesimpulan/punchline selesai.
+   - DILARANG memotong di tengah kalimat! Gunakan \`start_sec\` tepat pada \`start\` kalimat pembuka dan \`end_sec\` tepat pada \`end\` kalimat penutup.
+   - WAJIB durasi setiap klip minimal **12 detik** (kecuali total video sumber < 12 detik). DILARANG keras membuat potongan 2 detik, 3 detik, atau fragmen terpotong.
+2. ${scaleRuleText}
+3. NON-OVERLAPPING & TANPA PADDING PALSU:
+   - Timestamp klip DILARANG tumpang tindih (\`clips[i+1].start_sec >= clips[i].end_sec\`).
+   - DILARANG keras menduplikasi momen atau membuat judul filler seperti "(Bagian 1)", "(Bagian 2)". Utamakan KUALITAS makna di atas kuantitas palsu!
+4. HOOK & AUDIT SKOR VIRAL (55–99 per kriteria; bedakan nilai tiap klip secara jujur):
+   - \`title\`: Judul singkat & spesifik untuk topik klip (Indonesia).
+   - \`hook_headline\`: TEPAT 1 judul hook pembuka (maksimal 6–8 kata tanpa baris kedua/subjudul).
+   - \`hook_score\` (35%), \`insight_score\` (30%), \`flow_score\` (20%), \`emotion_score\` (15%), dan \`alasan_viral\` (1 kalimat padat Bahasa Indonesia).
+5. B-ROLL TOPIK KONKRET:
+   - Sertakan 1 \`broll_moments\` relevan per klip (2.5–3.5 detik, di dalam [start_sec, end_sec]): \`visual_queries\` (3–4 query pencarian visual bahasa Inggris KONKRET & LITERAL sesuai topik kalimat pada momen itu; DILARANG istilah alam/lapangan/langit/abstrak generik), \`visual_keyword\` (query utama), \`topic_keywords\` (3–5 kata topik Inggris), \`headline\` (2–3 kata Indonesia), \`category_tag\`, dan \`spoken_quote\`.`;
+
+    const stage2Schema = {
+      type: Type.OBJECT,
+      properties: {
         clips: {
           type: Type.ARRAY,
           items: {
             type: Type.OBJECT,
             properties: {
-              candidate_id: { type: Type.STRING },
               title: { type: Type.STRING },
               hook_headline: { type: Type.STRING },
               start_sec: { type: Type.NUMBER },
               end_sec: { type: Type.NUMBER },
-              full_transcript: { type: Type.STRING },
-              subtitles: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    start_sec: { type: Type.NUMBER },
-                    end_sec: { type: Type.NUMBER },
-                    start: { type: Type.NUMBER },
-                    end: { type: Type.NUMBER },
-                    text: { type: Type.STRING },
-                    highlightWord: { type: Type.STRING },
-                  },
-                  required: ["start_sec", "end_sec", "text", "highlightWord"],
-                },
-              },
+              hook_score: { type: Type.NUMBER },
+              insight_score: { type: Type.NUMBER },
+              flow_score: { type: Type.NUMBER },
+              emotion_score: { type: Type.NUMBER },
+              alasan_viral: { type: Type.STRING },
               broll_moments: {
                 type: Type.ARRAY,
                 items: {
@@ -856,650 +1211,318 @@ ATURAN TIMELINE NON-OVERLAPPING & SEBARAN PENUH (WAJIB DIPATUHI 100%):
                 },
               },
             },
-            required: ["title", "hook_headline", "start_sec", "end_sec", "full_transcript", "subtitles", "broll_moments"],
+            required: ["title", "hook_headline", "start_sec", "end_sec", "hook_score", "insight_score", "flow_score", "emotion_score", "alasan_viral", "broll_moments"],
           },
         },
       },
       required: ["clips"],
     };
 
-    // PASS 1: Acoustic Transcription & >= 20 Candidate Extraction (temperature: 0.0 for acoustic lock)
-    const pass1Response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [...baseMediaParts, { text: promptText }],
-      config: {
-        temperature: 0.0,
-        maxOutputTokens: 65536,
-        thinkingConfig: { thinkingBudget: 1024 },
-        responseMimeType: "application/json",
-        responseSchema: pass1Schema,
-      },
-    });
-
-    if (!pass1Response.text) {
-      return res.status(502).json({
-        success: false,
-        error: "Gemini 2.5 Flash (Pass 1) tidak mengembalikan output JSON.",
-      });
-    }
-
-    const parsedPass1 = JSON.parse(pass1Response.text);
-    let candidateClips: any[] = (Array.isArray(parsedPass1?.clips) ? parsedPass1.clips : []).map((c: any, idx: number) => ({
-      ...c,
-      candidate_id: String(c.candidate_id || `cand-${idx + 1}`),
-      start_sec: Math.max(0, Number(c.start_sec ?? c.start_seconds) || 0),
-      end_sec: Math.max(0, Number(c.end_sec ?? c.end_seconds) || 0),
-    }));
-
-    if (candidateClips.length === 0) {
-      return res.status(502).json({
-        success: false,
-        error: "Gemini 2.5 Flash tidak menemukan segmen klip yang valid.",
-      });
-    }
-
-    const maxCandEnd = candidateClips.reduce((mx, c) => Math.max(mx, Number(c.end_sec) || 0), 0);
-    const detectedDurationSec = isLocalMode
-      ? clientSourceDur
-      : Math.max(Number(parsedPass1?.video_duration_sec) || 0, maxCandEnd, clientSourceDur, 180);
-
-    // PASS 1B: Targeted Gap-Fill if Pass 1 returned fewer than MIN_DYNAMIC_CLIP_COUNT non-overlapping clips
-    if (candidateClips.length < MIN_DYNAMIC_CLIP_COUNT && detectedDurationSec >= 25) {
-      try {
-        const sortedExisting = [...candidateClips].sort((a, b) => a.start_sec - b.start_sec);
-        const missingWindows: Array<{ start: number; end: number }> = [];
-        const slotDur = detectedDurationSec / MIN_DYNAMIC_CLIP_COUNT;
-        for (let si = 0; si < MIN_DYNAMIC_CLIP_COUNT; si++) {
-          const wStart = Math.round(si * slotDur * 100) / 100;
-          const wEnd = Math.round((si + 1) * slotDur * 100) / 100;
-          const mid = (wStart + wEnd) / 2;
-          const covered = sortedExisting.some((ex) => ex.start_sec <= mid && ex.end_sec >= mid);
-          if (!covered) {
-            missingWindows.push({ start: wStart, end: wEnd });
-          }
-        }
-        const neededCount = Math.max(0, MIN_DYNAMIC_CLIP_COUNT - candidateClips.length);
-        if (neededCount > 0 && missingWindows.length > 0) {
-          const targetWinSample = missingWindows.slice(0, neededCount + 3);
-          const gapPrompt = `PASS 1B — EKSTRAKSI TAMBAHAN UNTUK MENCAPAI MINIMAL ${MIN_DYNAMIC_CLIP_COUNT} KLIP UNIK TANPA TUMPANG TINDIH.
-Anda baru mengembalikan ${candidateClips.length} klip. Ekstrak TEPAT ${neededCount} klip tambahan yang UNIK (DILARANG tumpang tindih dengan timestamp yang sudah ada) pada jendela waktu kosong berikut (dalam durasi total ${detectedDurationSec.toFixed(1)}s):
-${targetWinSample.map((w, wi) => `- Slot #${wi + 1}: antara ${w.start}s s/d ${w.end}s`).join("\n")}
-
-Judul yang sudah dipakai (DILARANG ulangi): ${candidateClips.map((c) => c.title).slice(0, 20).join(" | ")}
-Kembalikan \`clips\` berjumlah ${neededCount} dengan \`candidate_id\` ("cand-gap-1", ...), \`title\` unik, \`hook_headline\` 1 judul tunggal (maks 6-8 kata), \`full_transcript\` verbatim nyata, \`subtitles\` (2-4 kata utuh berdasarkan timing akustik nyata dengan \`highlightWord\` 1 kata kunci terkuat, non-overlapping), dan \`broll_moments\`.`;
-
-          const gapRes = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [...baseMediaParts, { text: gapPrompt }],
-            config: {
-              temperature: 0.0,
-              maxOutputTokens: 32768,
-              thinkingConfig: { thinkingBudget: 512 },
-              responseMimeType: "application/json",
-              responseSchema: pass1Schema,
-            },
-          });
-          if (gapRes.text) {
-            const gapParsed = JSON.parse(gapRes.text);
-            const gapList = Array.isArray(gapParsed?.clips) ? gapParsed.clips : [];
-            gapList.forEach((gc: any, gi: number) => {
-              candidateClips.push({
-                ...gc,
-                candidate_id: String(gc.candidate_id || `cand-gap-${gi + 1}`),
-                start_sec: Math.max(0, Number(gc.start_sec ?? gc.start_seconds) || 0),
-                end_sec: Math.max(0, Number(gc.end_sec ?? gc.end_seconds) || 0),
-              });
-            });
-          }
-        }
-      } catch (gapErr) {
-        console.warn("[Auto-Clip API] Pass 1B gap-fill warning:", gapErr);
-      }
-    }
-
-    // Enforce Strict Sequential Non-Overlapping Timeline Partition across [0, safeTotalDuration]
-    const safeTotalDuration = isLocalMode
-      ? clientSourceDur
-      : Math.max(detectedDurationSec, candidateClips.reduce((mx, c) => Math.max(mx, Number(c.end_sec) || 0), 0));
-
-    const partitionSequentialNonOverlappingClips = (rawList: any[], minCount: number, totalDur: number) => {
-      const sorted = [...rawList]
-        .filter((c) => c && (String(c.title || "").trim() || String(c.full_transcript || "").trim()))
-        .sort((a, b) => (Number(a.start_sec) || 0) - (Number(b.start_sec) || 0));
-      const count = Math.max(minCount, Math.min(40, sorted.length >= minCount ? sorted.length : minCount));
-      const safeDur = Math.max(count * 1.5, totalDur);
-
-      const slotSpan = safeDur / count;
-      const usedIndices = new Set<number>();
-      const partitioned: any[] = [];
-      const usedTitles = new Set<string>();
-      const usedHooks = new Set<string>();
-
-      for (let i = 0; i < count; i++) {
-        const winStart = Math.round(i * slotSpan * 100) / 100;
-        const winEnd = Math.round(((i + 1) * slotSpan) * 100) / 100;
-        const winDur = Math.max(1.5, winEnd - winStart);
-        const winMid = (winStart + winEnd) / 2;
-
-        // Pick best matching unused candidate closest to this window's midpoint
-        let bestIdx = -1;
-        let bestDist = Infinity;
-        for (let ci = 0; ci < sorted.length; ci++) {
-          if (usedIndices.has(ci)) continue;
-          const c = sorted[ci];
-          const cStart = Number(c.start_sec) || 0;
-          const cEnd = Math.max(cStart + 1, Number(c.end_sec) || (cStart + minSeconds));
-          const cMid = (cStart + cEnd) / 2;
-          const dist = Math.abs(cMid - winMid);
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestIdx = ci;
-          }
-        }
-
-        let sourceCand = bestIdx !== -1 ? sorted[bestIdx] : null;
-        if (bestIdx !== -1) usedIndices.add(bestIdx);
-        if (!sourceCand) {
-          // Borrow speech context proportionally from closest existing candidate
-          sourceCand = sorted[Math.min(sorted.length - 1, Math.floor((i / count) * sorted.length))] || sorted[0];
-        }
-
-        // Compute non-overlapping clip bounds strictly inside [winStart, winEnd]
-        const effMinDur = Math.min(winDur, minSeconds);
-        const effMaxDur = Math.min(winDur, Math.max(effMinDur, maxSeconds));
-        const candRawStart = Number(sourceCand.start_sec) || winStart;
-        const candRawEnd = Math.max(candRawStart + effMinDur, Number(sourceCand.end_sec) || (candRawStart + effMinDur));
-        const prefDur = Math.max(effMinDur, Math.min(effMaxDur, candRawEnd - candRawStart));
-
-        let clipStart = Math.max(winStart, Math.min(winEnd - prefDur, candRawStart));
-        let clipEnd = Math.min(winEnd, clipStart + prefDur);
-        if (clipEnd - clipStart < Math.min(1.5, winDur)) {
-          clipStart = winStart;
-          clipEnd = winEnd;
-        }
-        if (partitioned.length > 0 && clipStart < partitioned[partitioned.length - 1].end_sec) {
-          clipStart = partitioned[partitioned.length - 1].end_sec;
-          clipEnd = Math.max(clipStart + Math.min(1.5, winEnd - clipStart), Math.min(winEnd, clipStart + prefDur));
-        }
-
-        clipStart = Math.round(clipStart * 100) / 100;
-        clipEnd = Math.round(Math.max(clipStart + 1.0, clipEnd) * 100) / 100;
-
-        // Deduplicate / synthesize unique title & hook_headline from segment transcript
-        const rawSubsArr = Array.isArray(sourceCand.subtitles) ? sourceCand.subtitles : [];
-        const transcriptWords = String(sourceCand.full_transcript || "").trim().split(/\s+/).filter(Boolean);
-        let segTitle = String(sourceCand.title || "").trim() || `Momen Viral #${i + 1}`;
-        if (usedTitles.has(segTitle.toLowerCase())) {
-          const phraseSeed = rawSubsArr.length > 0
-            ? rawSubsArr.slice(0, 2).map((s: any) => s.text).join(" ")
-            : transcriptWords.slice(0, 5).join(" ");
-          segTitle = phraseSeed && !usedTitles.has(phraseSeed.toLowerCase())
-            ? `${phraseSeed} (Bagian ${i + 1})`
-            : `${segTitle} — Segmen ${i + 1}`;
-        }
-        usedTitles.add(segTitle.toLowerCase());
-
-        let segHook = String(sourceCand.hook_headline || segTitle).split(/\r?\n/)[0].replace(/\s+/g, " ").trim();
-        segHook = segHook.split(/\s+/).filter(Boolean).slice(0, 8).join(" ");
-        if (!segHook || usedHooks.has(segHook.toLowerCase())) {
-          const altWords = transcriptWords.slice(Math.min(transcriptWords.length - 1, (i % 4) * 3), Math.min(transcriptWords.length, (i % 4) * 3 + 6));
-          segHook = altWords.length >= 3
-            ? altWords.join(" ").replace(/[,.;:]+$/, "")
-            : `Fakta Penting #${i + 1}: ${segTitle.split(/\s+/).slice(0, 4).join(" ")}`;
-          segHook = segHook.split(/\s+/).filter(Boolean).slice(0, 8).join(" ");
-        }
-        usedHooks.add(segHook.toLowerCase());
-
-        // Filter or map subtitles cleanly into [clipStart, clipEnd] (supporting both absolute & clip-relative timestamps)
-        const candDur = Math.max(1.5, clipEnd - clipStart);
-        const maxRawSubEnd = rawSubsArr.reduce((mx: number, s: any) => Math.max(mx, Number(s.end_sec ?? s.end) || 0), 0);
-        const hasAbsMatch = rawSubsArr.some((s: any) => {
-          const sStart = Number(s.start_sec ?? s.start);
-          const sEnd = Number(s.end_sec ?? s.end);
-          if (isNaN(sStart) || isNaN(sEnd)) return false;
-          const mid = (sStart + sEnd) / 2;
-          return mid >= clipStart - 0.5 && mid <= clipEnd + 0.5;
-        });
-        let assignedSubs = hasAbsMatch
-          ? rawSubsArr.filter((s: any) => {
-              const sStart = Number(s.start_sec ?? s.start);
-              const sEnd = Number(s.end_sec ?? s.end);
-              if (isNaN(sStart) || isNaN(sEnd)) return false;
-              const mid = (sStart + sEnd) / 2;
-              return mid >= clipStart - 0.5 && mid <= clipEnd + 0.5;
-            })
-          : (rawSubsArr.length > 0 && maxRawSubEnd <= candDur + 2.0
-              ? rawSubsArr.map((s: any) => ({
-                  ...s,
-                  start_sec: clipStart + Math.max(0, Number(s.start ?? s.start_sec) || 0),
-                  end_sec: clipStart + Math.max(0.15, Number(s.end ?? s.end_sec) || 0.8),
-                }))
-              : []);
-
-        if (assignedSubs.length === 0 && transcriptWords.length > 0) {
-          const chunkWords = transcriptWords.slice(0, Math.min(24, transcriptWords.length));
-          const phrases: string[][] = [];
-          for (let wi = 0; wi < chunkWords.length; wi += 3) {
-            const rem = chunkWords.length - wi;
-            if (rem <= 4) {
-              phrases.push(chunkWords.slice(wi));
-              break;
-            }
-            phrases.push(chunkWords.slice(wi, wi + 3));
-          }
-          const subDur = Math.max(1.2, clipEnd - clipStart);
-          const step = subDur / Math.max(1, phrases.length);
-          assignedSubs = phrases.map((pw, pi) => ({
-            start_sec: Math.round((clipStart + pi * step) * 100) / 100,
-            end_sec: Math.round((clipStart + (pi + 1) * step) * 100) / 100,
-            text: pw.join(" "),
-          }));
-        }
-
-        partitioned.push({
-          ...sourceCand,
-          candidate_id: `cand-${i + 1}`,
-          title: segTitle,
-          hook_headline: segHook,
-          start_sec: clipStart,
-          end_sec: clipEnd,
-          start_seconds: clipStart,
-          end_seconds: clipEnd,
-          subtitles: assignedSubs,
-        });
-      }
-
-      // Append any extra non-overlapping candidates if > count (up to count + 2)
-      return partitioned;
-    };
-
-    const partitionedCandidates = partitionSequentialNonOverlappingClips(candidateClips, MIN_DYNAMIC_CLIP_COUNT, safeTotalDuration);
-
-    // PASS 2: Critical Viral Audit & Calibrated Weighted Percentage Scoring (68%-98%)
-    const auditInput = partitionedCandidates.map((c: any, idx: number) => ({
-      index: idx,
-      candidate_id: c.candidate_id,
-      title: c.title,
-      hook_headline: c.hook_headline,
-      duration_sec: Math.round(((Number(c.end_sec) || 0) - (Number(c.start_sec) || 0)) * 10) / 10,
-      full_transcript: String(c.full_transcript || "").slice(0, 260),
-    }));
-
-    let auditedMap = new Map<string, any>();
-    try {
-      const pass2Prompt = `Anda adalah Viral Content Director & Algorithm Auditor (PASS 2 - Audit Viral & Pembobotan Skor Akurat untuk ${auditInput.length} Klip).
-Evaluasi secara KRITIS setiap kandidat klip berikut pada 4 kriteria berbobot (skala 55-99 per kriteria; bedakan nilai antar kandidat secara jujur dan akurat—JANGAN memberi skor sama rata!):
-1. hook_score (Bobot 35%): Kekuatan pancingan kalimat 3 detik pertama.
-2. insight_score (Bobot 30%): Kepadatan nilai edukasi, tips konkret, atau pesan inti.
-3. flow_score (Bobot 20%): Kejelasan alur cerita dari pembuka hingga penutup.
-4. emotion_score (Bobot 15%): Energi penyampaian & potensi komentar/share penonton.
-
-Sertakan 'alasan_viral' singkat (1 kalimat padat Bahasa Indonesia).
-Kandidat untuk diaudit:
-${JSON.stringify(auditInput)}`;
-
-      const pass2Response = await ai.models.generateContent({
+    const stage2Response = await generateContentWithRetry(
+      ai,
+      {
         model: "gemini-2.5-flash",
-        contents: pass2Prompt,
+        contents: stage2Prompt,
         config: {
+          temperature: 0.2,
           maxOutputTokens: 32768,
           thinkingConfig: { thinkingBudget: 512 },
           responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              evaluations: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    candidate_id: { type: Type.STRING },
-                    hook_score: { type: Type.NUMBER },
-                    insight_score: { type: Type.NUMBER },
-                    flow_score: { type: Type.NUMBER },
-                    emotion_score: { type: Type.NUMBER },
-                    alasan_viral: { type: Type.STRING },
-                  },
-                  required: ["candidate_id", "hook_score", "insight_score", "flow_score", "emotion_score", "alasan_viral"],
-                },
-              },
-            },
-            required: ["evaluations"],
-          },
+          responseSchema: stage2Schema,
         },
-      });
-
-      if (pass2Response.text) {
-        const parsedPass2 = JSON.parse(pass2Response.text);
-        if (Array.isArray(parsedPass2?.evaluations)) {
-          parsedPass2.evaluations.forEach((ev: any) => {
-            if (ev?.candidate_id) auditedMap.set(String(ev.candidate_id), ev);
-          });
-        }
+      },
+      {
+        maxRetries: 3,
+        fallbackTextModel: "gemini-3.1-flash-lite",
       }
-    } catch (pass2Err) {
-      console.warn("[Auto-Clip API] Pass 2 audit warning (using calibrated heuristic fallback):", pass2Err);
+    );
+
+    if (!stage2Response.text) {
+      return res.status(502).json({
+        success: false,
+        error: "Gemini (Stage 2 Seleksi Momen) tidak mengembalikan output JSON.",
+      });
     }
 
-    const rawClips = partitionedCandidates.map((c: any, idx: number) => {
-      const ev = auditedMap.get(String(c.candidate_id));
-      const spreadPattern = ((idx * 7 + 3) % 19); // deterministic varied fallback spread across 20-30 clips
-      const clampCrit = (val: any, defVal: number) => Math.min(99, Math.max(58, Math.round(Number(val) || defVal)));
-      const hook = clampCrit(ev?.hook_score, 74 + ((idx * 5 + 2) % 24));
-      const insight = clampCrit(ev?.insight_score, 72 + spreadPattern);
-      const flow = clampCrit(ev?.flow_score, 71 + ((idx * 3 + 9) % 23));
-      const emotion = clampCrit(ev?.emotion_score, 70 + ((idx * 11 + 4) % 25));
-      const weighted = Math.round(hook * 0.35 + insight * 0.3 + flow * 0.2 + emotion * 0.15);
-      const calibratedScore = Math.min(98, Math.max(68, weighted));
-      return {
-        ...c,
-        viral_score: calibratedScore,
-        score_breakdown: { hook, insight, flow, emotion },
-        alasan_viral: String(
-          ev?.alasan_viral ||
-            `Hook pembuka (${hook}%) dengan kepadatan insight ${insight}% dan alur ${flow}% sesuai target segmen.`
-        ).trim(),
-      };
-    });
+    const parsedStage2 = JSON.parse(stage2Response.text);
+    const rawSelectedClips: any[] = Array.isArray(parsedStage2?.clips) ? parsedStage2.clips : [];
 
-    const parsed = { video_title: parsedPass1?.video_title };
-
-    const splitSubtitleToNaturalPhrases = (subList: any[], clipStartSec: number, clipEndSec: number) => {
-      const segDur = Math.max(0.5, clipEndSec - clipStartSec);
-      const stripPunct = (w: string) => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
-      const stopWords = new Set(["yang", "dan", "di", "ke", "dari", "ini", "itu", "untuk", "pada", "dengan", "adalah", "atau", "the", "a", "an", "and", "of", "to", "in", "is", "it", "for", "that", "this"]);
-      const pickBestHighlightWord = (words: string[], rawHighlight?: string) => {
-        if (!Array.isArray(words) || words.length === 0) return "";
-        const rawNorm = stripPunct(String(rawHighlight || "").split(/\s+/)[0] || "");
-        if (rawNorm) {
-          const exact = words.find((w) => stripPunct(w) === rawNorm);
-          if (exact) return exact;
-          const partial = words.find((w) => {
-            const wn = stripPunct(w);
-            return wn && (wn.includes(rawNorm) || rawNorm.includes(wn));
-          });
-          if (partial) return partial;
+    // Validate selected clips: snap to transcript sentence boundaries, enforce >= 12s (or full duration if < 12s), enforce non-overlapping, protect short videos (< 60s)
+    const minAllowedClipSec = safeTotalDuration >= 12 ? 12 : Math.max(2, safeTotalDuration);
+    const snapToTranscriptStart = (t: number) => {
+      let best = t;
+      let bestDiff = 1.25;
+      for (const seg of normalizedFullTranscript) {
+        const diff = Math.abs(seg.start - t);
+        if (diff <= bestDiff) {
+          bestDiff = diff;
+          best = seg.start;
         }
-        let best = words[words.length - 1];
-        let bestScore = -1;
-        for (const w of words) {
-          const clean = stripPunct(w);
-          if (!clean) continue;
-          const hasDigit = /\d/.test(clean) ? 4 : 0;
-          const nonStop = stopWords.has(clean) ? 0 : 3;
-          const score = clean.length + hasDigit + nonStop;
-          if (score > bestScore) {
-            bestScore = score;
-            best = w;
-          }
+      }
+      return best;
+    };
+    const snapToTranscriptEnd = (t: number) => {
+      let best = t;
+      let bestDiff = 1.25;
+      for (const seg of normalizedFullTranscript) {
+        const diff = Math.abs(seg.end - t);
+        if (diff <= bestDiff) {
+          bestDiff = diff;
+          best = seg.end;
         }
-        return best;
-      };
-      const collapseIntraBlockDuplicates = (txt: string) => {
-        const tokens = String(txt || "").split(/\s+/).filter(Boolean);
-        const out: string[] = [];
-        for (const curTok of tokens) {
-          const curNorm = stripPunct(curTok);
-          if (out.length > 0 && curNorm) {
-            const prevTok = out[out.length - 1];
-            if (stripPunct(prevTok) === curNorm) {
-              if (curTok.length > prevTok.length && /[^\p{L}\p{N}]$/u.test(curTok)) {
-                out[out.length - 1] = curTok;
-              }
-              continue;
-            }
-          }
-          out.push(curTok);
+      }
+      return best;
+    };
+
+    const validatedClips: any[] = [];
+    const sortedCandidates = [...rawSelectedClips].sort(
+      (a, b) => (Number(a?.start_sec) || 0) - (Number(b?.start_sec) || 0)
+    );
+
+    for (const cand of sortedCandidates) {
+      const rawS = Math.max(0, Number(cand?.start_sec) || 0);
+      const rawE = Math.min(safeTotalDuration, Number(cand?.end_sec) || 0);
+      let sSec = Math.round(snapToTranscriptStart(rawS) * 100) / 100;
+      let eSec = Math.round(snapToTranscriptEnd(rawE) * 100) / 100;
+
+      if (validatedClips.length > 0) {
+        const prevEnd = validatedClips[validatedClips.length - 1].end_sec;
+        if (sSec < prevEnd) {
+          const nextSegAfterPrev = normalizedFullTranscript.find((seg) => seg.start >= prevEnd - 0.05 && seg.end <= eSec + 0.5);
+          sSec = nextSegAfterPrev ? nextSegAfterPrev.start : prevEnd;
         }
-        return out.join(" ");
-      };
+      }
 
-      const sanitized = subList
-        .map((s: any) => ({
-          ...s,
-          text: collapseIntraBlockDuplicates(
-            String(s.text || "")
-              .replace(/\.\.\.+|…/g, " ")
-              .replace(/\s+/g, " ")
-              .trim()
-          ),
-        }))
-        .filter((s: any) => s.text.length > 0);
-
-      sanitized.sort((a: any, b: any) => a.start_sec - b.start_sec);
-
-      // Deduplicate adjacent overlapping, truncated, or repeated words across blocks iteratively
-      const mergedList: any[] = [];
-      for (const cur of sanitized) {
-        const curText = collapseIntraBlockDuplicates(cur.text);
-        if (mergedList.length === 0) {
-          mergedList.push({ ...cur, text: curText });
+      if (eSec - sSec < minAllowedClipSec) {
+        // Extend cleanly to next sentence boundary if short clip still fits before next window, otherwise skip fragment
+        const extendedSeg = normalizedFullTranscript.find((seg) => seg.end >= sSec + minAllowedClipSec && seg.end <= safeTotalDuration);
+        if (extendedSeg && extendedSeg.end - sSec <= Math.max(maxSeconds + 15, 65)) {
+          eSec = extendedSeg.end;
+        } else {
           continue;
         }
-        const prev = mergedList[mergedList.length - 1];
-        const prevWords = String(prev.text || "").split(/\s+/).filter(Boolean);
-        let nextWords = curText.split(/\s+/).filter(Boolean);
-
-        if (prevWords.length > 0 && nextWords.length > 0) {
-          let strippedAny = true;
-          while (strippedAny && prevWords.length > 0 && nextWords.length > 0) {
-            strippedAny = false;
-            const maxCheck = Math.min(4, prevWords.length, nextWords.length);
-            for (let k = maxCheck; k >= 1; k--) {
-              let allMatch = true;
-              for (let j = 0; j < k; j++) {
-                if (stripPunct(prevWords[prevWords.length - k + j]) !== stripPunct(nextWords[j])) {
-                  allMatch = false;
-                  break;
-                }
-              }
-              if (allMatch) {
-                nextWords = nextWords.slice(k);
-                strippedAny = true;
-                break;
-              }
-            }
-          }
-
-          if (prevWords.length > 0 && nextWords.length > 0) {
-            const pLast = stripPunct(prevWords[prevWords.length - 1]);
-            const nFirst = stripPunct(nextWords[0]);
-            if (
-              pLast.length >= 2 &&
-              nFirst.length > pLast.length &&
-              nFirst.startsWith(pLast) &&
-              prevWords.length >= 2 &&
-              nextWords.length >= 2 &&
-              stripPunct(prevWords[0]) === stripPunct(nextWords[0])
-            ) {
-              prev.text = collapseIntraBlockDuplicates(nextWords.join(" "));
-              prev.end_sec = Math.max(prev.end_sec, cur.end_sec);
-              if (!prev.highlightWord && cur.highlightWord) prev.highlightWord = cur.highlightWord;
-              continue;
-            } else if (pLast.length >= 2 && nFirst.length > pLast.length && nFirst.startsWith(pLast)) {
-              prevWords.pop();
-              prev.text = prevWords.join(" ");
-            }
-          }
-        }
-
-        if (nextWords.length > 0) {
-          mergedList.push({ ...cur, text: collapseIntraBlockDuplicates(nextWords.join(" ")) });
-        } else {
-          prev.end_sec = Math.max(prev.end_sec, cur.end_sec);
-        }
       }
 
-      const estimateSpeechWeight = (word: string) => {
-        const clean = String(word || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
-        if (!clean) return 1;
-        const vowelGroups = clean.match(/[aeiouyàáâäèéêëìíîïòóôöùúûü]+/g);
-        const syllables = Math.max(1, vowelGroups ? vowelGroups.length : 1);
-        return Math.max(1.5, syllables * 2 + clean.length * 0.55);
-      };
+      if (eSec - sSec < minAllowedClipSec) continue;
+      if (isShortVideo && validatedClips.length >= 2) break;
 
-      // Preserve Gemini acoustic 2-4 word blocks directly; only split phrases > 4 words
-      const chunked: any[] = [];
-      mergedList
-        .filter((s: any) => String(s.text || "").trim().length > 0)
-        .forEach((s: any) => {
-          const localStart = Math.max(0, Math.min(segDur - 0.14, Number(s.start_sec) - clipStartSec));
-          const localEnd = Math.min(segDur, Math.max(localStart + 0.18, Number(s.end_sec) - clipStartSec));
-          const words = collapseIntraBlockDuplicates(s.text).split(/\s+/).filter(Boolean);
-          if (words.length <= 4) {
-            chunked.push({
-              id: s.id,
-              local_start: localStart,
-              local_end: localEnd,
-              words,
-              highlightWord: pickBestHighlightWord(words, s.highlightWord),
-            });
-            return;
-          }
-          const totalDur = Math.max(0.25, localEnd - localStart);
-          const groups: string[][] = [];
-          let i = 0;
-          while (i < words.length) {
-            const remaining = words.length - i;
-            if (remaining <= 4) {
-              groups.push(words.slice(i));
-              break;
-            }
-            groups.push(words.slice(i, i + 3));
-            i += 3;
-          }
-          const grpWeights = groups.map((grp) =>
-            grp.reduce((sum, w) => sum + estimateSpeechWeight(w), 0)
-          );
-          const totalWeight = Math.max(1, grpWeights.reduce((a, b) => a + b, 0));
-          let cursor = localStart;
-          groups.forEach((grp, gIdx) => {
-            const frac = grpWeights[gIdx] / totalWeight;
-            const nextCursor = gIdx === groups.length - 1 ? localEnd : Math.min(localEnd, cursor + totalDur * frac);
-            chunked.push({
-              id: `${s.id}-p${gIdx + 1}`,
-              local_start: cursor,
-              local_end: Math.max(cursor + 0.14, nextCursor),
-              words: grp,
-              highlightWord: pickBestHighlightWord(grp, s.highlightWord),
-            });
-            cursor = nextCursor;
+      validatedClips.push({
+        ...cand,
+        start_sec: Math.round(sSec * 100) / 100,
+        end_sec: Math.round(eSec * 100) / 100,
+      });
+    }
+
+    // Fallback safety ONLY if Stage 2 returned zero clips meeting >= 12s (e.g., unified short video): 1 full-duration clip
+    if (validatedClips.length === 0) {
+      const firstCand = rawSelectedClips[0] || {};
+      validatedClips.push({
+        title: String(firstCand.title || parsedStage1?.video_title || videoTitle || "Klip Sorotan Utama").trim(),
+        hook_headline: String(firstCand.hook_headline || parsedStage1?.video_title || videoTitle || "Poin Penting Wajib Disimak").trim(),
+        start_sec: 0,
+        end_sec: Math.round(safeTotalDuration * 100) / 100,
+        hook_score: firstCand.hook_score ?? 88,
+        insight_score: firstCand.insight_score ?? 86,
+        flow_score: firstCand.flow_score ?? 87,
+        emotion_score: firstCand.emotion_score ?? 85,
+        alasan_viral: String(firstCand.alasan_viral || "Satu kesatuan pesan utuh dengan alur pembuka hingga kesimpulan lengkap.").trim(),
+        broll_moments: Array.isArray(firstCand.broll_moments) ? firstCand.broll_moments : [],
+      });
+    }
+
+    // Deduplicate titles & hooks cleanly without appending fake "(Bagian N)"
+    const usedTitles = new Set<string>();
+    const usedHooks = new Set<string>();
+
+    // =========================================================================
+    // STAGE 3: Slice Exact Word-Level Subtitles from fullTranscript & Auto-Edits
+    // =========================================================================
+    const stripPunct = (w: string) => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+    const stopWords = new Set(["yang", "dan", "di", "ke", "dari", "ini", "itu", "untuk", "pada", "dengan", "adalah", "atau", "the", "a", "an", "and", "of", "to", "in", "is", "it", "for", "that", "this"]);
+    const pickBestHighlightWord = (words: string[], rawHighlight?: string) => {
+      if (!Array.isArray(words) || words.length === 0) return "";
+      const rawNorm = stripPunct(String(rawHighlight || "").split(/\s+/)[0] || "");
+      if (rawNorm) {
+        const exact = words.find((w) => stripPunct(w) === rawNorm);
+        if (exact) return exact;
+      }
+      let best = words[words.length - 1];
+      let bestScore = -1;
+      for (const w of words) {
+        const clean = stripPunct(w);
+        if (!clean) continue;
+        const sc = clean.length + (/\d/.test(clean) ? 4 : 0) + (stopWords.has(clean) ? 0 : 3);
+        if (sc > bestScore) {
+          bestScore = sc;
+          best = w;
+        }
+      }
+      return best;
+    };
+
+    const sliceTranscriptToKineticBlocks = (clipStartSec: number, clipEndSec: number, clipIdx: number) => {
+      const segDur = Math.max(0.5, clipEndSec - clipStartSec);
+      const allWordsInRange: Array<{ word: string; relStart: number; relEnd: number; endsSentence: boolean }> = [];
+
+      for (const seg of normalizedFullTranscript) {
+        if (seg.end <= clipStartSec + 0.02 || seg.start >= clipEndSec - 0.02) continue;
+        for (const w of seg.words) {
+          if (w.end <= clipStartSec + 0.02 || w.start >= clipEndSec - 0.02) continue;
+          const relS = Math.max(0, Math.min(segDur - 0.06, w.start - clipStartSec));
+          const relE = Math.min(segDur, Math.max(relS + 0.06, w.end - clipStartSec));
+          allWordsInRange.push({
+            word: w.word,
+            relStart: relS,
+            relEnd: relE,
+            endsSentence: /[.!?…]$/.test(w.word),
           });
-        });
-
-      // Merge 1-word orphans into adjacent <=3-word block so subtitles stay tight 2-4 words
-      const balanced: any[] = [];
-      for (const blk of chunked) {
-        if (balanced.length > 0 && blk.words.length === 1 && balanced[balanced.length - 1].words.length <= 3) {
-          const prev = balanced[balanced.length - 1];
-          prev.words = [...prev.words, ...blk.words];
-          prev.local_end = Math.max(prev.local_end, blk.local_end);
-          prev.highlightWord = pickBestHighlightWord(prev.words, prev.highlightWord || blk.highlightWord);
-        } else if (balanced.length > 0 && balanced[balanced.length - 1].words.length === 1 && blk.words.length <= 3) {
-          const prev = balanced[balanced.length - 1];
-          prev.words = [...prev.words, ...blk.words];
-          prev.local_end = Math.max(prev.local_end, blk.local_end);
-          prev.highlightWord = pickBestHighlightWord(prev.words, blk.highlightWord || prev.highlightWord);
-        } else {
-          balanced.push(blk);
         }
       }
 
-      // Convert cleanly to clip-local 0.0s..segDur & enforce strict block[i].end <= block[i+1].start
-      balanced.sort((a, b) => a.local_start - b.local_start);
-      const result: any[] = balanced.map((b, bIdx) => {
-        const relStart = Math.max(0, Math.min(segDur - 0.14, b.local_start));
-        const relEnd = Math.min(segDur, Math.max(relStart + 0.16, b.local_end));
-        const finalWords = collapseIntraBlockDuplicates(b.words.join(" ")).split(/\s+/).filter(Boolean);
+      if (allWordsInRange.length === 0) return [];
+
+      // Group words into tight 2-4 word kinetic blocks respecting sentence boundaries & pauses > 0.35s
+      const rawBlocks: Array<typeof allWordsInRange> = [];
+      let curGroup: typeof allWordsInRange = [];
+
+      for (let wi = 0; wi < allWordsInRange.length; wi++) {
+        const w = allWordsInRange[wi];
+        const prev = curGroup.length > 0 ? curGroup[curGroup.length - 1] : null;
+        const pauseGap = prev ? w.relStart - prev.relEnd : 0;
+
+        if (curGroup.length >= 4 || (curGroup.length >= 2 && (pauseGap > 0.35 || prev?.endsSentence))) {
+          rawBlocks.push(curGroup);
+          curGroup = [];
+        }
+        curGroup.push(w);
+      }
+      if (curGroup.length > 0) {
+        rawBlocks.push(curGroup);
+      }
+
+      // Merge any trailing 1-word orphan into previous block if <= 3 words
+      const balancedBlocks: Array<typeof allWordsInRange> = [];
+      for (const blk of rawBlocks) {
+        if (balancedBlocks.length > 0 && blk.length === 1 && balancedBlocks[balancedBlocks.length - 1].length <= 3) {
+          balancedBlocks[balancedBlocks.length - 1] = [...balancedBlocks[balancedBlocks.length - 1], ...blk];
+        } else if (balancedBlocks.length > 0 && balancedBlocks[balancedBlocks.length - 1].length === 1 && blk.length <= 3) {
+          balancedBlocks[balancedBlocks.length - 1] = [...balancedBlocks[balancedBlocks.length - 1], ...blk];
+        } else {
+          balancedBlocks.push(blk);
+        }
+      }
+
+      const result = balancedBlocks.map((grp, bIdx) => {
+        const relStart = Math.round(grp[0].relStart * 1000) / 1000;
+        const relEnd = Math.round(Math.max(relStart + 0.14, grp[grp.length - 1].relEnd) * 1000) / 1000;
+        const wordsText = grp.map((g) => g.word);
         return {
-          id: b.id || `sub-${bIdx + 1}`,
-          start: Math.round(relStart * 1000) / 1000,
-          end: Math.round(relEnd * 1000) / 1000,
+          id: `sub-${clipIdx + 1}-${bIdx + 1}`,
+          start: relStart,
+          end: relEnd,
           start_sec: Math.round((clipStartSec + relStart) * 1000) / 1000,
           end_sec: Math.round((clipStartSec + relEnd) * 1000) / 1000,
-          text: finalWords.join(" "),
-          highlightWord: pickBestHighlightWord(finalWords, b.highlightWord),
+          posX: 50,
+          posY: 56,
+          text: wordsText.join(" "),
+          highlightWord: pickBestHighlightWord(wordsText),
         };
       });
 
-      for (let i = 0; i < result.length - 1; i++) {
-        const prev = result[i];
-        const next = result[i + 1];
-        if (next.start < prev.start + 0.12) {
-          next.start = Math.min(segDur - 0.12, Math.round((prev.start + 0.12) * 1000) / 1000);
-          next.end = Math.max(next.start + 0.12, next.end);
+      // Anti-Squash validation: distribute proportionally by phrase length if any block is < 0.35s, bunched near 0, overlapping, or covering < 45% of segDur
+      let needsDistribution = false;
+      let nearZeroCount = 0;
+      for (let i = 0; i < result.length; i++) {
+        const cur = result[i];
+        if (cur.end - cur.start < 0.35) {
+          needsDistribution = true;
+          break;
         }
-        const gap = next.start - prev.end;
-        if (gap > 0 && gap < 0.25) {
-          prev.end = next.start;
-        } else if (prev.end > next.start) {
-          prev.end = next.start;
+        if (cur.start <= 0.15) nearZeroCount++;
+        if (i > 0 && (cur.start < result[i - 1].end - 0.08 || cur.start < result[i - 1].start - 0.02)) {
+          needsDistribution = true;
+          break;
         }
-        prev.start_sec = Math.round((clipStartSec + prev.start) * 1000) / 1000;
-        prev.end_sec = Math.round((clipStartSec + prev.end) * 1000) / 1000;
       }
-      if (result.length > 0) {
-        const last = result[result.length - 1];
-        last.end = Math.round(Math.min(segDur, Math.max(last.start + 0.12, last.end)) * 1000) / 1000;
-        last.start_sec = Math.round((clipStartSec + last.start) * 1000) / 1000;
-        last.end_sec = Math.round((clipStartSec + last.end) * 1000) / 1000;
+      if (!needsDistribution && result.length >= 2 && nearZeroCount >= 2) {
+        needsDistribution = true;
+      }
+      if (!needsDistribution && result.length >= 3) {
+        const spanCovered = result[result.length - 1].end - result[0].start;
+        if (spanCovered < segDur * 0.45) {
+          needsDistribution = true;
+        }
+      }
+
+      if (needsDistribution && result.length > 0) {
+        const weights = result.map((r) => Math.max(1, r.text.replace(/\s+/g, "").length));
+        const totalChars = Math.max(1, weights.reduce((a, b) => a + b, 0));
+        let cursor = 0;
+        for (let i = 0; i < result.length; i++) {
+          const blockDur = segDur * (weights[i] / totalChars);
+          const relStart = Math.round(cursor * 100) / 100;
+          const relEnd =
+            i === result.length - 1
+              ? Math.round(segDur * 100) / 100
+              : Math.round(Math.min(segDur, cursor + blockDur) * 100) / 100;
+          result[i].start = relStart;
+          result[i].end = Math.max(Math.min(segDur, relStart + 0.35), relEnd);
+          result[i].start_sec = Math.round((clipStartSec + result[i].start) * 100) / 100;
+          result[i].end_sec = Math.round((clipStartSec + result[i].end) * 100) / 100;
+          cursor += blockDur;
+        }
+      } else {
+        for (let i = 0; i < result.length - 1; i++) {
+          const cur = result[i];
+          const next = result[i + 1];
+          const gap = next.start - cur.end;
+          if (gap > 0 && gap < 0.25) {
+            cur.end = next.start;
+          } else if (cur.end > next.start) {
+            cur.end = next.start;
+          }
+          cur.start_sec = Math.round((clipStartSec + cur.start) * 1000) / 1000;
+          cur.end_sec = Math.round((clipStartSec + cur.end) * 1000) / 1000;
+        }
       }
 
       return result;
     };
 
-    const normalizedClips = rawClips.map((c: any, idx: number) => {
-      const startSec = Math.round(Math.max(0, Number(c.start_sec ?? c.start_seconds) || 0) * 100) / 100;
-      const endSec = Math.round(Math.max(startSec + 1.0, Number(c.end_sec ?? c.end_seconds) || (startSec + minSeconds)) * 100) / 100;
+    const normalizedClips = validatedClips.map((c: any, idx: number) => {
+      const startSec = Math.round(Math.max(0, Number(c.start_sec) || 0) * 100) / 100;
+      const endSec = Math.round(Math.max(startSec + 1.0, Number(c.end_sec) || safeTotalDuration) * 100) / 100;
       const segDur = Math.max(1.0, endSec - startSec);
 
-      const rawSubsList = Array.isArray(c.subtitles) ? c.subtitles : [];
-      const absSubMatches = rawSubsList.filter((s: any) => {
-        const sS = Number(s.start_sec ?? s.start);
-        const sE = Number(s.end_sec ?? s.end);
-        return !isNaN(sS) && !isNaN(sE) && sE > startSec + 0.05 && sS < endSec - 0.05;
-      }).length;
-      const maxSubTs = rawSubsList.reduce((mx: number, s: any) => Math.max(mx, Number(s.end_sec ?? s.end) || 0), 0);
-      const isRelSubInput = absSubMatches === 0 && rawSubsList.length > 0 && maxSubTs <= segDur + 1.5;
+      const segTexts = normalizedFullTranscript
+        .filter((seg) => seg.end > startSec + 0.05 && seg.start < endSec - 0.05)
+        .map((seg) => seg.text);
+      const clipTranscriptText = segTexts.join(" ").trim();
+      const clipTranscriptWords = clipTranscriptText.split(/\s+/).filter(Boolean);
 
-      const rawNormalizedSubs = rawSubsList
-        .map((s: any, sIdx: number) => {
-          let rawSubStart = Number(s.start_sec ?? s.start);
-          let rawSubEnd = Number(s.end_sec ?? s.end);
-          if (isNaN(rawSubStart)) rawSubStart = startSec;
-          if (isNaN(rawSubEnd)) rawSubEnd = rawSubStart + 1.2;
+      let clipTitle = String(c.title || "").trim() || clipTranscriptWords.slice(0, 6).join(" ") || `Sorotan Utama #${idx + 1}`;
+      if (usedTitles.has(clipTitle.toLowerCase())) {
+        const altSeed = clipTranscriptWords.slice(0, 6).join(" ").replace(/[,.;:]+$/, "");
+        clipTitle = altSeed && !usedTitles.has(altSeed.toLowerCase()) ? altSeed : `${clipTitle} (${formatDurationMMSS(startSec)})`;
+      }
+      usedTitles.add(clipTitle.toLowerCase());
 
-          if (isRelSubInput) {
-            rawSubStart += startSec;
-            rawSubEnd += startSec;
-          } else if (hasAudioPayload && audioOffset > 0 && rawSubStart < startSec - 0.5 && rawSubStart + audioOffset >= startSec - 0.5) {
-            rawSubStart += audioOffset;
-            rawSubEnd += audioOffset;
-          }
+      let hookHeadline = String(c.hook_headline || clipTitle).split(/\r?\n/)[0].replace(/\s+/g, " ").trim();
+      hookHeadline = hookHeadline.split(" ").filter(Boolean).slice(0, 8).join(" ");
+      if (!hookHeadline || usedHooks.has(hookHeadline.toLowerCase())) {
+        hookHeadline = clipTranscriptWords.slice(0, 7).join(" ").replace(/[,.;:]+$/, "") || clipTitle.split(" ").slice(0, 7).join(" ");
+      }
+      usedHooks.add(hookHeadline.toLowerCase());
 
-          return {
-            id: `sub-${idx + 1}-${sIdx + 1}`,
-            rawSubStart,
-            rawSubEnd,
-            text: String(s.text || "").trim(),
-            highlightWord: String(s.highlightWord || s.highlight || "").trim(),
-          };
-        })
-        .filter((s: any) => s.text.length > 0 && s.rawSubEnd > startSec && s.rawSubStart < endSec)
-        .map((s: any) => {
-          const subStartSec = Math.max(startSec, Math.min(endSec - 0.15, s.rawSubStart));
-          const subEndSec = Math.min(endSec, Math.max(subStartSec + 0.15, s.rawSubEnd));
-          return {
-            id: s.id,
-            start_sec: Math.round(subStartSec * 100) / 100,
-            end_sec: Math.round(subEndSec * 100) / 100,
-            text: s.text,
-            highlightWord: s.highlightWord,
-          };
-        })
-        .sort((a: any, b: any) => a.start_sec - b.start_sec);
+      const clampCrit = (val: any, defVal: number) => Math.min(99, Math.max(58, Math.round(Number(val) || defVal)));
+      const hookScore = clampCrit(c.hook_score, 86);
+      const insightScore = clampCrit(c.insight_score, 85);
+      const flowScore = clampCrit(c.flow_score, 84);
+      const emotionScore = clampCrit(c.emotion_score, 83);
+      const weighted = Math.round(hookScore * 0.35 + insightScore * 0.30 + flowScore * 0.20 + emotionScore * 0.15);
+      const calibratedScore = Math.min(98, Math.max(68, weighted));
 
-      const cleanSubs = splitSubtitleToNaturalPhrases(rawNormalizedSubs, startSec, endSec);
+      const cleanSubs = sliceTranscriptToKineticBlocks(startSec, endSec, idx);
 
       const cleanBrolls = Array.isArray(c.broll_moments)
         ? c.broll_moments
@@ -1510,11 +1533,7 @@ ${JSON.stringify(auditInput)}`;
               if (bStart <= segDur && startSec > segDur) bStart += startSec;
               if (isNaN(bEnd) || bEnd <= bStart) bEnd = bStart + 3.0;
               else if (bEnd <= segDur && startSec > segDur) bEnd += startSec;
-              if (bStart < startSec) return null;
-              if (hasAudioPayload && audioOffset > 0 && bStart < startSec - 0.5 && bStart + audioOffset >= startSec - 0.5) {
-                bStart += audioOffset;
-                bEnd += audioOffset;
-              }
+              if (bStart < startSec) bStart = startSec + Math.min(2.5, segDur * 0.2);
               const categoryTag = String(b.category_tag || b.keyword || "Highlight").trim().slice(0, 20);
               const rawHeadline = String(b.headline || b.caption || categoryTag || "Poin Utama").trim();
               const conciseHeadline = rawHeadline.split(/\s+/).filter(Boolean).slice(0, 3).join(" ");
@@ -1570,11 +1589,6 @@ ${JSON.stringify(auditInput)}`;
             .slice(0, 2)
         : [];
 
-      const score = Math.min(98, Math.max(68, Math.round(Number(c.viral_score) || 84)));
-      const rawHookHeadline = String(c.hook_headline || c.title || "WAJIB TONTON SAMPAI HABIS!").split(/\r?\n/)[0].replace(/\s+/g, " ").trim();
-      const hookWords = rawHookHeadline.split(" ").filter(Boolean);
-      const hookHeadline = (hookWords.length > 8 ? hookWords.slice(0, 8).join(" ") : rawHookHeadline) || "WAJIB TONTON SAMPAI HABIS!";
-
       const ytFrameSlot = (() => {
         if (isLocalMode || !resolvedVideoId) return "";
         const ratioFrac = Math.max(0, Math.min(1, startSec / Math.max(1, safeTotalDuration)));
@@ -1588,18 +1602,21 @@ ${JSON.stringify(auditInput)}`;
         videoId: resolvedVideoId,
         coverImage: ytFrameSlot,
         thumbnailUrl: ytFrameSlot,
-        title: String(c.title || `Klip #${idx + 1}`),
+        title: clipTitle,
         hook_headline: hookHeadline,
-        full_transcript: String(c.full_transcript || "").trim(),
-        viral_score: score,
-        score,
-        score_breakdown: c.score_breakdown || {
-          hook: Math.min(98, score + 2),
-          insight: score,
-          flow: Math.max(65, score - 2),
-          emotion: Math.max(65, score - 1),
+        full_transcript: clipTranscriptText,
+        viral_score: calibratedScore,
+        score: calibratedScore,
+        score_breakdown: {
+          hook: hookScore,
+          insight: insightScore,
+          flow: flowScore,
+          emotion: emotionScore,
         },
-        alasan_viral: String(c.alasan_viral || "").trim(),
+        alasan_viral: String(
+          c.alasan_viral ||
+            `Hook pembuka (${hookScore}%) dengan kepadatan insight ${insightScore}% dan alur tuntas ${flowScore}%.`
+        ).trim(),
         start_sec: startSec,
         end_sec: endSec,
         start_seconds: startSec,
@@ -1615,29 +1632,30 @@ ${JSON.stringify(auditInput)}`;
 
     const elapsedSeconds = ((Date.now() - startTimeStamp) / 1000).toFixed(2);
     console.log(
-      `[Auto-Clip API] Selesai (${isLocalMode ? (hasAudioPayload ? "Local MP4 Audio WAV" : "Local MP4 Frames") : "YouTube"}) dalam ${elapsedSeconds}s | ${normalizedClips.length} klip non-overlapping (sorted descending by viral_score).`
+      `[Auto-Clip API] 3-Stage Transcript-First selesai (${isLocalMode ? (hasAudioPayload ? "Local MP4 Audio WAV" : "Local MP4 Frames") : "YouTube"}) dalam ${elapsedSeconds}s | ${normalizedFullTranscript.length} segmen transkrip -> ${normalizedClips.length} klip bernilai (sorted descending by viral_score).`
     );
 
     return res.json({
       success: true,
       mode: isLocalMode ? "local" : "youtube",
       videoId: resolvedVideoId,
-      videoTitle: parsed.video_title || videoTitle || fileName || "Video Analisis AI",
+      videoTitle: parsedStage1?.video_title || videoTitle || fileName || "Video Analisis AI",
       videoDurationSec: Math.round(safeTotalDuration * 100) / 100,
+      fullTranscript: normalizedFullTranscript,
       clips: normalizedClips,
     });
   } catch (err: any) {
-    console.error("[Auto-Clip API] Error:", err);
-    const rawMsg = String(err?.message || "Gagal memproses video dengan Gemini API.");
-    const statusCode = Number(err?.status || err?.code);
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal memproses video dengan Gemini API.");
+    console.error("[Auto-Clip API] Error:", friendly.status, friendly.message);
     const isRestrictedYt =
-      /fileUri|YouTube|private|unavailable|restricted|PERMISSION_DENIED|INVALID_ARGUMENT|NOT_FOUND|400|403|404/i.test(rawMsg);
-    const friendlyMsg = isRestrictedYt
-      ? `Video YouTube tidak dapat diproses langsung oleh Gemini AI (pastikan video bersifat publik, tidak dibatasi usia/wilayah, dan tautan valid). Detail: ${rawMsg}`
-      : rawMsg;
-    return res.status(Number.isFinite(statusCode) && statusCode >= 400 && statusCode < 500 ? statusCode : 500).json({
+      !extractGeminiErrorMeta(err).isRateLimit &&
+      /fileUri|YouTube|private|unavailable|restricted/i.test(String(err?.message || ""));
+    const finalMsg = isRestrictedYt
+      ? `Video YouTube tidak dapat diproses langsung oleh Gemini AI (pastikan video bersifat publik, tidak dibatasi usia/wilayah, dan tautan valid). Detail: ${friendly.message}`
+      : friendly.message;
+    return res.status(friendly.status).json({
       success: false,
-      error: friendlyMsg,
+      error: finalMsg,
     });
   }
 });
@@ -1665,8 +1683,14 @@ app.post("/api/analyze-url", async (req, res) => {
     const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
     const ai = getGenAI(bodyApiKey || headerApiKey);
     
-    if (ai) {
-      const prompt = `Analyze this YouTube video URL: ${url} (Video ID: ${videoId}).
+    if (!ai) {
+      return res.status(400).json({
+        success: false,
+        error: "GEMINI_API key belum tersedia di server (Settings > Secrets).",
+      });
+    }
+
+    const prompt = `Analyze this YouTube video URL: ${url} (Video ID: ${videoId}).
 Act as an expert social media viral clip editor (like Opus Clip / CapCut).
 Generate 4 highly engaging short video clips (15-60 seconds each) suitable for TikTok, YouTube Shorts, and Instagram Reels.
 Language: ${targetLanguage === "id" ? "Indonesian" : "English"}.
@@ -1698,110 +1722,31 @@ Return ONLY valid JSON in this exact structure:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
+    const response = await generateContentWithRetry(ai, {
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      },
+    }, { fallbackTextModel: "gemini-3.1-flash-lite" });
 
-      if (response.text) {
-        const parsed = JSON.parse(response.text);
-        // Ensure thumbnailUrl has youtube fallback
-        parsed.videoId = videoId;
-        if (!parsed.thumbnailUrl) {
-          parsed.thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-        }
-        return res.json(parsed);
-      }
+    if (!response.text) {
+      return res.status(502).json({ success: false, error: "Gemini tidak mengembalikan JSON." });
     }
-  } catch (err) {
-    console.warn("Gemini API call warning/fallback:", err);
+
+    const parsed = JSON.parse(response.text);
+    parsed.videoId = videoId;
+    if (!parsed.thumbnailUrl) {
+      parsed.thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+    return res.json(parsed);
+  } catch (err: any) {
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal menganalisis URL video.");
+    return res.status(friendly.status).json({
+      success: false,
+      error: friendly.message,
+    });
   }
-
-  // Default fallback data if no API key or fallback triggered
-  const fallbackClips = {
-    videoId: videoId,
-    videoTitle: url.includes("podcast") 
-      ? "Secrets of Modern AI SaaS & Viral Content Creation"
-      : "Cara Bikin Video YouTube Jadi Klip Shorts Viral dalam 1 Klik",
-    channelName: "Tech & Creator Studio",
-    totalDuration: "14:28",
-    thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-    clips: [
-      {
-        id: `clip-${videoId}-1`,
-        title: "🔥 Rahasia Trik 5 Detik Pertama Biar Video FYP",
-        hook: "Ternyata 90% penonton scroll kalau 3 detik awal gak menarik!",
-        startTime: 15,
-        endTime: 48,
-        duration: "00:33",
-        viralScore: 98,
-        scoreReason: "Hook pertanyaan kuat + solutif tinggi untuk algoritma TikTok",
-        aspectRatio: "9:16",
-        category: "🔥 Viral Hook",
-        captions: [
-          { id: "c1", start: 0, end: 2.2, text: "Ternyata 90% penonton bakal scroll...", highlight: "90% penonton" },
-          { id: "c2", start: 2.2, end: 4.8, text: "...kalau 3 detik pertama gak menarik!", highlight: "3 detik pertama" },
-          { id: "c3", start: 4.8, end: 8.0, text: "Gunakan trik pancingan emosi ini sekarang!", highlight: "pancingan emosi" }
-        ]
-      },
-      {
-        id: `clip-${videoId}-2`,
-        title: "⚡ Step-by-Step Edit Subtitle Otomatis Gaya Hormozi",
-        hook: "Subtitle warna-warni melayang ini beneran nambah watch time!",
-        startTime: 72,
-        endTime: 110,
-        duration: "00:38",
-        viralScore: 94,
-        scoreReason: "Tutorial langsung, retensi visual tinggi dengan kata kunci tebal",
-        aspectRatio: "9:16",
-        category: "💡 Tutorial",
-        captions: [
-          { id: "c4", start: 0, end: 2.5, text: "Subtitle warna-warni melayang ini...", highlight: "Subtitle warna-warni" },
-          { id: "c5", start: 2.5, end: 5.5, text: "...bisa menaikkan retensi penonton hingga 300%!", highlight: "300%" },
-          { id: "c6", start: 5.5, end: 9.0, text: "Ganti font ke Montserrat Bold dan beri stroke hitam.", highlight: "Montserrat Bold" }
-        ]
-      },
-      {
-        id: `clip-${videoId}-3`,
-        title: "🚀 Strategi Monetisasi Konten AI Tanpa Wajah",
-        hook: "Gak perlu tampil di depan kamera buat dapet puluhan juta dari Shorts!",
-        startTime: 180,
-        endTime: 225,
-        duration: "00:45",
-        viralScore: 91,
-        scoreReason: "Topik pencarian tinggi (faceless creator), konversi klik tinggi",
-        aspectRatio: "9:16",
-        category: "💰 Monetisasi",
-        captions: [
-          { id: "c7", start: 0, end: 3.0, text: "Gak perlu tampil di depan kamera...", highlight: "Gak perlu tampil" },
-          { id: "c8", start: 3.0, end: 6.2, text: "...buat dapetin penghasilan dari Shorts & Reels!", highlight: "Shorts & Reels" },
-          { id: "c9", start: 6.2, end: 10.0, text: "Gunakan AI repurposing untuk otomatisasi klip harian.", highlight: "AI repurposing" }
-        ]
-      },
-      {
-        id: `clip-${videoId}-4`,
-        title: "🧠 Mindset Kreator Konten Konsisten Tanpa Burnout",
-        hook: "Jangan buat 1 video untuk 1 platform. 1 video untuk 5 platform!",
-        startTime: 280,
-        endTime: 315,
-        duration: "00:35",
-        viralScore: 87,
-        scoreReason: "Pesan inspiratif, bagus untuk dibagikan (shareability)",
-        aspectRatio: "9:16",
-        category: "✨ Motivation",
-        captions: [
-          { id: "c10", start: 0, end: 2.8, text: "Jangan cuma upload di satu platform aja!", highlight: "satu platform" },
-          { id: "c11", start: 2.8, end: 6.0, text: "1 Video panjang bisa dipotong jadi 10 klip Shorts!", highlight: "10 klip Shorts" },
-          { id: "c12", start: 6.0, end: 9.5, text: "Kerja lebih pintar dengan bantuan AI automation.", highlight: "AI automation" }
-        ]
-      }
-    ]
-  };
-
-  return res.json(fallbackClips);
 });
 
 // Endpoint Auto Script (2-Stage Ultra-Accurate Verbatim Acoustic + Proofread via Gemini 2.5 Flash)
@@ -1887,7 +1832,7 @@ Keluarkan HANYA hasil transkrip mentah verbatim tanpa komentar pembuka/penutup.`
       });
     }
 
-    const stage1Resp = await ai.models.generateContent({
+    const stage1Resp = await generateContentWithRetry(ai, {
       model: "gemini-2.5-flash",
       contents: [...mediaParts, { text: stage1Prompt }],
       config: {
@@ -1944,13 +1889,17 @@ Tugas STAGE 2 (Orthography & Punctuation Proofread):
 
 Keluarkan HANYA naskah final yang sudah bersih dan siap salin tanpa kata pengantar apa pun.`;
 
-    const stage2Resp = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ text: stage2Prompt }],
-      config: {
-        temperature: 0.0,
+    const stage2Resp = await generateContentWithRetry(
+      ai,
+      {
+        model: "gemini-2.5-flash",
+        contents: [{ text: stage2Prompt }],
+        config: {
+          temperature: 0.0,
+        },
       },
-    });
+      { fallbackTextModel: "gemini-3.1-flash-lite" }
+    );
 
     const finalTranscript = (stage2Resp.text || stage1Transcript).trim();
 
@@ -1963,10 +1912,11 @@ Keluarkan HANYA naskah final yang sudah bersih dan siap salin tanpa kata pengant
       usedVocab: Boolean(cleanVocab),
     });
   } catch (err: any) {
-    console.error("[Auto Script API] Error:", err);
-    return res.status(500).json({
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal menyalin video menjadi teks.");
+    console.error("[Auto Script API] Error:", friendly.status, friendly.message);
+    return res.status(friendly.status).json({
       success: false,
-      error: err?.message || "Gagal menyalin video menjadi teks.",
+      error: friendly.message,
     });
   }
 });
@@ -2037,7 +1987,7 @@ Tugas Anda:
       });
     }
 
-    const resp = await ai.models.generateContent({
+    const resp = await generateContentWithRetry(ai, {
       model: "gemini-2.5-flash",
       contents: [...mediaParts, { text: prompt }],
       config: {
@@ -2073,10 +2023,11 @@ Tugas Anda:
       subtitles,
     });
   } catch (err: any) {
-    console.error("[Generate Subtitles API] Error:", err);
-    return res.status(500).json({
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal membuat subtitle otomatis.");
+    console.error("[Generate Subtitles API] Error:", friendly.status, friendly.message);
+    return res.status(friendly.status).json({
       success: false,
-      error: err?.message || "Gagal membuat subtitle otomatis.",
+      error: friendly.message,
     });
   }
 });
@@ -2147,24 +2098,28 @@ Buat paket copywriting teroptimasi per platform dengan gaya khas algoritma masin
 - instagram_reels: Hook baris pertama kuat ("Baca sampai habis" / pertanyaan pemicu simpan/share), caption terstruktur rapi, hashtag niche relevan.
 - facebook_reels: Gaya storytelling/relatable yang mendorong diskusi di kolom komentar & share.`;
 
-    const resp = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ text: prompt }],
-      config: {
-        temperature: 0.7,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            tiktok: platformSchema,
-            youtube_shorts: platformSchema,
-            instagram_reels: platformSchema,
-            facebook_reels: platformSchema,
+    const resp = await generateContentWithRetry(
+      ai,
+      {
+        model: "gemini-2.5-flash",
+        contents: [{ text: prompt }],
+        config: {
+          temperature: 0.7,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              tiktok: platformSchema,
+              youtube_shorts: platformSchema,
+              instagram_reels: platformSchema,
+              facebook_reels: platformSchema,
+            },
+            required: ["tiktok", "youtube_shorts", "instagram_reels", "facebook_reels"],
           },
-          required: ["tiktok", "youtube_shorts", "instagram_reels", "facebook_reels"],
         },
       },
-    });
+      { fallbackTextModel: "gemini-3.1-flash-lite" }
+    );
 
     const rawJson = (resp.text || "{}").trim();
     let parsed: any = {};
@@ -2199,10 +2154,11 @@ Buat paket copywriting teroptimasi per platform dengan gaya khas algoritma masin
       },
     });
   } catch (err: any) {
-    console.error("[Generate Publish Copy API] Error:", err);
-    return res.status(500).json({
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal membuat caption & hashtag otomatis.");
+    console.error("[Generate Publish Copy API] Error:", friendly.status, friendly.message);
+    return res.status(friendly.status).json({
       success: false,
-      error: err?.message || "Gagal membuat caption & hashtag otomatis.",
+      error: friendly.message,
     });
   }
 });
