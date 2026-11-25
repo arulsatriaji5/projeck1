@@ -872,12 +872,15 @@ app.post("/api/auto-clip", async (req, res) => {
       : `${minSeconds} sampai ${maxSeconds} detik per klip`;
 
     const baseMediaParts: Array<any> = [];
-    if (!isLocalMode && resolvedVideoId) {
-      baseMediaParts.push({
-        fileData: {
-          fileUri: `https://www.youtube.com/watch?v=${resolvedVideoId}`,
-        },
-      });
+    if (!isLocalMode && resolvedVideoId && /^[A-Za-z0-9_-]{11}$/.test(resolvedVideoId)) {
+      const youtubeUri = `https://www.youtube.com/watch?v=${resolvedVideoId}`;
+      if (youtubeUri.trim().length > 0) {
+        baseMediaParts.push({
+          fileData: {
+            fileUri: youtubeUri,
+          },
+        });
+      }
     }
     if (isLocalMode && hasAudioPayload) {
       const cleanAudioBase64 = audioBase64.includes(",")
@@ -1824,12 +1827,15 @@ Keluarkan HANYA hasil transkrip mentah verbatim tanpa komentar pembuka/penutup.`
           data: cleanAudioB64,
         },
       });
-    } else if (resolvedYtId) {
-      mediaParts.push({
-        fileData: {
-          fileUri: `https://www.youtube.com/watch?v=${resolvedYtId}`,
-        },
-      });
+    } else if (resolvedYtId && /^[A-Za-z0-9_-]{11}$/.test(resolvedYtId)) {
+      const youtubeUri = `https://www.youtube.com/watch?v=${resolvedYtId}`;
+      if (youtubeUri.trim().length > 0) {
+        mediaParts.push({
+          fileData: {
+            fileUri: youtubeUri,
+          },
+        });
+      }
     }
 
     const stage1Resp = await generateContentWithRetry(ai, {
@@ -1979,12 +1985,15 @@ Tugas Anda:
           data: cleanAudioB64,
         },
       });
-    } else if (resolvedYtId) {
-      mediaParts.push({
-        fileData: {
-          fileUri: `https://www.youtube.com/watch?v=${resolvedYtId}`,
-        },
-      });
+    } else if (resolvedYtId && /^[A-Za-z0-9_-]{11}$/.test(resolvedYtId)) {
+      const youtubeUri = `https://www.youtube.com/watch?v=${resolvedYtId}`;
+      if (youtubeUri.trim().length > 0) {
+        mediaParts.push({
+          fileData: {
+            fileUri: youtubeUri,
+          },
+        });
+      }
     }
 
     const resp = await generateContentWithRetry(ai, {
