@@ -39,6 +39,7 @@ import {
   isStaticHost,
   MISSING_GEMINI_KEY_MESSAGE_ID,
 } from './utils/geminiKey';
+import { pickBestHighlightWordClient } from './utils/subtitleHelpers';
 
 type ActiveWorkspaceView =
   | 'home'
@@ -324,12 +325,13 @@ export default function App() {
               let relEnd = inputsAreAbs && Number.isFinite(rawE) ? Math.max(relStart, rawE - startSec) : Math.max(relStart, Number(s.end) || relStart);
               relStart = Math.min(clipDuration, relStart);
               relEnd = Math.min(clipDuration, relEnd);
-              const hw = String(s.highlightWord || s.highlight || '').trim();
+              const subText = String(s.text || '').trim();
+              const hw = pickBestHighlightWordClient(subText, String(s.highlightWord || s.highlight || '').trim());
               return {
                 id: String(s.id || `sub-${idx + 1}-${sIdx + 1}`),
                 start: Math.round(relStart * 100) / 100,
                 end: Math.round(relEnd * 100) / 100,
-                text: String(s.text || '').trim(),
+                text: subText,
                 highlight: hw || undefined,
                 highlightWord: hw || undefined,
               };

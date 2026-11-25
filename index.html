@@ -12737,6 +12737,10 @@
       return match ? match[1] : null;
     }
 
+    function extractYoutubeVideoId(url) {
+      return extractYouTubeId(url);
+    }
+
     function showInputError(message) {
       const alertBox = document.getElementById("apiErrorAlert");
       if (alertBox) {
@@ -13853,6 +13857,70 @@
       return subList;
     }
 
+    const SUBTITLE_HIGHLIGHT_STOP_WORDS = {
+      yang: 1, dan: 1, di: 1, ke: 1, dari: 1, ini: 1, itu: 1, untuk: 1, pada: 1, dengan: 1, adalah: 1, atau: 1,
+      juga: 1, kalau: 1, jika: 1, jadi: 1, karena: 1, agar: 1, supaya: 1, bisa: 1, akan: 1, sudah: 1, belum: 1,
+      the: 1, a: 1, an: 1, and: 1, or: 1, of: 1, to: 1, in: 1, is: 1, it: 1, for: 1, that: 1, this: 1
+    };
+
+    function pickBestHighlightWordClient(textOrWords, preferredWord) {
+      const stripPunct = function (w) {
+        return String(w || "").replace(/^[^\w\u00C0-\u024F]+|[^\w\u00C0-\u024F]+$/g, "");
+      };
+      const rawTokens = Array.isArray(textOrWords)
+        ? textOrWords.map(function (w) { return String(w || "").trim(); }).filter(Boolean)
+        : String(textOrWords || "").trim().split(/\s+/).filter(Boolean);
+
+      if (rawTokens.length === 0) return "";
+
+      const fullText = rawTokens.join(" ");
+      const prefRaw = String(preferredWord || "").trim();
+      if (prefRaw) {
+        try {
+          const escaped = prefRaw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const exactMatch = fullText.match(new RegExp(escaped, "i"));
+          if (exactMatch && exactMatch[0]) return exactMatch[0];
+        } catch (e) {}
+
+        const prefTok = stripPunct(prefRaw.split(/\s+/)[0] || "").toLowerCase();
+        if (prefTok) {
+          for (let wi = 0; wi < rawTokens.length; wi++) {
+            const clean = stripPunct(rawTokens[wi]);
+            if (clean.toLowerCase() === prefTok) return clean || rawTokens[wi];
+          }
+          if (prefTok.length >= 3) {
+            for (let wi = 0; wi < rawTokens.length; wi++) {
+              const clean = stripPunct(rawTokens[wi]);
+              const low = clean.toLowerCase();
+              if (low && (low.indexOf(prefTok) !== -1 || prefTok.indexOf(low) !== -1)) {
+                return clean || rawTokens[wi];
+              }
+            }
+          }
+        }
+      }
+
+      let best = stripPunct(rawTokens[rawTokens.length - 1]) || rawTokens[rawTokens.length - 1] || rawTokens[0];
+      let bestScore = -1;
+      for (let wi = 0; wi < rawTokens.length; wi++) {
+        const clean = stripPunct(rawTokens[wi]);
+        if (!clean) continue;
+        const lower = clean.toLowerCase();
+        const isUpperKey = clean.length >= 2 && clean === clean.toUpperCase() && /[A-Z\u00C0-\u024F]/.test(clean);
+        const sc =
+          clean.length +
+          (clean.length >= 4 ? 4 : 0) +
+          (isUpperKey ? 4 : 0) +
+          (/\d/.test(clean) ? 4 : 0) +
+          (SUBTITLE_HIGHLIGHT_STOP_WORDS[lower] ? 0 : 3);
+        if (sc > bestScore) {
+          bestScore = sc;
+          best = clean;
+        }
+      }
+      return best || rawTokens[0] || "";
+    }
+
     function sliceExactSubtitlesFromTranscriptClient(fullTranscript, clipStartSec, clipEndSec, clipIdx) {
       const segDur = Math.max(1, clipEndSec - clipStartSec);
       const wordStream = [];
@@ -14651,35 +14719,6 @@
           collapsed.push(curTok);
         }
         return collapsed.join(" ");
-      };
-
-      const stopWordsMap = { yang: 1, dan: 1, di: 1, ke: 1, dari: 1, ini: 1, itu: 1, untuk: 1, pada: 1, dengan: 1, adalah: 1, atau: 1, the: 1, a: 1, an: 1, and: 1, of: 1, to: 1, in: 1, is: 1, it: 1, for: 1, that: 1, this: 1 };
-      const pickBestHighlightWordClient = function (words, rawHl) {
-        if (!Array.isArray(words) || words.length === 0) return "";
-        const rawTok = stripWordPunct(String(rawHl || "").split(/\s+/)[0] || "");
-        if (rawTok) {
-          for (let wi = 0; wi < words.length; wi++) {
-            if (stripWordPunct(words[wi]) === rawTok) return words[wi];
-          }
-          if (rawTok.length >= 3) {
-            for (let wi = 0; wi < words.length; wi++) {
-              const wc = stripWordPunct(words[wi]);
-              if (wc && (wc.indexOf(rawTok) !== -1 || rawTok.indexOf(wc) !== -1)) return words[wi];
-            }
-          }
-        }
-        let best = words[words.length - 1];
-        let bestScore = -1;
-        for (let wi = 0; wi < words.length; wi++) {
-          const clean = stripWordPunct(words[wi]);
-          if (!clean) continue;
-          const sc = clean.length + (/\d/.test(clean) ? 4 : 0) + (stopWordsMap[clean] ? 0 : 3);
-          if (sc > bestScore) {
-            bestScore = sc;
-            best = words[wi];
-          }
-        }
-        return best;
       };
 
       const nonEmptyRaw = (Array.isArray(rawSubs) ? rawSubs : []).filter(function (s) {
