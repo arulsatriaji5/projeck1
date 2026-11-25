@@ -1114,6 +1114,155 @@
     .kl-tpl-body { display: inline-block; animation: klTplBodyUp 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
     .kl-tpl-live-accent { display: inline-block; animation: klTplLiveDot 1.2s ease-in-out infinite; }
 
+    /* Live Looping Mini-Previews for Subtitle Animation Cards (CapCut Keterangan Style) */
+    @keyframes klAnimKolaseC0 {
+      0%, 10% { transform: scale(0.4) rotate(-5deg); opacity: 0; }
+      20%, 84% { transform: scale(1) rotate(-3deg); opacity: 1; }
+      95%, 100% { transform: scale(0.8) rotate(-3deg); opacity: 0; }
+    }
+    @keyframes klAnimKolaseC1 {
+      0%, 30% { transform: scale(0.4) rotate(4deg); opacity: 0; }
+      42%, 84% { transform: scale(1.06) rotate(2.5deg); opacity: 1; }
+      95%, 100% { transform: scale(0.8) rotate(2.5deg); opacity: 0; }
+    }
+    @keyframes klAnimKolaseC2 {
+      0%, 52% { transform: scale(0.4) rotate(-4deg); opacity: 0; }
+      64%, 84% { transform: scale(1) rotate(-2deg); opacity: 1; }
+      95%, 100% { transform: scale(0.8) rotate(-2deg); opacity: 0; }
+    }
+    .kl-anim-kolase { display: inline-flex; align-items: center; gap: 3px; flex-wrap: nowrap; }
+    .kl-anim-kolase-b {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.56rem;
+      font-weight: 900;
+      line-height: 1.15;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+    }
+    .kl-anim-kolase-b.c0 { background: #FB7185; color: #FFFFFF; animation: klAnimKolaseC0 2.5s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+    .kl-anim-kolase-b.c1 { background: #FACC15; color: #0F172A; animation: klAnimKolaseC1 2.5s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+    .kl-anim-kolase-b.c2 { background: #34D399; color: #064E3B; animation: klAnimKolaseC2 2.5s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+
+    @keyframes klAnimStackRow1 {
+      0%, 6% { transform: scale(0.65); opacity: 0; }
+      18%, 85% { transform: scale(1.04); opacity: 1; }
+      96%, 100% { transform: scale(0.88); opacity: 0; }
+    }
+    @keyframes klAnimStackRow2 {
+      0%, 26% { transform: translateY(4px); opacity: 0; }
+      40%, 85% { transform: translateY(0); opacity: 1; }
+      96%, 100% { transform: translateY(-2px); opacity: 0; }
+    }
+    @keyframes klAnimStackRow3 {
+      0%, 48% { transform: scale(0.75); opacity: 0; }
+      62%, 85% { transform: scale(1.05); opacity: 1; }
+      96%, 100% { transform: scale(0.85); opacity: 0; }
+    }
+    .kl-anim-bertumpuk { display: flex; flex-direction: column; align-items: center; line-height: 0.92; font-weight: 900; }
+    .kl-anim-bertumpuk-r1 { font-size: 0.72rem; color: #F472B6; -webkit-text-stroke: 0.8px #0F172A; animation: klAnimStackRow1 2.5s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+    .kl-anim-bertumpuk-r2 { font-size: 0.44rem; color: #FFFFFF; letter-spacing: 0.04em; animation: klAnimStackRow2 2.5s ease-out infinite; }
+    .kl-anim-bertumpuk-r3 { font-size: 0.62rem; color: #C084FC; -webkit-text-stroke: 0.7px #0F172A; animation: klAnimStackRow3 2.5s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+    @keyframes klAnimKomboA {
+      0%, 100% { transform: scale(1); color: #FFFFFF; }
+      20%, 42% { transform: scale(1.12); color: #FACC15; }
+      55% { transform: scale(1); color: #FFFFFF; }
+    }
+    @keyframes klAnimKomboB {
+      0%, 42%, 100% { transform: scale(1); color: #CBD5E1; }
+      56%, 80% { transform: scale(1.12); color: #38BDF8; }
+    }
+    .kl-anim-kombo { display: flex; flex-direction: column; align-items: center; line-height: 1.02; font-weight: 900; }
+    .kl-anim-kombo-row { display: inline-flex; align-items: baseline; gap: 3px; }
+    .kl-anim-kombo-lg { font-size: 0.68rem; animation: klAnimKomboA 2.4s ease-in-out infinite; }
+    .kl-anim-kombo-sm { font-size: 0.46rem; letter-spacing: 0.04em; opacity: 0.92; animation: klAnimKomboB 2.4s ease-in-out infinite; }
+
+    @keyframes klAnimTumbuhW1 {
+      0%, 100% { transform: scale(0.88) rotate(-4deg); color: #FFFFFF; }
+      20%, 38% { transform: scale(1.16) rotate(-5deg); color: #FACC15; }
+    }
+    @keyframes klAnimTumbuhW2 {
+      0%, 28%, 100% { transform: scale(0.86) rotate(3deg); color: #CBD5E1; }
+      46%, 68% { transform: scale(1.26) rotate(4deg); color: #38BDF8; }
+    }
+    @keyframes klAnimTumbuhW3 {
+      0%, 56%, 100% { transform: scale(0.82) rotate(-2deg); color: #FFFFFF; }
+      72%, 88% { transform: scale(1.1) rotate(-3deg); color: #4ADE80; }
+    }
+    .kl-anim-tumbuh { display: inline-flex; align-items: baseline; gap: 3px; font-weight: 900; }
+    .kl-anim-tumbuh-w1 { font-size: 0.56rem; display: inline-block; animation: klAnimTumbuhW1 2.4s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+    .kl-anim-tumbuh-w2 { font-size: 0.74rem; display: inline-block; animation: klAnimTumbuhW2 2.4s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+    .kl-anim-tumbuh-w3 { font-size: 0.5rem; display: inline-block; animation: klAnimTumbuhW3 2.4s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+
+    @keyframes klAnimAcakA {
+      0%, 12% { transform: translate(-7px, 2px) scale(0.75); opacity: 0.35; }
+      28%, 82% { transform: translate(-5px, 0) scale(1.04); opacity: 1; color: #FACC15; }
+      95%, 100% { transform: translate(-7px, 0) scale(0.85); opacity: 0.35; }
+    }
+    @keyframes klAnimAcakB {
+      0%, 38% { transform: translate(8px, 3px) scale(0.75); opacity: 0.35; }
+      54%, 82% { transform: translate(6px, 0) scale(1.04); opacity: 1; color: #38BDF8; }
+      95%, 100% { transform: translate(8px, 0) scale(0.85); opacity: 0.35; }
+    }
+    .kl-anim-acak { display: flex; flex-direction: column; align-items: center; line-height: 1.05; font-size: 0.55rem; font-weight: 900; color: #FFFFFF; }
+    .kl-anim-acak-a { display: inline-block; animation: klAnimAcakA 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+    .kl-anim-acak-b { display: inline-block; animation: klAnimAcakB 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+    @keyframes klAnimMultiSlide {
+      0%, 8% { transform: translateY(6px); opacity: 0; color: #FFFFFF; }
+      22%, 45% { transform: translateY(0); opacity: 1; color: #FACC15; }
+      60%, 86% { transform: translateY(0); opacity: 1; color: #FFFFFF; }
+      96%, 100% { transform: translateY(-4px); opacity: 0; }
+    }
+    @keyframes klAnimMultiSlide2 {
+      0%, 32% { transform: translateY(6px); opacity: 0; color: #FFFFFF; }
+      48%, 74% { transform: translateY(0); opacity: 1; color: #38BDF8; }
+      86% { transform: translateY(0); opacity: 1; color: #FFFFFF; }
+      96%, 100% { transform: translateY(-4px); opacity: 0; }
+    }
+    .kl-anim-multi { display: flex; flex-direction: column; align-items: center; line-height: 1.05; font-size: 0.52rem; font-weight: 900; }
+    .kl-anim-multi-1 { display: block; animation: klAnimMultiSlide 2.5s ease-out infinite; }
+    .kl-anim-multi-2 { display: block; animation: klAnimMultiSlide2 2.5s ease-out infinite; }
+
+    @keyframes klAnimSingleLineSweep {
+      0%, 100% { transform: translateX(0); color: #FACC15; }
+      33% { color: #FFFFFF; }
+      66% { color: #38BDF8; }
+    }
+    @keyframes klAnimSingleWordB {
+      0%, 32%, 100% { color: #FFFFFF; transform: scale(1); }
+      45%, 64% { color: #FACC15; transform: scale(1.12); }
+    }
+    @keyframes klAnimSingleWordC {
+      0%, 64%, 100% { color: #FFFFFF; transform: scale(1); }
+      76%, 94% { color: #38BDF8; transform: scale(1.12); }
+    }
+    .kl-anim-satubaris { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; font-size: 0.48rem; font-weight: 900; color: #FFFFFF; letter-spacing: 0.02em; }
+    .kl-anim-sb1 { display: inline-block; animation: klAnimSingleLineSweep 2.4s ease-in-out infinite; }
+    .kl-anim-sb2 { display: inline-block; animation: klAnimSingleWordB 2.4s ease-in-out infinite; }
+    .kl-anim-sb3 { display: inline-block; animation: klAnimSingleWordC 2.4s ease-in-out infinite; }
+
+    @keyframes klAnimGenericBounce {
+      0%, 100% { transform: scale(0.76); opacity: 0.5; }
+      25% { transform: scale(1.18); opacity: 1; }
+      45%, 80% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes klAnimGenericSlide {
+      0%, 10% { transform: translateY(8px); opacity: 0; }
+      30%, 82% { transform: translateY(0); opacity: 1; }
+      95%, 100% { transform: translateY(-4px); opacity: 0; }
+    }
+    @keyframes klAnimGenericZoomOut {
+      0%, 10% { transform: scale(1.36); opacity: 0.35; }
+      28%, 82% { transform: scale(1); opacity: 1; }
+      95%, 100% { transform: scale(0.9); opacity: 0.4; }
+    }
+    .kl-anim-generic-bounce { display: inline-block; font-size: 0.62rem; font-weight: 900; color: #FFF; animation: klAnimGenericBounce 2.2s cubic-bezier(0.22, 1.4, 0.36, 1) infinite; }
+    .kl-anim-generic-slide { display: inline-block; font-size: 0.62rem; font-weight: 900; color: #FFF; animation: klAnimGenericSlide 2.2s ease-out infinite; }
+    .kl-anim-generic-zoomout { display: inline-block; font-size: 0.62rem; font-weight: 900; color: #FACC15; animation: klAnimGenericZoomOut 2.2s ease-out infinite; }
+    .kl-anim-generic-fade { display: inline-block; font-size: 0.62rem; font-weight: 900; color: #E2E8F0; animation: klTplEditorialBreath 2.2s ease-in-out infinite; }
+
     .subtitle-style-card {
       cursor: pointer;
       background-color: var(--neu-bg) !important;
@@ -1529,6 +1678,140 @@
 
     .rt-word-hidden {
       opacity: 0;
+    }
+
+    @keyframes rtWordPopIn {
+      0% { transform: scale(0.68); opacity: 0.35; }
+      70% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes rtWordSlideUpIn {
+      0% { transform: translateY(8px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .rt-anim-pop-word {
+      display: inline-block;
+      animation: rtWordPopIn 0.2s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+    }
+
+    /* 7 Kinetic Subtitle Stage Layouts */
+    .rt-kolase-wrap {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.22em 0.28em;
+    }
+    .rt-kolase-pill {
+      display: inline-block;
+      padding: 0.12em 0.44em;
+      border-radius: 0.34em;
+      font-weight: 900;
+      line-height: 1.12;
+      box-shadow: 0 3px 10px rgba(2, 6, 23, 0.45);
+      border: 1.5px solid rgba(15, 23, 42, 0.25);
+      -webkit-text-stroke: 0px transparent !important;
+      text-shadow: none !important;
+    }
+    .rt-kolase-c0 { background: #FB7185; color: #FFFFFF; transform: rotate(-2.4deg); }
+    .rt-kolase-c1 { background: #FACC15; color: #0F172A; transform: rotate(2.2deg); }
+    .rt-kolase-c2 { background: #34D399; color: #064E3B; transform: rotate(-1.6deg); }
+    .rt-kolase-active {
+      transform: scale(1.12) rotate(0deg);
+      box-shadow: 0 5px 14px rgba(2, 6, 23, 0.6);
+      z-index: 2;
+    }
+
+    .rt-bertumpuk-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.04em;
+      line-height: 0.96;
+    }
+    .rt-bertumpuk-row-top { font-size: 1.32em; font-weight: 900; }
+    .rt-bertumpuk-row-mid { font-size: 0.78em; font-weight: 800; letter-spacing: 0.03em; }
+    .rt-bertumpuk-row-bot { font-size: 1.12em; font-weight: 900; }
+
+    .rt-kombo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.08em;
+      line-height: 1.05;
+    }
+    .rt-kombo-row {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.22em;
+    }
+    .rt-kombo-lg { font-size: 1.24em; font-weight: 900; }
+    .rt-kombo-sm { font-size: 0.74em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .rt-tumbuh-wrap {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.14em 0.26em;
+      line-height: 1.08;
+    }
+    .rt-tumbuh-word {
+      display: inline-block;
+      font-weight: 900;
+      transform-origin: center center;
+    }
+
+    .rt-acak-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.1em;
+      line-height: 1.08;
+    }
+    .rt-acak-row-a {
+      display: inline-flex;
+      gap: 0.28em;
+      transform: translateX(-7%);
+    }
+    .rt-acak-row-b {
+      display: inline-flex;
+      gap: 0.28em;
+      transform: translateX(8%);
+    }
+    .rt-acak-word { display: inline-block; font-weight: 900; }
+
+    .rt-multibaris-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.08em;
+      line-height: 1.12;
+    }
+    .rt-multibaris-row {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.24em;
+    }
+    .rt-multibaris-slide {
+      display: inline-block;
+      animation: rtWordSlideUpIn 0.22s ease-out both;
+    }
+
+    .rt-satubaris-wrap {
+      display: inline-flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      gap: 0.26em;
+      max-width: 100%;
     }
 
     .rt-gold-gradient-word {
@@ -1987,12 +2270,12 @@
       background-color: var(--neu-bg);
       border: 1.5px solid rgba(255, 255, 255, 0.68);
       border-radius: 0.68rem;
-      padding: 0.38rem 0.28rem;
+      padding: 0.36rem 0.28rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.16rem;
+      gap: 0.22rem;
       cursor: pointer;
       text-align: center;
       box-shadow: 3px 3px 6px rgba(163, 177, 198, 0.45), -3px -3px 6px rgba(255, 255, 255, 0.86);
@@ -2015,10 +2298,24 @@
       font-size: 0.92rem;
     }
 
-    .text-studio-anim-card span {
-      font-size: 0.61rem;
+    .text-studio-anim-card > span {
+      font-size: 0.6rem;
       font-weight: 700;
-      line-height: 1.1;
+      line-height: 1.12;
+      max-width: 100%;
+    }
+
+    .text-studio-anim-preview {
+      width: 100%;
+      height: 44px;
+      border-radius: 0.48rem;
+      background: linear-gradient(160deg, #071324 0%, #112240 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.2rem 0.26rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .broll-card-overlay {
@@ -2275,8 +2572,9 @@
     /* ClipA Studio Zero-Scroll Locked Editor (Soft Neumorphism #E6ECF5 + Navy #0A192F + Royal Blue #2563EB) */
     @media (min-width: 768px) {
       .main-workspace.editor-locked-mode {
-        height: calc(100vh - 53px) !important;
-        min-height: calc(100vh - 53px) !important;
+        height: calc(100dvh - 56px) !important;
+        min-height: calc(100dvh - 56px) !important;
+        max-height: calc(100dvh - 56px) !important;
         overflow: hidden !important;
         padding: 0 !important;
         display: flex !important;
@@ -2298,6 +2596,7 @@
       .main-workspace.editor-locked-mode {
         height: 100vh !important;
         min-height: 100vh !important;
+        max-height: 100vh !important;
       }
       #view-editor {
         height: 100vh;
@@ -3878,25 +4177,57 @@
       text-overflow: ellipsis;
     }
 
-    /* Authentic CapCut-Style Mobile Studio (< 768px) */
-    .editor-mobile-topbar {
-      display: none;
+    /* Unified Global Mobile Navbar (56px Navy #0A192F + Borderless Logo + Royal Blue Hamburger) */
+    .global-mobile-topbar {
+      height: 56px;
+      min-height: 56px;
+      background-color: #0A192F !important;
+      padding: 0 1rem !important;
+      z-index: 1030;
     }
 
+    .editor-mobile-res-select {
+      background-color: #FFFFFF !important;
+      color: #0A192F !important;
+      border: 1px solid rgba(10, 25, 47, 0.16) !important;
+      font-size: 0.67rem !important;
+      font-weight: 700 !important;
+      height: 27px !important;
+      padding: 0 1.25rem 0 0.42rem !important;
+      border-radius: 0.55rem !important;
+      box-shadow: var(--neu-shadow-inset-sm) !important;
+      width: auto !important;
+    }
+
+    .editor-mobile-export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      height: 27px;
+      font-size: 0.69rem;
+      font-weight: 700;
+      padding: 0 0.58rem;
+      border-radius: 0.55rem !important;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .editor-mobile-export-btn.d-none,
+    #editorMobileExportResSelect.d-none {
+      display: none !important;
+    }
+
+    /* Authentic CapCut-Style Mobile Studio (< 768px) */
     @media (max-width: 767.98px) {
       body.editor-mobile-locked {
         overflow: hidden !important;
         height: 100dvh !important;
       }
 
-      body.editor-mobile-locked .global-mobile-topbar {
-        display: none !important;
-      }
-
       .main-workspace.editor-locked-mode {
-        height: 100dvh !important;
-        max-height: 100dvh !important;
-        min-height: 100dvh !important;
+        height: calc(100dvh - 56px) !important;
+        max-height: calc(100dvh - 56px) !important;
+        min-height: calc(100dvh - 56px) !important;
         overflow: hidden !important;
         padding: 0 !important;
         display: flex !important;
@@ -3904,56 +4235,81 @@
       }
 
       #view-editor {
-        height: 100dvh;
-        max-height: 100dvh;
+        height: calc(100dvh - 56px);
+        max-height: calc(100dvh - 56px);
         overflow: hidden;
         display: flex;
         flex-direction: column;
       }
 
       .capcut-editor-shell {
-        height: 100dvh;
-        max-height: 100dvh;
+        height: calc(100dvh - 56px);
+        max-height: calc(100dvh - 56px);
         overflow: hidden;
         padding-bottom: 64px;
       }
 
-      .editor-mobile-topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 48px;
-        min-height: 48px;
-        flex-shrink: 0;
-        background-color: #0A192F;
-        color: #FFFFFF;
-        padding: 0 0.75rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-        z-index: 56;
-        gap: 0.5rem;
+      .editor-top-mode-bar {
+        padding: 0.2rem 0.5rem !important;
+        gap: 0.35rem !important;
       }
 
-      .editor-mobile-res-select {
-        background-color: #112240 !important;
-        color: #FFFFFF !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        font-size: 0.7rem !important;
-        font-weight: 700 !important;
-        height: 28px !important;
-        padding: 0 1.45rem 0 0.5rem !important;
-        border-radius: 0.5rem !important;
-        box-shadow: none !important;
-        width: auto !important;
+      .editor-mode-pill-btn {
+        font-size: 0.68rem !important;
+        padding: 0.2rem 0.5rem !important;
+        gap: 0.25rem !important;
       }
 
       #editorExportProgressWrap {
-        top: 48px !important;
+        top: 40px !important;
       }
 
       #editorQuickLoaderPanel {
-        top: 88px !important;
-        overflow-y: auto !important;
-        align-items: flex-start !important;
+        top: 40px !important;
+        bottom: 0 !important;
+        height: calc(100% - 40px) !important;
+        padding: 0.5rem 0 0.75rem !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+      }
+
+      #editorQuickLoaderPanel.d-none {
+        display: none !important;
+      }
+
+      #modePickerCardsCarousel {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 1rem !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.25rem 1.25rem 0.5rem !important;
+        margin: 0 !important;
+        scrollbar-width: none;
+        --bs-gutter-x: 0;
+        --bs-gutter-y: 0;
+      }
+
+      #modePickerCardsCarousel::-webkit-scrollbar {
+        display: none;
+      }
+
+      #modePickerCardsCarousel > .mode-picker-card-col {
+        width: 82vw !important;
+        max-width: 82vw !important;
+        flex: 0 0 auto !important;
+        scroll-snap-align: center;
+        padding: 0 !important;
+      }
+
+      .editor-entry-mode-card {
+        padding: 1.05rem 0.95rem !important;
       }
 
       .studio-upper-split {
@@ -4003,23 +4359,66 @@
       }
 
       .timeline-actions-bar {
-        height: 28px !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto;
-        gap: 0.25rem !important;
-      }
-
-      .timeline-zoom-control-group {
-        min-width: 118px !important;
-        gap: 0.25rem !important;
-      }
-
-      .timeline-zoom-control-group input[type="range"] {
-        width: 62px !important;
+        display: none !important;
       }
 
       .timeline-scroll-wrap {
         padding: 0.28rem 0.34rem;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      .timeline-tracks-scroller {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: flex-start;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+        scrollbar-width: none;
+      }
+
+      .timeline-tracks-scroller::-webkit-scrollbar {
+        display: none;
+      }
+
+      .timeline-mobile-spacer {
+        flex: 0 0 50%;
+        width: 50%;
+        min-width: 50%;
+        height: 1px;
+        pointer-events: none;
+      }
+
+      .timeline-zoom-inner {
+        flex: 0 0 auto;
+      }
+
+      .mobile-center-white-playhead {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        background: #FFFFFF;
+        box-shadow: 0 0 8px rgba(15, 23, 42, 0.55);
+        z-index: 30;
+        pointer-events: none;
+      }
+
+      .mobile-center-white-playhead::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 2px 2px 50% 50%;
+        background: #FFFFFF;
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.45);
       }
 
       .timeline-labels-col {
@@ -4053,7 +4452,7 @@
       #subtitleTrackContainer { height: 38px !important; }
       #overlayTrackContainer { height: 38px !important; }
 
-      /* Slide-Up Bottom Edit Sheet & Fixed CapCut Icon Toolbar */
+      /* Slide-Up Bottom Edit Sheet & Two-Level CapCut Icon Toolbar */
       .studio-right-panel-col,
       .studio-props-card {
         display: contents !important;
@@ -4079,6 +4478,51 @@
         gap: 0.35rem;
       }
 
+      .capcut-desktop-dock-group {
+        display: none !important;
+      }
+
+      .capcut-mobile-dock-level1,
+      .capcut-mobile-dock-level2 {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        gap: 0.35rem;
+      }
+
+      .capcut-mobile-dock-level1 {
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .capcut-mobile-dock-level1::-webkit-scrollbar,
+      .capcut-mobile-subtools-scroll::-webkit-scrollbar {
+        display: none;
+      }
+
+      .capcut-mobile-back-btn {
+        flex: 0 0 38px !important;
+        min-width: 38px !important;
+        width: 38px !important;
+        height: 48px !important;
+        padding: 0 !important;
+        border-radius: 0.72rem !important;
+        position: sticky;
+        left: 0;
+        z-index: 4;
+      }
+
+      .capcut-mobile-subtools-scroll {
+        display: flex;
+        align-items: center;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        gap: 0.35rem;
+        scrollbar-width: none;
+      }
+
       .capcut-dock-btn {
         flex: 0 0 auto;
         min-width: 62px;
@@ -4088,6 +4532,7 @@
         gap: 2px;
         font-size: 0.61rem;
         line-height: 1.05;
+        white-space: nowrap;
       }
 
       .capcut-dock-btn i {
@@ -4100,7 +4545,7 @@
         right: 0;
         bottom: 64px;
         z-index: 52;
-        max-height: 45dvh;
+        max-height: 44dvh;
         min-height: 170px;
         display: flex;
         flex-direction: column;
@@ -4120,6 +4565,42 @@
         transform: translateY(0);
         opacity: 1;
         pointer-events: auto;
+      }
+
+      /* Mobile Contextual Sub-Tool Filtering inside Level 3 Bottom Sheet */
+      #editorBottomDrawer.mobile-tool-edit-crop #editorEditTopToolbar,
+      #editorBottomDrawer.mobile-tool-edit-reframe #editorEditTopToolbar,
+      #editorBottomDrawer.mobile-tool-edit-speed #editorEditTopToolbar {
+        display: none !important;
+      }
+      #editorBottomDrawer.mobile-tool-edit-speed #editorEditSpeedVolumeCol {
+        display: none !important;
+      }
+
+      #editorBottomDrawer.mobile-tool-audio-volume #editorAudioColSfx,
+      #editorBottomDrawer.mobile-tool-audio-volume #editorAudioExtractGroup,
+      #editorBottomDrawer.mobile-tool-audio-volume #editorAudioMusicGroup {
+        display: none !important;
+      }
+      #editorBottomDrawer.mobile-tool-audio-music #editorAudioColSfx,
+      #editorBottomDrawer.mobile-tool-audio-music #editorAudioExtractGroup,
+      #editorBottomDrawer.mobile-tool-audio-music #editorAudioSourceVolGroup {
+        display: none !important;
+      }
+      #editorBottomDrawer.mobile-tool-audio-sfx #editorAudioColMain {
+        display: none !important;
+      }
+      #editorBottomDrawer.mobile-tool-audio-fade #editorAudioColMain,
+      #editorBottomDrawer.mobile-tool-audio-fade #editorAudioColSfx {
+        display: none !important;
+      }
+
+      #editorBottomDrawer.mobile-tool-overlay-upload #editorOverlayPixabaySection {
+        display: none !important;
+      }
+      #editorBottomDrawer.mobile-tool-overlay-pixabay #editorOverlayUploadSection,
+      #editorBottomDrawer.mobile-tool-overlay-pixabay #editorOverlayColProps {
+        display: none !important;
       }
 
       .editor-sheet-top-bar {
@@ -4156,6 +4637,13 @@
     }
 
     @media (min-width: 768px) {
+      .capcut-desktop-dock-group {
+        display: contents;
+      }
+      .capcut-mobile-dock-level1,
+      .capcut-mobile-dock-level2 {
+        display: none !important;
+      }
       .mobile-sheet-scroll-body {
         display: contents;
       }
@@ -4233,6 +4721,31 @@
       transform: translateY(-2px);
       border-color: rgba(37, 99, 235, 0.45);
       box-shadow: 8px 8px 18px rgba(163, 177, 198, 0.55), -6px -6px 14px rgba(255, 255, 255, 0.92);
+    }
+
+    .mode-picker-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      margin-top: 0.35rem;
+    }
+
+    .mode-picker-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 0;
+      padding: 0;
+      background-color: rgba(100, 116, 139, 0.35);
+      transition: width 0.2s ease, background-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .mode-picker-dot.active {
+      width: 22px;
+      background-color: #2563EB;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
     }
 
     .editor-workspace-mode-shell {
@@ -4603,13 +5116,13 @@
 </head>
 <body>
 
-  <!-- Mobile Top Header -->
-  <header class="d-lg-none global-mobile-topbar bg-navy text-white px-3 py-2 d-flex align-items-center justify-content-between sticky-top border-bottom border-white border-opacity-10">
-    <a href="#home" class="d-flex align-items-center gap-2 text-white text-decoration-none fw-bold text-nowrap" style="white-space: nowrap;" onclick="navigateToTab('home', 'view-input'); return false;">
-      <img src="/assets/aistudio/clipA_dae34944.png" alt="Logo ClipA Studio" width="36" height="36" class="flex-shrink-0" style="object-fit: contain;" />
+  <!-- Unified Mobile Top Header (Used Identically Across ALL Pages) -->
+  <header class="d-lg-none global-mobile-topbar bg-navy text-white px-3 d-flex align-items-center justify-content-between sticky-top border-bottom border-white border-opacity-10">
+    <a href="#home" class="d-flex align-items-center text-white text-decoration-none fw-bold text-nowrap" style="gap: 0.625rem; white-space: nowrap;" onclick="navigateToTab('home', 'view-input'); return false;">
+      <img src="/assets/aistudio/clipA_dae34944.png" alt="Logo ClipA Studio" width="34" height="34" class="flex-shrink-0" style="object-fit: contain;" />
       <span class="fs-5 text-nowrap" style="white-space: nowrap;">ClipA Studio</span>
     </a>
-    <button class="btn btn-sm btn-accent" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
+    <button class="btn btn-sm btn-accent d-inline-flex align-items-center justify-content-center" style="border-radius: 0.65rem; width: 38px; height: 34px; padding: 0;" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
       <i class="bi bi-list fs-5"></i>
     </button>
   </header>
@@ -5376,31 +5889,7 @@
     <!-- View 5: Editor View (Dual-Mode Edit Foto & Edit Video — Zero-Scroll 100vh Studio) -->
     <section id="view-editor" class="workspace-view d-none">
       <div class="capcut-editor-shell">
-        <!-- Fixed 48px Mobile Top Header inside Edit Foto & Video (< 768px only) -->
-        <header id="editorMobileTopBar" class="editor-mobile-topbar d-flex d-md-none px-3 gap-2">
-          <div class="d-flex align-items-center gap-2 min-width-0">
-            <button class="btn btn-sm btn-navy-ghost px-2 py-1 d-flex align-items-center justify-content-center flex-shrink-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
-              <i class="bi bi-list fs-5"></i>
-            </button>
-            <a href="#home" class="d-flex align-items-center gap-2 text-white text-decoration-none fw-bold text-nowrap min-width-0" onclick="navigateToTab('home', 'view-input'); return false;">
-              <img src="/assets/aistudio/clipA_dae34944.png" alt="ClipA Studio" width="24" height="24" class="flex-shrink-0" style="object-fit: contain;" />
-              <span class="text-truncate" style="font-size: 0.86rem; white-space: nowrap;">ClipA Studio</span>
-            </a>
-          </div>
-          <div class="d-flex align-items-center gap-2 flex-shrink-0">
-            <select id="editorMobileExportResSelect" class="form-select form-select-sm editor-mobile-res-select" aria-label="Resolusi Ekspor Mobile" onchange="syncEditorResolutionSelect(this.value)">
-              <option value="720p">720p</option>
-              <option value="1080p" selected>1080p</option>
-              <option value="uhd">UHD</option>
-            </select>
-            <button type="button" id="btnEditorMobileExport" class="btn btn-sm btn-capcut-cyan py-1 d-flex align-items-center gap-1 text-nowrap flex-shrink-0" style="height: 28px; font-size: 0.72rem; padding-left: 0.65rem; padding-right: 0.65rem;" onclick="handleMobileTopbarExport()">
-              <i class="bi bi-cloud-arrow-down-fill"></i>
-              <span>Ekspor</span>
-            </button>
-          </div>
-        </header>
-
-        <!-- Persistent Top Mode Switcher Bar (Always Visible at Top of Edit Foto & Video) -->
+        <!-- Persistent Top Mode Switcher Bar (Sub-Toolbar Right Below Global Mobile Navbar / Desktop Top Edge) -->
         <div id="editorTopModeSwitcherBar" class="editor-top-mode-bar">
           <div class="d-flex align-items-center gap-2 min-width-0">
             <div class="editor-mode-pill-switch" role="tablist" aria-label="Mode Editor">
@@ -5417,7 +5906,16 @@
               Pilih mode edit.
             </span>
           </div>
-          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+            <select id="editorMobileExportResSelect" class="form-select form-select-sm d-md-none editor-mobile-res-select d-none" aria-label="Resolusi Ekspor Mobile" onchange="syncEditorResolutionSelect(this.value)">
+              <option value="720p">720p</option>
+              <option value="1080p" selected>1080p</option>
+              <option value="uhd">UHD</option>
+            </select>
+            <button type="button" id="btnEditorMobileExport" class="btn btn-sm btn-accent d-md-none editor-mobile-export-btn d-none" onclick="handleMobileTopbarExport()">
+              <i class="bi bi-cloud-arrow-down-fill"></i>
+              <span>Ekspor</span>
+            </button>
             <button type="button" id="btnEditorTopExit" class="btn-clipa-exit d-none" onclick="exitEditorSubWorkspace()" title="Tutup" aria-label="Tutup">
               <i class="bi bi-x-lg" style="font-size: 0.85rem;"></i>
             </button>
@@ -5436,9 +5934,9 @@
         </div>
 
         <!-- Dual-Mode Entry Selector (Pilih Mode: Edit Foto vs. Edit Video) -->
-        <div id="editorQuickLoaderPanel" class="d-none position-absolute start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3 p-md-4" style="top: 40px; z-index: 60; background: var(--neu-bg); overflow-y: auto;">
+        <div id="editorQuickLoaderPanel" class="d-none position-absolute start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-0 p-md-4" style="top: 40px; z-index: 60; background: var(--neu-bg); overflow-y: auto;">
           <div class="w-100 mx-auto" style="max-width: 820px;">
-            <div class="text-center mb-3 mb-md-4">
+            <div class="text-center px-3 mb-2 mb-md-4">
               <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 mb-2 fw-bold" style="font-size: 0.72rem;">
                 ClipA Studio
               </span>
@@ -5448,9 +5946,9 @@
               </p>
             </div>
 
-            <div class="row g-3 g-md-4 align-items-stretch">
+            <div class="row g-3 g-md-4 align-items-stretch" id="modePickerCardsCarousel">
               <!-- Card 1: Edit Foto -->
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-md-6 mode-picker-card-col">
                 <div class="editor-entry-mode-card">
                   <div class="rounded-circle neu-icon-box d-flex align-items-center justify-content-center mb-3" style="width: 62px; height: 62px; color: #2563EB;">
                     <i class="bi bi-image-fill fs-2"></i>
@@ -5473,7 +5971,7 @@
               </div>
 
               <!-- Card 2: Edit Video -->
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-md-6 mode-picker-card-col">
                 <div class="editor-entry-mode-card">
                   <div class="rounded-circle neu-icon-box d-flex align-items-center justify-content-center mb-3" style="width: 62px; height: 62px; color: #2563EB;">
                     <i class="bi bi-film fs-2"></i>
@@ -5496,7 +5994,13 @@
               </div>
             </div>
 
-            <div class="text-center small text-secondary mt-3">
+            <!-- Mobile Bottom Carousel Dot Indicators -->
+            <div id="modePickerDots" class="mode-picker-dots d-flex d-md-none" aria-label="Indikator Mode Edit">
+              <button type="button" class="mode-picker-dot active" data-mode-dot="0" aria-label="Edit Foto" onclick="scrollModePickerCard(0)"></button>
+              <button type="button" class="mode-picker-dot" data-mode-dot="1" aria-label="Edit Video" onclick="scrollModePickerCard(1)"></button>
+            </div>
+
+            <div class="text-center small text-secondary mt-2 mt-md-3 px-3">
               Atau kembali ke <a href="#home" class="fw-bold text-primary text-decoration-none" onclick="navigateToTab('home', 'view-input'); return false;">Home</a> untuk Auto-Clip AI dari YouTube.
             </div>
           </div>
@@ -6114,32 +6618,67 @@
           <!-- Right Column (58%): White Card with Category Tool Tabs & Contextual Controls (Bottom Dock + Slide-Up Sheet on Mobile) -->
           <div class="studio-right-panel-col">
             <div class="studio-props-card">
-              <!-- Top Category Tool Tabs Bar (Fixed Bottom Icon Bar on Mobile <768px) -->
-              <nav class="capcut-bottom-dock" aria-label="Kategori Edit Studio">
-                <button type="button" class="capcut-dock-btn" data-dock-tab="edit" onclick="openEditorDockTab('edit', false, true)">
-                  <i class="bi bi-scissors"></i><span>Edit</span>
-                </button>
-                <button type="button" class="capcut-dock-btn" data-dock-tab="background" onclick="openEditorDockTab('background', false, true)">
-                  <i class="bi bi-card-image"></i><span>Latar</span>
-                </button>
-                <button type="button" class="capcut-dock-btn" data-dock-tab="audio" onclick="openEditorDockTab('audio', false, true)">
-                  <i class="bi bi-music-note-beamed"></i><span>Audio</span>
-                </button>
-                <button type="button" class="capcut-dock-btn" data-dock-tab="text" onclick="openEditorDockTab('text', false, true)">
-                  <i class="bi bi-fonts"></i><span>Teks</span>
-                </button>
-                <button type="button" class="capcut-dock-btn active" data-dock-tab="captions" onclick="openEditorDockTab('captions', false, true)">
-                  <i class="bi bi-chat-square-quote-fill"></i><span>Subtitle</span>
-                </button>
-                <button type="button" class="capcut-dock-btn" data-dock-tab="overlay" onclick="openEditorDockTab('overlay', false, true)">
-                  <i class="bi bi-layers-fill"></i><span>Overlay</span>
-                </button>
-                <button type="button" class="capcut-dock-btn" data-dock-tab="effects" onclick="openEditorDockTab('effects', false, true)">
-                  <i class="bi bi-stars"></i><span>Efek</span>
-                </button>
-                <button type="button" class="capcut-dock-btn" data-dock-tab="adjust" onclick="openEditorDockTab('adjust', false, true)">
-                  <i class="bi bi-sliders2"></i><span>Sesuaikan</span>
-                </button>
+              <!-- Top Category Tool Tabs Bar (Desktop Persistent Tabs + Mobile Two-Level CapCut Dock) -->
+              <nav id="videoEditorBottomDock" class="capcut-bottom-dock" aria-label="Kategori Edit Studio">
+                <div id="editorDesktopRootTabs" class="capcut-desktop-dock-group">
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="edit" onclick="openEditorDockTab('edit', false, true)">
+                    <i class="bi bi-scissors"></i><span>Edit</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="background" onclick="openEditorDockTab('background', false, true)">
+                    <i class="bi bi-card-image"></i><span>Latar</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="audio" onclick="openEditorDockTab('audio', false, true)">
+                    <i class="bi bi-music-note-beamed"></i><span>Audio</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="text" onclick="openEditorDockTab('text', false, true)">
+                    <i class="bi bi-fonts"></i><span>Teks</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn active" data-dock-tab="captions" onclick="openEditorDockTab('captions', false, true)">
+                    <i class="bi bi-chat-square-quote-fill"></i><span>Subtitle</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="overlay" onclick="openEditorDockTab('overlay', false, true)">
+                    <i class="bi bi-layers-fill"></i><span>Overlay</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="effects" onclick="openEditorDockTab('effects', false, true)">
+                    <i class="bi bi-stars"></i><span>Efek</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-dock-tab="adjust" onclick="openEditorDockTab('adjust', false, true)">
+                    <i class="bi bi-sliders2"></i><span>Sesuaikan</span>
+                  </button>
+                </div>
+
+                <!-- Mobile Level 1: Root Categories (Tapping Edit/Audio/Teks/Overlay switches dock to Level 2 without sheet popup) -->
+                <div id="editorMobileLevel1Dock" class="capcut-mobile-dock-level1">
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="edit" onclick="handleMobileDockRootTap('edit')">
+                    <i class="bi bi-scissors"></i><span>Edit</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="audio" onclick="handleMobileDockRootTap('audio')">
+                    <i class="bi bi-music-note-beamed"></i><span>Audio</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="teks" onclick="handleMobileDockRootTap('teks')">
+                    <i class="bi bi-fonts"></i><span>Teks</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="latar" onclick="handleMobileDockRootTap('latar')">
+                    <i class="bi bi-card-image"></i><span>Latar</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="overlay" onclick="handleMobileDockRootTap('overlay')">
+                    <i class="bi bi-layers-fill"></i><span>Overlay</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="efek" onclick="handleMobileDockRootTap('efek')">
+                    <i class="bi bi-stars"></i><span>Efek</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="sesuaikan" onclick="handleMobileDockRootTap('sesuaikan')">
+                    <i class="bi bi-sliders2"></i><span>Sesuaikan</span>
+                  </button>
+                </div>
+
+                <!-- Mobile Level 2: Sticky '<' Back + Scrollable Contextual Sub-Tools -->
+                <div id="editorMobileLevel2Dock" class="capcut-mobile-dock-level2 d-none">
+                  <button type="button" id="btnMobileDockBack" class="capcut-dock-btn capcut-mobile-back-btn" onclick="setMobileDockCategory(null)" title="Kembali" aria-label="Kembali">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <div id="editorMobileSubToolsScroll" class="capcut-mobile-subtools-scroll"></div>
+                </div>
               </nav>
 
               <!-- Contextual Edit Controls (Scrollable Inside Card on Desktop / Slide-Up Bottom Sheet on Mobile) -->
@@ -6155,8 +6694,8 @@
                     </span>
                     <div class="d-flex align-items-center gap-1 flex-shrink-0">
                       <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill font-mono-tabular" style="font-size: 0.64rem;" id="editorPropsTargetBadge">Teks Terpilih</span>
-                      <button type="button" id="btnCloseMobileEditorSheet" class="btn btn-sm btn-capcut-ghost d-inline-flex d-md-none align-items-center justify-content-center p-0" style="width: 26px; height: 26px; border-radius: 0.6rem;" onclick="closeEditorBottomDrawer()" title="Tutup panel" aria-label="Tutup panel">
-                        <i class="bi bi-chevron-down" style="font-size: 0.85rem;"></i>
+                      <button type="button" id="btnCloseMobileEditorSheet" class="btn btn-sm btn-capcut-cyan d-inline-flex d-md-none align-items-center justify-content-center p-0" style="width: 28px; height: 26px; border-radius: 0.6rem;" onclick="closeEditorBottomDrawer()" title="Selesai" aria-label="Selesai">
+                        <i class="bi bi-check-lg" style="font-size: 0.95rem;"></i>
                       </button>
                     </div>
                   </div>
@@ -6165,7 +6704,7 @@
                 <div class="mobile-sheet-scroll-body">
                 <!-- Pane 1: Edit (Kanvas & Pangkas -> Ubah Bingkai Otomatis -> Kecepatan & Durasi) -->
                 <div id="editorDrawer-edit" class="editor-drawer-pane d-none">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                  <div id="editorEditTopToolbar" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
                     <div class="edit-subtab-bar flex-wrap" role="tablist" aria-label="Submenu Edit">
                       <button type="button" id="btnEditSubCrop" class="edit-subtab-btn active" onclick="switchEditSubTab('crop')">
                         <i class="bi bi-aspect-ratio me-1"></i>Kanvas &amp; Pangkas
@@ -6263,7 +6802,7 @@
                       </div>
                     </div>
 
-                    <div class="col-12 col-xl-5">
+                    <div id="editorEditSpeedVolumeCol" class="col-12 col-xl-5">
                       <div class="capcut-drawer-surface h-100 d-flex flex-column justify-content-center">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label for="propVideoVolume" class="form-label mb-0 text-navy">Volume Klip: <strong id="propVideoVolumeVal" class="text-primary font-mono-tabular">100%</strong></label>
@@ -6484,41 +7023,45 @@
                 <!-- Pane 2: Audio (Suara Video, Musik Latar, Efek Suara SFX) -->
                 <div id="editorDrawer-audio" class="editor-drawer-pane d-none">
                   <div class="row g-2">
-                    <div class="col-12 col-xl-4">
+                    <div id="editorAudioColMain" class="col-12 col-xl-4">
                       <div class="capcut-drawer-surface h-100">
-                        <div class="d-grid mb-2">
+                        <div id="editorAudioExtractGroup" class="d-grid mb-2">
                           <button type="button" id="btnAudioExtractAudio" class="btn btn-sm btn-capcut-cyan fw-bold py-1" style="font-size: 0.72rem;" onclick="extractAudioFromVideoTrack()">
                             <i class="bi bi-soundwave me-1"></i>Ekstrak Audio dari Video
                           </button>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <label for="editorVolumeSlider" class="form-label mb-0 text-navy">Suara Video Asli</label>
-                          <div class="d-flex align-items-center gap-1">
-                            <span id="editorVolumeValue" class="badge bg-primary text-white font-mono-tabular">100%</span>
-                            <button type="button" id="editorSourceMuteBtn" class="btn btn-sm btn-capcut-ghost py-0 px-1" onclick="toggleEditorSourceMute()" title="Bisukan Suara Video">
-                              <i class="bi bi-volume-up-fill text-primary"></i>
-                            </button>
+                        <div id="editorAudioSourceVolGroup">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="editorVolumeSlider" class="form-label mb-0 text-navy">Suara Video Asli</label>
+                            <div class="d-flex align-items-center gap-1">
+                              <span id="editorVolumeValue" class="badge bg-primary text-white font-mono-tabular">100%</span>
+                              <button type="button" id="editorSourceMuteBtn" class="btn btn-sm btn-capcut-ghost py-0 px-1" onclick="toggleEditorSourceMute()" title="Bisukan Suara Video">
+                                <i class="bi bi-volume-up-fill text-primary"></i>
+                              </button>
+                            </div>
                           </div>
+                          <input type="range" id="editorVolumeSlider" class="form-range mb-2" min="0" max="200" step="5" value="100" oninput="updateEditorVolume(this.value)" onchange="pushEditorHistorySnapshot()" />
                         </div>
-                        <input type="range" id="editorVolumeSlider" class="form-range mb-2" min="0" max="200" step="5" value="100" oninput="updateEditorVolume(this.value)" onchange="pushEditorHistorySnapshot()" />
 
-                        <div class="small fw-bold text-navy mb-1">Musik Latar</div>
-                        <div class="d-grid mb-2">
-                          <label for="editorMusicFileInput" class="btn btn-sm btn-capcut-ghost fw-bold text-start mb-0" style="cursor: pointer; font-size: 0.72rem;">
-                            <i class="bi bi-file-earmark-music text-primary me-1"></i>Unggah Musik (.MP3 / .WAV)
-                          </label>
-                          <input type="file" id="editorMusicFileInput" class="d-none" accept="audio/mpeg,audio/mp3,audio/wav,audio/*" onchange="handleUploadBackgroundMusic(this)" />
-                        </div>
-                        <div class="row row-cols-2 g-1">
-                          <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('lofi')">Lofi Beat</button></div>
-                          <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('tech_pulse')">Tech Pulse</button></div>
-                          <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('deep_ambient')">Ambient</button></div>
-                          <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('trap_bass')">Trap Bass</button></div>
+                        <div id="editorAudioMusicGroup">
+                          <div class="small fw-bold text-navy mb-1">Musik Latar</div>
+                          <div class="d-grid mb-2">
+                            <label for="editorMusicFileInput" class="btn btn-sm btn-capcut-ghost fw-bold text-start mb-0" style="cursor: pointer; font-size: 0.72rem;">
+                              <i class="bi bi-file-earmark-music text-primary me-1"></i>Unggah Musik (.MP3 / .WAV)
+                            </label>
+                            <input type="file" id="editorMusicFileInput" class="d-none" accept="audio/mpeg,audio/mp3,audio/wav,audio/*" onchange="handleUploadBackgroundMusic(this)" />
+                          </div>
+                          <div class="row row-cols-2 g-1">
+                            <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('lofi')">Lofi Beat</button></div>
+                            <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('tech_pulse')">Tech Pulse</button></div>
+                            <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('deep_ambient')">Ambient</button></div>
+                            <div class="col"><button type="button" class="btn btn-sm btn-capcut-ghost w-100 py-1" style="font-size: 0.68rem;" onclick="addBuiltInMusicLoop('trap_bass')">Trap Bass</button></div>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div class="col-12 col-xl-4">
+                    <div id="editorAudioColSfx" class="col-12 col-xl-4">
                       <div class="capcut-drawer-surface h-100">
                         <div class="small fw-bold text-navy mb-2">+ Efek Suara (di Playhead)</div>
                         <div class="d-flex flex-wrap gap-1 mb-2">
@@ -6540,7 +7083,7 @@
                       </div>
                     </div>
 
-                    <div class="col-12 col-xl-4">
+                    <div id="editorAudioColContext" class="col-12 col-xl-4">
                       <div id="propContextAudio" class="capcut-drawer-surface h-100">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                           <div>
@@ -6783,61 +7326,65 @@
                 <!-- Pane 5: Overlay (Multi-Layer Gambar/Video Lokal & Stok Pixabay/Wikimedia + Posisi Bebas) -->
                 <div id="editorDrawer-overlay" class="editor-drawer-pane d-none">
                   <div class="row g-2">
-                    <div class="col-12 col-xl-6">
+                    <div id="editorOverlayColMedia" class="col-12 col-xl-6">
                       <div class="capcut-drawer-surface h-100">
-                        <div class="d-flex flex-wrap gap-1 mb-2">
-                          <label for="editorBrollQuickUploadInput" class="btn btn-sm btn-capcut-cyan py-1 px-2 mb-0" style="cursor: pointer;">
-                            <i class="bi bi-plus-square-fill me-1"></i>+ Tambah Gambar / Video (Upload Lokal)
-                          </label>
-                          <input type="file" id="editorBrollQuickUploadInput" class="d-none" accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" onchange="handleUploadBrollImage(this, true)" />
-                          <button type="button" class="btn btn-sm btn-capcut-ghost py-1 px-2" onclick="addNewBrollBlock()">
-                            <i class="bi bi-images text-primary me-1"></i>+ B-Roll Otomatis
-                          </button>
-                        </div>
+                        <div id="editorOverlayUploadSection">
+                          <div class="d-flex flex-wrap gap-1 mb-2">
+                            <label for="editorBrollQuickUploadInput" class="btn btn-sm btn-capcut-cyan py-1 px-2 mb-0" style="cursor: pointer;">
+                              <i class="bi bi-plus-square-fill me-1"></i>+ Tambah Gambar / Video (Upload Lokal)
+                            </label>
+                            <input type="file" id="editorBrollQuickUploadInput" class="d-none" accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" onchange="handleUploadBrollImage(this, true)" />
+                            <button type="button" class="btn btn-sm btn-capcut-ghost py-1 px-2" onclick="addNewBrollBlock()">
+                              <i class="bi bi-images text-primary me-1"></i>+ B-Roll Otomatis
+                            </button>
+                          </div>
 
-                        <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
-                          <label for="propBrollPixabayQuery" class="form-label mb-0">Cari Foto / Video Pixabay</label>
-                          <div class="btn-group btn-group-sm" role="group" aria-label="Tipe Stok Pixabay">
-                            <button type="button" id="btnPixabayTypePhoto" class="btn btn-capcut-cyan py-0 px-2" style="font-size: 0.68rem;" onclick="setPixabaySearchType('photo')">Foto Stok</button>
-                            <button type="button" id="btnPixabayTypeVideo" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.68rem;" onclick="setPixabaySearchType('video')">Video Stok</button>
+                          <div class="d-flex gap-1 mb-2">
+                            <label for="propBrollImageUploadInput" class="btn btn-sm btn-capcut-ghost flex-grow-1 mb-0 text-truncate" style="cursor: pointer; font-size: 0.7rem;">
+                              <i class="bi bi-upload me-1"></i>Ganti Media Layer Terpilih
+                            </label>
+                            <input type="file" id="propBrollImageUploadInput" class="d-none" accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,image/*,video/*" onchange="handleUploadBrollImage(this, false)" />
+                            <button type="button" id="btnResetBrollImg" class="btn btn-sm btn-capcut-ghost d-none" onclick="resetSelectedBrollImage()" title="Kembalikan Media Stok">
+                              <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
                           </div>
                         </div>
 
-                        <div class="input-group input-group-sm mb-2">
-                          <input type="text" id="propBrollPixabayQuery" class="form-control" placeholder="Contoh: stock chart, laptop, microphone..." onkeydown="if(event.key==='Enter'){event.preventDefault(); searchAndReplaceSelectedBroll();}" />
-                          <button type="button" id="btnSearchPixabayBroll" class="btn btn-capcut-cyan" onclick="searchAndReplaceSelectedBroll()">Cari</button>
-                        </div>
-
-                        <!-- Missing Pixabay Key Notice (only shown if server & client key both absent) -->
-                        <div id="editorPixabayNoKeyAlert" class="alert alert-info py-1 px-2 small mb-2 d-none" style="font-size: 0.68rem;">
-                          <div class="d-flex align-items-center justify-content-between gap-2">
-                            <span><i class="bi bi-globe2 me-1"></i>Tambahkan kunci Pixabay di Settings untuk video stok.</span>
-                            <button type="button" class="btn btn-sm btn-navy py-0 px-2 text-nowrap" style="font-size: 0.66rem;" onclick="navigateToTab('settings', 'view-settings')">Settings</button>
+                        <div id="editorOverlayPixabaySection">
+                          <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                            <label for="propBrollPixabayQuery" class="form-label mb-0">Cari Foto / Video Pixabay</label>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Tipe Stok Pixabay">
+                              <button type="button" id="btnPixabayTypePhoto" class="btn btn-capcut-cyan py-0 px-2" style="font-size: 0.68rem;" onclick="setPixabaySearchType('photo')">Foto Stok</button>
+                              <button type="button" id="btnPixabayTypeVideo" class="btn btn-capcut-ghost py-0 px-2" style="font-size: 0.68rem;" onclick="setPixabaySearchType('video')">Video Stok</button>
+                            </div>
                           </div>
-                        </div>
 
-                        <!-- 6-Thumbnail Clickable Pixabay/Wikimedia Results Grid (Click adds new layer at playhead) -->
-                        <div id="editorPixabayResultsWrap" class="mb-2 d-none">
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="fw-bold text-navy" style="font-size: 0.66rem;">Klik gambar untuk tambah ke timeline:</small>
-                            <span id="editorPixabayResultsCount" class="badge bg-primary bg-opacity-10 text-primary font-mono-tabular" style="font-size: 0.62rem;">0</span>
+                          <div class="input-group input-group-sm mb-2">
+                            <input type="text" id="propBrollPixabayQuery" class="form-control" placeholder="Contoh: stock chart, laptop, microphone..." onkeydown="if(event.key==='Enter'){event.preventDefault(); searchAndReplaceSelectedBroll();}" />
+                            <button type="button" id="btnSearchPixabayBroll" class="btn btn-capcut-cyan" onclick="searchAndReplaceSelectedBroll()">Cari</button>
                           </div>
-                          <div id="editorPixabayResultsGrid" class="row row-cols-3 g-1"></div>
-                        </div>
 
-                        <div class="d-flex gap-1">
-                          <label for="propBrollImageUploadInput" class="btn btn-sm btn-capcut-ghost flex-grow-1 mb-0 text-truncate" style="cursor: pointer; font-size: 0.7rem;">
-                            <i class="bi bi-upload me-1"></i>Ganti Media Layer Terpilih
-                          </label>
-                          <input type="file" id="propBrollImageUploadInput" class="d-none" accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,image/*,video/*" onchange="handleUploadBrollImage(this, false)" />
-                          <button type="button" id="btnResetBrollImg" class="btn btn-sm btn-capcut-ghost d-none" onclick="resetSelectedBrollImage()" title="Kembalikan Media Stok">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                          </button>
+                          <!-- Missing Pixabay Key Notice (only shown if server & client key both absent) -->
+                          <div id="editorPixabayNoKeyAlert" class="alert alert-info py-1 px-2 small mb-2 d-none" style="font-size: 0.68rem;">
+                            <div class="d-flex align-items-center justify-content-between gap-2">
+                              <span><i class="bi bi-globe2 me-1"></i>Tambahkan kunci Pixabay di Settings untuk video stok.</span>
+                              <button type="button" class="btn btn-sm btn-navy py-0 px-2 text-nowrap" style="font-size: 0.66rem;" onclick="navigateToTab('settings', 'view-settings')">Settings</button>
+                            </div>
+                          </div>
+
+                          <!-- 6-Thumbnail Clickable Pixabay/Wikimedia Results Grid (Click adds new layer at playhead) -->
+                          <div id="editorPixabayResultsWrap" class="mb-2 d-none">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                              <small class="fw-bold text-navy" style="font-size: 0.66rem;">Klik gambar untuk tambah ke timeline:</small>
+                              <span id="editorPixabayResultsCount" class="badge bg-primary bg-opacity-10 text-primary font-mono-tabular" style="font-size: 0.62rem;">0</span>
+                            </div>
+                            <div id="editorPixabayResultsGrid" class="row row-cols-3 g-1"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div class="col-12 col-xl-6">
+                    <div id="editorOverlayColProps" class="col-12 col-xl-6">
                       <div class="capcut-drawer-surface h-100">
                         <div class="row g-2 mb-2">
                           <div class="col-6">
@@ -7168,50 +7715,55 @@
                 </div>
               </div>
 
-              <!-- Horizontally Zoomable Tracks & Playhead Column -->
-              <div class="col overflow-x-auto" style="min-width: 0;">
-                <div class="timeline-zoom-inner d-flex flex-column gap-1 position-relative" id="timelineZoomInner">
-                  <!-- Royal Blue Playhead Line -->
-                  <div id="timelineMasterPlayhead" class="timeline-playhead-line" style="left: 0%;">
-                    <div id="playheadDragHandle" class="timeline-playhead-handle" title="Geser Playhead"></div>
-                  </div>
+              <!-- Horizontally Zoomable Tracks & Playhead Column (Center-Locked White Playhead on Mobile <768px) -->
+              <div id="timelineTracksViewport" class="col position-relative overflow-hidden" style="min-width: 0;">
+                <div id="mobileCenterWhitePlayhead" class="mobile-center-white-playhead d-md-none" aria-hidden="true"></div>
+                <div id="timelineTracksScroller" class="overflow-x-auto timeline-tracks-scroller">
+                  <div class="timeline-mobile-spacer d-md-none" aria-hidden="true"></div>
+                  <div class="timeline-zoom-inner d-flex flex-column gap-1 position-relative" id="timelineZoomInner">
+                    <!-- Royal Blue Playhead Line (Desktop >= 768px) -->
+                    <div id="timelineMasterPlayhead" class="timeline-playhead-line d-none d-md-block" style="left: 0%;">
+                      <div id="playheadDragHandle" class="timeline-playhead-handle" title="Geser Playhead"></div>
+                    </div>
 
-                  <!-- Dynamic Navy Timestamp Ruler -->
-                  <div id="timelineRuler" onclick="handleRulerClick(event)" class="timeline-ruler-dark font-mono-tabular">
-                    <div id="timelineRulerTicks" class="d-flex align-items-center justify-content-between w-100">
-                      <span>00:00</span>
-                      <span>00:08</span>
-                      <span>00:15</span>
-                      <span>00:22</span>
-                      <span>00:30</span>
+                    <!-- Dynamic Navy Timestamp Ruler -->
+                    <div id="timelineRuler" onclick="handleRulerClick(event)" class="timeline-ruler-dark font-mono-tabular">
+                      <div id="timelineRulerTicks" class="d-flex align-items-center justify-content-between w-100">
+                        <span>00:00</span>
+                        <span>00:08</span>
+                        <span>00:15</span>
+                        <span>00:22</span>
+                        <span>00:30</span>
+                      </div>
+                    </div>
+
+                    <!-- Track 1: Track Video (Filmstrip + Speed + Add '+' Button) -->
+                    <div id="videoTrackWrapper" class="position-relative" style="height: 44px;">
+                      <div class="timeline-track-bar-dark h-100" id="videoTrackContainer" style="height: 44px; padding-right: 34px;">
+                        <!-- Filmstrip video bar segments injected dynamically -->
+                      </div>
+                      <label for="editorTimelineVideoAddInput" class="timeline-video-add-btn" title="Ganti / Tambah Video Clip (.MP4)">
+                        <i class="bi bi-plus-lg"></i>
+                      </label>
+                      <input type="file" id="editorTimelineVideoAddInput" class="d-none" accept="video/mp4,video/webm,video/*" onchange="handleReplaceEditorVideoClip(this)" />
+                    </div>
+
+                    <!-- Track 2: Audio & SFX -->
+                    <div class="timeline-track-bar-dark p-1" id="audioTrackContainer" style="height: 52px;">
+                      <!-- Voice waveform + Music + SFX blocks injected dynamically -->
+                    </div>
+
+                    <!-- Track 3: Teks & Subtitle -->
+                    <div class="timeline-track-bar-dark" id="subtitleTrackContainer" style="height: 48px;">
+                      <!-- Hook + Orange subtitle blocks injected dynamically -->
+                    </div>
+
+                    <!-- Track 4: Overlay & Efek -->
+                    <div class="timeline-track-bar-dark" id="overlayTrackContainer" style="height: 50px;">
+                      <!-- B-Roll + Efek Video blocks injected dynamically -->
                     </div>
                   </div>
-
-                  <!-- Track 1: Track Video (Filmstrip + Speed + Add '+' Button) -->
-                  <div id="videoTrackWrapper" class="position-relative" style="height: 44px;">
-                    <div class="timeline-track-bar-dark h-100" id="videoTrackContainer" style="height: 44px; padding-right: 34px;">
-                      <!-- Filmstrip video bar segments injected dynamically -->
-                    </div>
-                    <label for="editorTimelineVideoAddInput" class="timeline-video-add-btn" title="Ganti / Tambah Video Clip (.MP4)">
-                      <i class="bi bi-plus-lg"></i>
-                    </label>
-                    <input type="file" id="editorTimelineVideoAddInput" class="d-none" accept="video/mp4,video/webm,video/*" onchange="handleReplaceEditorVideoClip(this)" />
-                  </div>
-
-                  <!-- Track 2: Audio & SFX -->
-                  <div class="timeline-track-bar-dark p-1" id="audioTrackContainer" style="height: 52px;">
-                    <!-- Voice waveform + Music + SFX blocks injected dynamically -->
-                  </div>
-
-                  <!-- Track 3: Teks & Subtitle -->
-                  <div class="timeline-track-bar-dark" id="subtitleTrackContainer" style="height: 48px;">
-                    <!-- Hook + Orange subtitle blocks injected dynamically -->
-                  </div>
-
-                  <!-- Track 4: Overlay & Efek -->
-                  <div class="timeline-track-bar-dark" id="overlayTrackContainer" style="height: 50px;">
-                    <!-- B-Roll + Efek Video blocks injected dynamically -->
-                  </div>
+                  <div class="timeline-mobile-spacer d-md-none" aria-hidden="true"></div>
                 </div>
               </div>
             </div>
@@ -9108,8 +9660,25 @@
       { id: "gold_gradient", label: "Gradien Emas", previewStyle: "background:linear-gradient(180deg,#FEF08A,#FACC15,#B45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;", patch: { textEffect: "gold_gradient", color: "#FACC15", strokeColor: "#451A03", strokeWidth: 3, glowColor: "#F59E0B", glowBlur: 10, bgColor: "transparent" } }
     ];
 
+    const KINETIC_SUBTITLE_ANIM_IDS = [
+      "kolase_jadul",
+      "garis_bertumpuk",
+      "kombo_multibaris",
+      "pertumbuhan_dinamis",
+      "acak",
+      "multibaris",
+      "satu_baris"
+    ];
+
     const TEXT_ANIMATIONS_CATALOG = [
       { id: "none", label: "Tidak Ada", icon: "bi-slash-circle" },
+      { id: "kolase_jadul", label: "Kolase Jadul", icon: "bi-grid-3x2-gap-fill" },
+      { id: "garis_bertumpuk", label: "Garis-Garis Bertumpuk", icon: "bi-layers-fill" },
+      { id: "kombo_multibaris", label: "Kombo Multibaris", icon: "bi-text-paragraph" },
+      { id: "pertumbuhan_dinamis", label: "Pertumbuhan Dinamis", icon: "bi-graph-up-arrow" },
+      { id: "acak", label: "Acak", icon: "bi-shuffle" },
+      { id: "multibaris", label: "Multibaris", icon: "bi-justify-left" },
+      { id: "satu_baris", label: "Satu Baris", icon: "bi-dash-lg" },
       { id: "bounce_pop", label: "Memantul ke Luar", icon: "bi-arrows-expand" },
       { id: "kinetic_scale", label: "Penskalaan Kata", icon: "bi-type-bold" },
       { id: "word_highlight", label: "Sorotan Kata", icon: "bi-highlighter" },
@@ -9239,9 +9808,10 @@
         }
       }
 
-      const animIn = obj.animationIn !== undefined
-        ? obj.animationIn
-        : (obj.animation === "karaoke" ? "none" : (obj.animation || defAnim));
+      const rawAnim = obj.animation ? (obj.animation === "karaoke" ? "none" : obj.animation) : "";
+      const animIn = isHook
+        ? (obj.animationIn !== undefined ? obj.animationIn : (rawAnim || defAnim))
+        : (rawAnim || (obj.animationIn !== undefined ? obj.animationIn : defAnim));
       const animOut = obj.animationOut !== undefined ? obj.animationOut : "none";
       const inDur = obj.inDuration !== undefined ? Math.max(0.1, Math.min(2.0, Number(obj.inDuration) || 0.4)) : 0.4;
       const outDur = obj.outDuration !== undefined ? Math.max(0.1, Math.min(2.0, Number(obj.outDuration) || 0.4)) : 0.4;
@@ -9328,6 +9898,8 @@
         slideYDom = (1 - ease) * 14;
       } else if (animMode === "fade") {
         alpha = Math.max(0.12, Math.min(1, e / 0.24));
+      } else if (KINETIC_SUBTITLE_ANIM_IDS.indexOf(animMode) !== -1) {
+        alpha = Math.min(1, e / 0.08);
       }
 
       return {
@@ -9342,6 +9914,10 @@
         wordRevealFrac: 1,
         activeInMode: animMode,
         activeOutMode: "none",
+        animMode: animMode,
+        elapsed: e,
+        totalDur: dur,
+        isKineticPreset: KINETIC_SUBTITLE_ANIM_IDS.indexOf(animMode) !== -1,
         isKineticScale: animMode === "kinetic_scale",
         isWordHighlight: animMode === "word_highlight",
         isWordReveal: animMode === "word_reveal"
@@ -11078,6 +11654,134 @@
         return '<div class="rt-stacked-coral-wrap">' + coralLines.join("") + "</div>";
       }
 
+      const subAnim = style.animation || "none";
+      const isStaticFull = Boolean(m.showAllWordsStatic);
+      const isProgressiveWord = !isStaticFull;
+      const hlAccentCol = (style.highlightColor && style.highlightColor !== "none") ? style.highlightColor : "#FACC15";
+
+      if (subAnim === "kolase_jadul") {
+        const pillHtml = words.map(function (w, i) {
+          const safeW = escapeHtml(w);
+          const hiddenCls = (isProgressiveWord && i > targetIdx) ? " rt-word-hidden" : "";
+          const cCls = "rt-kolase-c" + (i % 3);
+          const actCls = i === targetIdx ? " rt-kolase-active rt-anim-pop-word" : "";
+          return '<span class="rt-kolase-pill ' + cCls + actCls + hiddenCls + '">' + safeW + "</span>";
+        }).join("");
+        return '<div class="rt-kolase-wrap">' + pillHtml + "</div>";
+      }
+
+      if (subAnim === "garis_bertumpuk") {
+        const rows = [];
+        if (words.length <= 1) {
+          rows.push({ role: "top", items: [{ w: words[0], idx: 0 }] });
+        } else if (words.length === 2) {
+          rows.push({ role: "top", items: [{ w: words[0], idx: 0 }] });
+          rows.push({ role: "bot", items: [{ w: words[1], idx: 1 }] });
+        } else {
+          rows.push({ role: "top", items: [{ w: words[0], idx: 0 }] });
+          const midItems = words.slice(1, words.length - 1).map(function (w, k) { return { w: w, idx: k + 1 }; });
+          rows.push({ role: "mid", items: midItems });
+          rows.push({ role: "bot", items: [{ w: words[words.length - 1], idx: words.length - 1 }] });
+        }
+        return '<div class="rt-bertumpuk-wrap">' + rows.map(function (r) {
+          const rowCls = r.role === "top" ? "rt-bertumpuk-row-top" : (r.role === "mid" ? "rt-bertumpuk-row-mid" : "rt-bertumpuk-row-bot");
+          const inner = r.items.map(function (it) {
+            const hiddenCls = (isProgressiveWord && it.idx > targetIdx) ? " rt-word-hidden" : "";
+            const isAct = it.idx === targetIdx;
+            const col = r.role === "top"
+              ? "#F472B6"
+              : (r.role === "bot" ? (isAct ? "#FACC15" : "#C084FC") : (isAct ? "#38BDF8" : "#FFFFFF"));
+            const popCls = isAct ? " rt-anim-pop-word" : "";
+            return '<span class="rt-word-span' + popCls + hiddenCls + '" style="color:' + col + ';">' + escapeHtml(it.w) + "</span>";
+          }).join(" ");
+          return '<div class="' + rowCls + '">' + inner + "</div>";
+        }).join("") + "</div>";
+      }
+
+      if (subAnim === "kombo_multibaris") {
+        const mid = Math.ceil(words.length / 2);
+        const rows = words.length > 1 ? [words.slice(0, mid), words.slice(mid)] : [words];
+        let gIdx = 0;
+        return '<div class="rt-kombo-wrap">' + rows.map(function (row) {
+          const inner = row.map(function (w) {
+            const idx = gIdx++;
+            const hiddenCls = (isProgressiveWord && idx > targetIdx) ? " rt-word-hidden" : "";
+            const isLg = idx % 2 === 0;
+            const isAct = idx === targetIdx;
+            const sizeCls = isLg ? "rt-kombo-lg" : "rt-kombo-sm";
+            const popCls = isAct ? " rt-anim-pop-word" : "";
+            const col = isAct ? hlAccentCol : (isLg ? style.color : "#E2E8F0");
+            return '<span class="' + sizeCls + popCls + hiddenCls + '" style="color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
+          }).join("");
+          return '<div class="rt-kombo-row">' + inner + "</div>";
+        }).join("") + "</div>";
+      }
+
+      if (subAnim === "pertumbuhan_dinamis") {
+        const scales = [1.0, 1.28, 0.86, 1.18, 0.92];
+        const tilts = [-3.2, 2.6, -1.8, 3.0, -2.2];
+        const parts = words.map(function (w, i) {
+          const hiddenCls = (isProgressiveWord && i > targetIdx) ? " rt-word-hidden" : "";
+          const sc = scales[i % scales.length];
+          const rot = tilts[i % tilts.length];
+          const isAct = i === targetIdx;
+          const col = isAct ? hlAccentCol : style.color;
+          const popCls = isAct ? " rt-anim-pop-word" : "";
+          return '<span class="rt-tumbuh-word' + popCls + hiddenCls + '" style="font-size:' + sc.toFixed(2) + 'em;transform:rotate(' + rot + 'deg);color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
+        }).join("");
+        return '<div class="rt-tumbuh-wrap">' + parts + "</div>";
+      }
+
+      if (subAnim === "acak") {
+        const mid = Math.ceil(words.length / 2);
+        const rows = words.length > 1 ? [words.slice(0, mid), words.slice(mid)] : [words];
+        let gIdx = 0;
+        return '<div class="rt-acak-wrap">' + rows.map(function (row, rIdx) {
+          const rowCls = rIdx % 2 === 0 ? "rt-acak-row-a" : "rt-acak-row-b";
+          const inner = row.map(function (w) {
+            const idx = gIdx++;
+            const hiddenCls = (isProgressiveWord && idx > targetIdx) ? " rt-word-hidden" : "";
+            const isAct = idx === targetIdx;
+            const col = isAct ? (idx % 2 === 0 ? "#FACC15" : "#38BDF8") : style.color;
+            const yJit = idx % 2 === 0 ? "-1.5px" : "1.5px";
+            const popCls = isAct ? " rt-anim-pop-word" : "";
+            return '<span class="rt-acak-word' + popCls + hiddenCls + '" style="color:' + escapeHtml(col) + ';transform:translateY(' + yJit + ');">' + escapeHtml(w) + "</span>";
+          }).join("");
+          return '<div class="' + rowCls + '">' + inner + "</div>";
+        }).join("") + "</div>";
+      }
+
+      if (subAnim === "multibaris") {
+        const perLine = words.length <= 3 ? 1 : (words.length <= 6 ? 2 : 3);
+        const rows = [];
+        for (let i = 0; i < words.length; i += perLine) {
+          rows.push(words.slice(i, i + perLine));
+        }
+        let gIdx = 0;
+        return '<div class="rt-multibaris-wrap">' + rows.map(function (row) {
+          const inner = row.map(function (w) {
+            const idx = gIdx++;
+            const hiddenCls = (isProgressiveWord && idx > targetIdx) ? " rt-word-hidden" : "";
+            const isAct = idx === targetIdx;
+            const col = isAct ? (idx % 2 === 0 ? "#FACC15" : "#38BDF8") : style.color;
+            const slideCls = isAct ? " rt-multibaris-slide" : "";
+            return '<span class="rt-word-span' + slideCls + hiddenCls + '" style="color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
+          }).join("");
+          return '<div class="rt-multibaris-row">' + inner + "</div>";
+        }).join("") + "</div>";
+      }
+
+      if (subAnim === "satu_baris") {
+        const sbFontScale = words.length >= 6 ? 0.78 : (words.length >= 4 ? 0.88 : 1.0);
+        const inner = words.map(function (w, i) {
+          const isAct = i === targetIdx;
+          const col = isAct ? ((style.highlightColor && style.highlightColor !== "none") ? style.highlightColor : "#38BDF8") : style.color;
+          const cls = isAct ? "rt-word-active" : "rt-word-span";
+          return '<span class="' + cls + '" style="color:' + escapeHtml(col) + ';">' + escapeHtml(w) + "</span>";
+        }).join("");
+        return '<div class="rt-satubaris-wrap" style="font-size:' + sbFontScale.toFixed(2) + 'em;">' + inner + "</div>";
+      }
+
       const wordHtml = words.map(function (w, i) {
         const safeW = escapeHtml(w);
         const hiddenCls = (isWordReveal && i > targetIdx) ? " rt-word-hidden" : "";
@@ -11359,6 +12063,64 @@
     }
 
     let editorMediaMode = "entry"; // "entry" | "photo" | "video"
+    let modePickerActiveIdx = 0; // 0 = Edit Foto, 1 = Edit Video (mobile horizontal carousel)
+
+    function syncModePickerIndicators(idx) {
+      modePickerActiveIdx = idx === 1 ? 1 : 0;
+      const dotsWrap = document.getElementById("modePickerDots");
+      if (dotsWrap) {
+        dotsWrap.querySelectorAll(".mode-picker-dot").forEach(function (dot) {
+          const dIdx = Number(dot.getAttribute("data-mode-dot"));
+          dot.classList.toggle("active", dIdx === modePickerActiveIdx);
+        });
+      }
+      if (editorMediaMode === "entry" && window.innerWidth < 768) {
+        const btnPhoto = document.getElementById("btnModeSwitchPhoto");
+        const btnVideo = document.getElementById("btnModeSwitchVideo");
+        if (btnPhoto) btnPhoto.classList.toggle("active", modePickerActiveIdx === 0);
+        if (btnVideo) btnVideo.classList.toggle("active", modePickerActiveIdx === 1);
+      }
+    }
+
+    function scrollModePickerCard(idx) {
+      const nextIdx = idx === 1 ? 1 : 0;
+      syncModePickerIndicators(nextIdx);
+      const carousel = document.getElementById("modePickerCardsCarousel");
+      if (!carousel) return;
+      const cards = carousel.querySelectorAll(".mode-picker-card-col");
+      const targetCard = cards[nextIdx];
+      if (targetCard) {
+        const leftPos = targetCard.offsetLeft - Math.max(0, (carousel.clientWidth - targetCard.offsetWidth) / 2);
+        carousel.scrollTo({ left: Math.max(0, leftPos), behavior: "smooth" });
+      }
+    }
+
+    (function bindModePickerCarouselSync() {
+      const carousel = document.getElementById("modePickerCardsCarousel");
+      if (!carousel) return;
+      let scrollRaf = 0;
+      carousel.addEventListener("scroll", function () {
+        if (scrollRaf) return;
+        scrollRaf = requestAnimationFrame(function () {
+          scrollRaf = 0;
+          if (window.innerWidth >= 768) return;
+          const cards = carousel.querySelectorAll(".mode-picker-card-col");
+          if (cards.length < 2) return;
+          const centerX = carousel.scrollLeft + carousel.clientWidth / 2;
+          let bestIdx = 0;
+          let bestDist = Infinity;
+          cards.forEach(function (cardEl, idx) {
+            const cardCenter = cardEl.offsetLeft + cardEl.offsetWidth / 2;
+            const d = Math.abs(cardCenter - centerX);
+            if (d < bestDist) {
+              bestDist = d;
+              bestIdx = idx;
+            }
+          });
+          syncModePickerIndicators(bestIdx);
+        });
+      }, { passive: true });
+    })();
 
     function updateEditorTopModeUI() {
       const quickLoader = document.getElementById("editorQuickLoaderPanel");
@@ -11368,16 +12130,19 @@
       const btnVideo = document.getElementById("btnModeSwitchVideo");
       const fileLabel = document.getElementById("editorActiveFileLabel");
       const mobileResSel = document.getElementById("editorMobileExportResSelect");
+      const mobileExportBtn = document.getElementById("btnEditorMobileExport");
       const topExitBtn = document.getElementById("btnEditorTopExit");
 
-      if (btnPhoto) btnPhoto.classList.toggle("active", editorMediaMode === "photo");
-      if (btnVideo) btnVideo.classList.toggle("active", editorMediaMode === "video");
+      const isMobileEntry = editorMediaMode === "entry" && window.innerWidth < 768;
+      if (btnPhoto) btnPhoto.classList.toggle("active", editorMediaMode === "photo" || (isMobileEntry && modePickerActiveIdx === 0));
+      if (btnVideo) btnVideo.classList.toggle("active", editorMediaMode === "video" || (isMobileEntry && modePickerActiveIdx === 1));
 
       if (quickLoader) quickLoader.classList.toggle("d-none", editorMediaMode !== "entry");
       if (photoShell) photoShell.classList.toggle("d-none", editorMediaMode !== "photo");
       if (videoShell) videoShell.classList.toggle("d-none", editorMediaMode !== "video");
 
       if (mobileResSel) mobileResSel.classList.toggle("d-none", editorMediaMode !== "video");
+      if (mobileExportBtn) mobileExportBtn.classList.toggle("d-none", editorMediaMode === "entry");
       if (topExitBtn) topExitBtn.classList.toggle("d-none", editorMediaMode === "entry");
 
       if (fileLabel) {
@@ -11419,6 +12184,10 @@
 
       if (targetMode === "photo") {
         if (!activePhotoProject) {
+          if (editorMediaMode === "entry" && window.innerWidth < 768) {
+            scrollModePickerCard(0);
+            return;
+          }
           const inp = document.getElementById("photoQuickLoaderInput");
           editorMediaMode = "entry";
           updateEditorTopModeUI();
@@ -11440,6 +12209,10 @@
 
       if (targetMode === "video") {
         if (!activeClip) {
+          if (editorMediaMode === "entry" && window.innerWidth < 768) {
+            scrollModePickerCard(1);
+            return;
+          }
           const inp = document.getElementById("editorQuickLoaderFileInput");
           editorMediaMode = "entry";
           updateEditorTopModeUI();
@@ -11461,6 +12234,9 @@
 
       editorMediaMode = "entry";
       updateEditorTopModeUI();
+      if (window.innerWidth < 768) {
+        requestAnimationFrame(function () { scrollModePickerCard(modePickerActiveIdx); });
+      }
     }
 
     function handleMobileTopbarExport() {
@@ -14987,6 +15763,288 @@
         : Math.max(0, words.length - 1);
       const hlWordIdx = !isHook ? resolveHighlightWordIndex(style.highlightWord, words) : -1;
 
+      const subAnim = !isHook ? (style.animation || "none") : "none";
+      const isKineticPreset = !isHook && KINETIC_SUBTITLE_ANIM_IDS.indexOf(subAnim) !== -1;
+
+      if (isKineticPreset && words.length > 0) {
+        const hlAccentCol = (style.highlightColor && style.highlightColor !== "none") ? style.highlightColor : "#FACC15";
+        const strokeCanvasW = style.strokeWidth > 0 ? Math.round(style.strokeWidth * 4.2) : 0;
+        const kineticRows = [];
+        let baseFontPx = fontPx;
+
+        if (subAnim === "satu_baris") {
+          const fullJoined = words.join(" ");
+          ctx.font = fontWeight + baseFontPx + "px " + style.fontFamily;
+          const fullW = ctx.measureText(fullJoined).width;
+          const maxRowW = canvas.width * 0.88;
+          if (fullW > maxRowW && fullW > 0) {
+            baseFontPx = Math.max(18, Math.floor(baseFontPx * (maxRowW / fullW)));
+          }
+          const tokens = words.map(function (w, i) {
+            const isAct = i === targetWordIdx;
+            const col = isAct ? ((style.highlightColor && style.highlightColor !== "none") ? style.highlightColor : "#38BDF8") : style.color;
+            return {
+              text: w,
+              fontPx: baseFontPx,
+              color: col,
+              scale: isAct ? 1.1 : 1.0,
+              rot: 0,
+              yJitter: 0,
+              visible: true,
+              pillBg: ""
+            };
+          });
+          kineticRows.push({ tokens: tokens, lineH: Math.round(baseFontPx * 1.3), offsetX: 0 });
+        } else if (subAnim === "kolase_jadul") {
+          const kolPalette = [
+            { bg: "#FB7185", fg: "#FFFFFF", rot: -0.042 },
+            { bg: "#FACC15", fg: "#0F172A", rot: 0.038 },
+            { bg: "#34D399", fg: "#064E3B", rot: -0.028 }
+          ];
+          const pillPadX = Math.round(baseFontPx * 0.42);
+          const wordGap = Math.round(baseFontPx * 0.24);
+          let curRow = [];
+          let curRowW = 0;
+          words.forEach(function (w, i) {
+            ctx.font = "900 " + baseFontPx + "px " + style.fontFamily;
+            const tw = ctx.measureText(w).width + pillPadX * 2;
+            if (curRow.length > 0 && curRowW + wordGap + tw > maxWidth) {
+              kineticRows.push({ tokens: curRow, lineH: Math.round(baseFontPx * 1.48), offsetX: 0 });
+              curRow = [];
+              curRowW = 0;
+            }
+            const pal = kolPalette[i % 3];
+            const isAct = i === targetWordIdx;
+            curRow.push({
+              text: w,
+              fontPx: baseFontPx,
+              color: pal.fg,
+              pillBg: pal.bg,
+              pillPadX: pillPadX,
+              pillPadY: Math.round(baseFontPx * 0.22),
+              scale: isAct ? 1.12 : 1.0,
+              rot: isAct ? 0 : pal.rot,
+              yJitter: 0,
+              visible: i <= targetWordIdx
+            });
+            curRowW += (curRow.length > 1 ? wordGap : 0) + tw;
+          });
+          if (curRow.length > 0) kineticRows.push({ tokens: curRow, lineH: Math.round(baseFontPx * 1.48), offsetX: 0 });
+        } else if (subAnim === "garis_bertumpuk") {
+          const rawGroups = [];
+          if (words.length <= 1) {
+            rawGroups.push({ role: "top", list: [{ w: words[0], idx: 0 }] });
+          } else if (words.length === 2) {
+            rawGroups.push({ role: "top", list: [{ w: words[0], idx: 0 }] });
+            rawGroups.push({ role: "bot", list: [{ w: words[1], idx: 1 }] });
+          } else {
+            rawGroups.push({ role: "top", list: [{ w: words[0], idx: 0 }] });
+            rawGroups.push({ role: "mid", list: words.slice(1, words.length - 1).map(function (w, k) { return { w: w, idx: k + 1 }; }) });
+            rawGroups.push({ role: "bot", list: [{ w: words[words.length - 1], idx: words.length - 1 }] });
+          }
+          rawGroups.forEach(function (g) {
+            const mult = g.role === "top" ? 1.32 : (g.role === "mid" ? 0.78 : 1.12);
+            const rFontPx = Math.round(baseFontPx * mult);
+            const tokens = g.list.map(function (it) {
+              const isAct = it.idx === targetWordIdx;
+              const col = g.role === "top" ? "#F472B6" : (g.role === "bot" ? (isAct ? "#FACC15" : "#C084FC") : (isAct ? "#38BDF8" : "#FFFFFF"));
+              return {
+                text: it.w,
+                fontPx: rFontPx,
+                color: col,
+                scale: isAct ? 1.08 : 1.0,
+                rot: 0,
+                yJitter: 0,
+                visible: it.idx <= targetWordIdx,
+                pillBg: ""
+              };
+            });
+            kineticRows.push({ tokens: tokens, lineH: Math.round(rFontPx * 1.08), offsetX: 0 });
+          });
+        } else if (subAnim === "kombo_multibaris") {
+          const mid = Math.ceil(words.length / 2);
+          const groups = words.length > 1 ? [words.slice(0, mid), words.slice(mid)] : [words];
+          let gIdx = 0;
+          groups.forEach(function (grp) {
+            const tokens = grp.map(function (w) {
+              const idx = gIdx++;
+              const isLg = idx % 2 === 0;
+              const isAct = idx === targetWordIdx;
+              const tPx = Math.round(baseFontPx * (isLg ? 1.24 : 0.74));
+              return {
+                text: isLg ? w : w.toUpperCase(),
+                fontPx: tPx,
+                color: isAct ? hlAccentCol : (isLg ? style.color : "#E2E8F0"),
+                scale: isAct ? 1.08 : 1.0,
+                rot: 0,
+                yJitter: 0,
+                visible: idx <= targetWordIdx,
+                pillBg: ""
+              };
+            });
+            kineticRows.push({ tokens: tokens, lineH: Math.round(baseFontPx * 1.28), offsetX: 0 });
+          });
+        } else if (subAnim === "pertumbuhan_dinamis") {
+          const scales = [1.0, 1.28, 0.86, 1.18, 0.92];
+          const tilts = [-0.055, 0.045, -0.032, 0.052, -0.038];
+          const wordGap = Math.round(baseFontPx * 0.24);
+          let curRow = [];
+          let curRowW = 0;
+          words.forEach(function (w, i) {
+            const tPx = Math.round(baseFontPx * scales[i % scales.length]);
+            ctx.font = "900 " + tPx + "px " + style.fontFamily;
+            const tw = ctx.measureText(w).width;
+            if (curRow.length > 0 && curRowW + wordGap + tw > maxWidth) {
+              kineticRows.push({ tokens: curRow, lineH: Math.round(baseFontPx * 1.32), offsetX: 0 });
+              curRow = [];
+              curRowW = 0;
+            }
+            const isAct = i === targetWordIdx;
+            curRow.push({
+              text: w,
+              fontPx: tPx,
+              color: isAct ? hlAccentCol : style.color,
+              scale: isAct ? 1.1 : 1.0,
+              rot: tilts[i % tilts.length],
+              yJitter: 0,
+              visible: i <= targetWordIdx,
+              pillBg: ""
+            });
+            curRowW += (curRow.length > 1 ? wordGap : 0) + tw;
+          });
+          if (curRow.length > 0) kineticRows.push({ tokens: curRow, lineH: Math.round(baseFontPx * 1.32), offsetX: 0 });
+        } else if (subAnim === "acak") {
+          const mid = Math.ceil(words.length / 2);
+          const groups = words.length > 1 ? [words.slice(0, mid), words.slice(mid)] : [words];
+          let gIdx = 0;
+          groups.forEach(function (grp, rIdx) {
+            const tokens = grp.map(function (w) {
+              const idx = gIdx++;
+              const isAct = idx === targetWordIdx;
+              return {
+                text: w,
+                fontPx: baseFontPx,
+                color: isAct ? (idx % 2 === 0 ? "#FACC15" : "#38BDF8") : style.color,
+                scale: isAct ? 1.1 : 1.0,
+                rot: 0,
+                yJitter: (idx % 2 === 0 ? -1 : 1) * Math.round(baseFontPx * 0.06),
+                visible: idx <= targetWordIdx,
+                pillBg: ""
+              };
+            });
+            kineticRows.push({
+              tokens: tokens,
+              lineH: Math.round(baseFontPx * 1.24),
+              offsetX: rIdx % 2 === 0 ? -Math.round(baseFontPx * 0.55) : Math.round(baseFontPx * 0.65)
+            });
+          });
+        } else {
+          // multibaris
+          const perLine = words.length <= 3 ? 1 : (words.length <= 6 ? 2 : 3);
+          let gIdx = 0;
+          for (let i = 0; i < words.length; i += perLine) {
+            const grp = words.slice(i, i + perLine);
+            const tokens = grp.map(function (w) {
+              const idx = gIdx++;
+              const isAct = idx === targetWordIdx;
+              return {
+                text: w,
+                fontPx: baseFontPx,
+                color: isAct ? (idx % 2 === 0 ? "#FACC15" : "#38BDF8") : style.color,
+                scale: isAct ? 1.08 : 1.0,
+                rot: 0,
+                yJitter: isAct ? Math.round(Math.max(0, 1 - Math.min(1, motionElapsed / 0.18)) * 10) : 0,
+                visible: idx <= targetWordIdx,
+                pillBg: ""
+              };
+            });
+            kineticRows.push({ tokens: tokens, lineH: Math.round(baseFontPx * 1.24), offsetX: 0 });
+          }
+        }
+
+        let maxKinW = 0;
+        let totalKinH = 0;
+        kineticRows.forEach(function (row) {
+          const wordGap = Math.round(baseFontPx * 0.25);
+          let rowW = 0;
+          row.tokens.forEach(function (tok, tIdx) {
+            ctx.font = "900 " + tok.fontPx + "px " + style.fontFamily;
+            tok.pureW = ctx.measureText(tok.text).width;
+            tok.boxW = tok.pillBg ? (tok.pureW + tok.pillPadX * 2) : tok.pureW;
+            rowW += tok.boxW + (tIdx < row.tokens.length - 1 ? wordGap : 0);
+          });
+          row.rowW = rowW;
+          row.wordGap = wordGap;
+          maxKinW = Math.max(maxKinW, rowW + Math.abs(row.offsetX || 0) * 2);
+          totalKinH += row.lineH;
+        });
+
+        const rawX = canvas.width * (posX / 100);
+        const xAnc = Math.max(maxKinW / 2 + 28, Math.min(canvas.width - maxKinW / 2 - 28, rawX));
+        const yAnc = Math.max(totalKinH / 2 + 40, Math.min(canvas.height - totalKinH / 2 - 40, canvas.height * (posY / 100)));
+
+        ctx.globalAlpha = Math.max(0.02, Math.min(1, (style.opacity / 100) * motion.alpha));
+        ctx.translate(xAnc, yAnc + motion.slideYCanvas);
+        ctx.scale(motion.scale, motion.scale);
+
+        let curY = -totalKinH / 2;
+        kineticRows.forEach(function (row) {
+          const rowCenterY = curY + row.lineH / 2;
+          let cursorX = -(row.rowW / 2) + (row.offsetX || 0);
+          row.tokens.forEach(function (tok) {
+            const cx = cursorX + tok.boxW / 2;
+            if (tok.visible) {
+              ctx.save();
+              ctx.translate(cx, rowCenterY + (tok.yJitter || 0));
+              if (tok.rot) ctx.rotate(tok.rot);
+              if (tok.scale && tok.scale !== 1) ctx.scale(tok.scale, tok.scale);
+              ctx.font = "900 " + tok.fontPx + "px " + style.fontFamily;
+
+              if (tok.pillBg) {
+                const ph = tok.fontPx + tok.pillPadY * 2;
+                ctx.save();
+                ctx.fillStyle = tok.pillBg;
+                ctx.shadowColor = "rgba(2, 6, 23, 0.45)";
+                ctx.shadowBlur = 14;
+                ctx.shadowOffsetY = 5;
+                drawCanvasRoundRect(ctx, -tok.boxW / 2, -ph / 2, tok.boxW, ph, Math.round(tok.fontPx * 0.32));
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "rgba(15, 23, 42, 0.28)";
+                ctx.stroke();
+                ctx.restore();
+              } else {
+                if (strokeCanvasW > 0) {
+                  ctx.lineJoin = "round";
+                  ctx.lineWidth = strokeCanvasW;
+                  ctx.strokeStyle = style.strokeColor;
+                  ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+                  ctx.shadowBlur = 16;
+                  ctx.shadowOffsetY = 5;
+                  ctx.strokeText(tok.text, 0, 0);
+                  ctx.shadowBlur = 0;
+                  ctx.shadowOffsetY = 0;
+                } else {
+                  ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+                  ctx.shadowBlur = 16;
+                  ctx.shadowOffsetY = 5;
+                }
+              }
+
+              ctx.fillStyle = tok.color;
+              ctx.fillText(tok.text, 0, 0);
+              ctx.restore();
+            }
+            cursorX += tok.boxW + row.wordGap;
+          });
+          curY += row.lineH;
+        });
+
+        ctx.restore();
+        return;
+      }
+
       let lines = [];
       if (isSingleWordPop) {
         const singleTok = words[targetWordIdx] || words[0] || "";
@@ -16529,6 +17587,341 @@
     }
 
     let isMobileEditorSheetOpen = false;
+    let activeMobileCategory = null;
+    let activeMobileToolPanel = null;
+
+    const MOBILE_SHEET_FOCUS_CLASSES = [
+      "mobile-tool-edit-crop",
+      "mobile-tool-edit-reframe",
+      "mobile-tool-edit-speed",
+      "mobile-tool-audio-volume",
+      "mobile-tool-audio-music",
+      "mobile-tool-audio-sfx",
+      "mobile-tool-audio-fade",
+      "mobile-tool-overlay-upload",
+      "mobile-tool-overlay-pixabay"
+    ];
+
+    function setMobileDrawerFocusClass(focusCls) {
+      const drawerEl = document.getElementById("editorBottomDrawer");
+      if (!drawerEl) return;
+      MOBILE_SHEET_FOCUS_CLASSES.forEach(function (cls) {
+        drawerEl.classList.remove(cls);
+      });
+      if (focusCls) drawerEl.classList.add(focusCls);
+    }
+
+    function openMobileToolSheet(tabKey, toolPanelId, opts) {
+      activeMobileToolPanel = toolPanelId || tabKey;
+      setMobileDrawerFocusClass(opts && opts.focusClass ? opts.focusClass : "");
+      if (opts && opts.textStudioTab && TEXT_STUDIO_UI_STATE[opts.textStudioKind || "hook"]) {
+        TEXT_STUDIO_UI_STATE[opts.textStudioKind || "hook"].tab = opts.textStudioTab;
+      }
+      openEditorDockTab(tabKey, false, false, opts);
+      if (opts && opts.headingHtml) {
+        const headingEl = document.getElementById("editorDrawerHeading");
+        if (headingEl) headingEl.innerHTML = opts.headingHtml;
+      }
+      renderMobileBottomDock();
+    }
+
+    function setMobileDockCategory(catKey) {
+      activeMobileCategory = catKey || null;
+      if (!activeMobileCategory) {
+        activeMobileToolPanel = null;
+        closeEditorBottomDrawer();
+      }
+      renderMobileBottomDock();
+    }
+
+    function handleMobileDockRootTap(rootKey) {
+      activeMobileCategory = rootKey;
+      if (rootKey === "latar") {
+        openMobileToolSheet("background", "bg_" + (activeClip && isCanvasBlurActive(activeClip) ? "blur" : (activeClip && activeClip.canvasBg && activeClip.canvasBg.mode ? activeClip.canvasBg.mode : "none")));
+        return;
+      }
+      if (rootKey === "efek") {
+        openMobileToolSheet("effects", "vfx_picker");
+        return;
+      }
+      if (rootKey === "sesuaikan") {
+        openMobileToolSheet("adjust", "adjust_sliders");
+        return;
+      }
+      activeMobileToolPanel = null;
+      closeEditorBottomDrawer();
+      renderMobileBottomDock();
+    }
+
+    function handleMobileSubToolTap(catKey, subId) {
+      if (!activeClip) return;
+      if (catKey === "edit") {
+        if (subId === "split") {
+          splitActiveTimelineItem();
+          return;
+        }
+        if (subId === "speed") {
+          openMobileToolSheet("edit", "speed", {
+            editSubTab: "speed",
+            focusClass: "mobile-tool-edit-speed",
+            headingHtml: '<i class="bi bi-speedometer2 me-1 text-primary"></i>Kecepatan &amp; Durasi'
+          });
+          return;
+        }
+        if (subId === "volume") {
+          openMobileToolSheet("audio", "volume", {
+            focusClass: "mobile-tool-audio-volume",
+            headingHtml: '<i class="bi bi-volume-up-fill me-1 text-primary"></i>Volume Klip'
+          });
+          return;
+        }
+        if (subId === "animasi") {
+          if (editorSelectedTarget === "hook") {
+            openMobileToolSheet("text", "animasi", {
+              textStudioKind: "hook",
+              textStudioTab: "animasi",
+              headingHtml: '<i class="bi bi-play-circle me-1 text-primary"></i>Animasi Teks'
+            });
+          } else if (editorSelectedTarget === "subtitle") {
+            openMobileToolSheet("captions", "animasi", {
+              textStudioKind: "subtitle",
+              textStudioTab: "animasi",
+              headingHtml: '<i class="bi bi-play-circle me-1 text-primary"></i>Animasi Subtitle'
+            });
+          } else if (editorSelectedTarget === "broll") {
+            openMobileToolSheet("overlay", "animasi", {
+              focusClass: "mobile-tool-overlay-upload",
+              headingHtml: '<i class="bi bi-play-circle me-1 text-primary"></i>Animasi Overlay'
+            });
+          } else {
+            openMobileToolSheet("effects", "animasi", {
+              headingHtml: '<i class="bi bi-play-circle me-1 text-primary"></i>Animasi &amp; Efek Video'
+            });
+          }
+          return;
+        }
+        if (subId === "delete") {
+          deleteSelectedTimelineItem();
+          return;
+        }
+        if (subId === "duplicate") {
+          duplicateSelectedTimelineItem();
+          return;
+        }
+        if (subId === "replace") {
+          const repInp = document.getElementById("editorReplaceVideoInput");
+          if (repInp) repInp.click();
+          return;
+        }
+        if (subId === "crop") {
+          openMobileToolSheet("edit", "crop", {
+            editSubTab: "crop",
+            focusClass: "mobile-tool-edit-crop",
+            headingHtml: '<i class="bi bi-aspect-ratio me-1 text-primary"></i>Kanvas &amp; Pangkas'
+          });
+          return;
+        }
+        if (subId === "reframe") {
+          openMobileToolSheet("edit", "reframe", {
+            editSubTab: "reframe",
+            focusClass: "mobile-tool-edit-reframe",
+            headingHtml: '<i class="bi bi-person-bounding-box me-1 text-primary"></i>Ubah Bingkai Otomatis'
+          });
+          return;
+        }
+        if (subId === "adjust") {
+          openMobileToolSheet("adjust", "adjust");
+          return;
+        }
+        if (subId === "filter") {
+          openMobileToolSheet("effects", "filter", {
+            headingHtml: '<i class="bi bi-stars me-1 text-primary"></i>Filter &amp; Efek'
+          });
+          return;
+        }
+      }
+
+      if (catKey === "audio") {
+        if (subId === "extract") {
+          extractAudioFromVideoTrack();
+          return;
+        }
+        if (subId === "music") {
+          openMobileToolSheet("audio", "music", {
+            focusClass: "mobile-tool-audio-music",
+            headingHtml: '<i class="bi bi-music-note-beamed me-1 text-primary"></i>Suara / Musik'
+          });
+          return;
+        }
+        if (subId === "sfx") {
+          openMobileToolSheet("audio", "sfx", {
+            focusClass: "mobile-tool-audio-sfx",
+            headingHtml: '<i class="bi bi-volume-up-fill me-1 text-primary"></i>Efek Suara (SFX)'
+          });
+          return;
+        }
+        if (subId === "fade") {
+          if (editorSelectedTarget !== "music" && editorSelectedTarget !== "sfx" && Array.isArray(activeClip.musicTracks) && activeClip.musicTracks.length > 0) {
+            editorSelectedTarget = "music";
+            selectedMusicId = activeClip.musicTracks[0].id;
+            renderTimelineAudioTrack();
+          }
+          openMobileToolSheet("audio", "fade", {
+            focusClass: "mobile-tool-audio-fade",
+            headingHtml: '<i class="bi bi-sliders me-1 text-primary"></i>Potong / Pudar Audio'
+          });
+          return;
+        }
+      }
+
+      if (catKey === "teks") {
+        if (subId === "add_text") {
+          addHookBannerAction(true);
+          openMobileToolSheet("text", "add_text", {
+            textStudioKind: "hook",
+            textStudioTab: "gaya",
+            headingHtml: '<i class="bi bi-fonts me-1 text-primary"></i>Tambahkan Teks'
+          });
+          return;
+        }
+        if (subId === "auto_captions") {
+          openMobileToolSheet("captions", "auto_captions", {
+            headingHtml: '<i class="bi bi-chat-square-quote-fill me-1 text-primary"></i>Keterangan Otomatis'
+          });
+          return;
+        }
+        if (subId === "text_templates") {
+          if (!Array.isArray(activeClip.hookOverlays) || activeClip.hookOverlays.length === 0) {
+            addHookBannerAction(true);
+          }
+          openMobileToolSheet("text", "text_templates", {
+            textStudioKind: "hook",
+            textStudioTab: "template",
+            headingHtml: '<i class="bi bi-grid-1x2-fill me-1 text-primary"></i>Template Teks'
+          });
+          return;
+        }
+      }
+
+      if (catKey === "latar") {
+        const bgMap = { bg_none: "none", bg_blur: "blur", bg_color: "color", bg_image: "image" };
+        const bgModeKey = bgMap[subId] || "none";
+        if (typeof setEditorCanvasBgMode === "function") setEditorCanvasBgMode(bgModeKey);
+        openMobileToolSheet("background", subId);
+        return;
+      }
+
+      if (catKey === "overlay") {
+        if (subId === "add_overlay") {
+          openMobileToolSheet("overlay", "add_overlay", {
+            focusClass: "mobile-tool-overlay-upload",
+            headingHtml: '<i class="bi bi-plus-square-fill me-1 text-primary"></i>Tambah Overlay'
+          });
+          return;
+        }
+        if (subId === "pixabay_broll") {
+          openMobileToolSheet("overlay", "pixabay_broll", {
+            focusClass: "mobile-tool-overlay-pixabay",
+            headingHtml: '<i class="bi bi-images me-1 text-primary"></i>B-Roll Pixabay'
+          });
+          return;
+        }
+      }
+
+      if (catKey === "efek") {
+        if (subId === "vfx_picker") {
+          openMobileToolSheet("effects", "vfx_picker");
+          return;
+        }
+        if (subId === "vfx_whole") {
+          if (typeof applySelectedVfxToWholeClip === "function") applySelectedVfxToWholeClip();
+          return;
+        }
+      }
+
+      if (catKey === "sesuaikan") {
+        if (subId === "adjust_sliders") {
+          openMobileToolSheet("adjust", "adjust_sliders");
+          return;
+        }
+        if (subId === "adjust_reset") {
+          if (typeof resetEditorColorAdjustments === "function") resetEditorColorAdjustments();
+          return;
+        }
+      }
+    }
+
+    function renderMobileBottomDock() {
+      const level1 = document.getElementById("editorMobileLevel1Dock");
+      const level2 = document.getElementById("editorMobileLevel2Dock");
+      const scrollEl = document.getElementById("editorMobileSubToolsScroll");
+      if (!level1 || !level2 || !scrollEl) return;
+
+      if (!activeMobileCategory) {
+        level1.classList.remove("d-none");
+        level2.classList.add("d-none");
+        level1.querySelectorAll("[data-mobile-root]").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        return;
+      }
+
+      level1.classList.add("d-none");
+      level2.classList.remove("d-none");
+
+      const SUBTOOLS = {
+        edit: [
+          { id: "split", icon: "bi-scissors", label: "Bagi" },
+          { id: "speed", icon: "bi-speedometer2", label: "Kecepatan" },
+          { id: "volume", icon: "bi-volume-up-fill", label: "Volume" },
+          { id: "animasi", icon: "bi-play-circle", label: "Animasi" },
+          { id: "delete", icon: "bi-trash3", label: "Hapus" },
+          { id: "duplicate", icon: "bi-copy", label: "Duplikat" },
+          { id: "replace", icon: "bi-arrow-repeat", label: "Ganti" },
+          { id: "crop", icon: "bi-aspect-ratio", label: "Kanvas & Pangkas" },
+          { id: "reframe", icon: "bi-person-bounding-box", label: "Ubah Bingkai Otomatis" },
+          { id: "adjust", icon: "bi-sliders2", label: "Sesuaikan" },
+          { id: "filter", icon: "bi-stars", label: "Filter" }
+        ],
+        audio: [
+          { id: "extract", icon: "bi-soundwave", label: "Ekstrak Audio" },
+          { id: "music", icon: "bi-music-note-beamed", label: "Suara / Musik" },
+          { id: "sfx", icon: "bi-volume-up-fill", label: "Efek Suara (SFX)" },
+          { id: "fade", icon: "bi-sliders", label: "Potong / Pudar" }
+        ],
+        teks: [
+          { id: "add_text", icon: "bi-plus-square-fill", label: "Tambahkan Teks" },
+          { id: "auto_captions", icon: "bi-chat-square-quote-fill", label: "Keterangan Otomatis" },
+          { id: "text_templates", icon: "bi-grid-1x2-fill", label: "Template Teks" }
+        ],
+        latar: [
+          { id: "bg_none", icon: "bi-slash-circle", label: "Tidak Ada" },
+          { id: "bg_blur", icon: "bi-droplet-half", label: "Kabur" },
+          { id: "bg_color", icon: "bi-palette-fill", label: "Warna" },
+          { id: "bg_image", icon: "bi-image-fill", label: "Gambar Kustom" }
+        ],
+        overlay: [
+          { id: "add_overlay", icon: "bi-plus-square-fill", label: "Tambah Overlay" },
+          { id: "pixabay_broll", icon: "bi-images", label: "B-Roll Pixabay" }
+        ],
+        efek: [
+          { id: "vfx_picker", icon: "bi-stars", label: "Efek Video" },
+          { id: "vfx_whole", icon: "bi-arrows-expand", label: "Sepanjang Klip" }
+        ],
+        sesuaikan: [
+          { id: "adjust_sliders", icon: "bi-sliders2", label: "Atur Warna" },
+          { id: "adjust_reset", icon: "bi-arrow-counterclockwise", label: "Reset Warna" }
+        ]
+      };
+
+      const items = SUBTOOLS[activeMobileCategory] || [];
+      scrollEl.innerHTML = items.map(function (item) {
+        const isAct = isMobileEditorSheetOpen && activeMobileToolPanel === item.id;
+        return '<button type="button" class="capcut-dock-btn ' + (isAct ? "active" : "") + '" onclick="handleMobileSubToolTap(\'' + activeMobileCategory + '\',\'' + item.id + '\')">' +
+          '<i class="bi ' + item.icon + '"></i><span>' + item.label + '</span>' +
+        '</button>';
+      }).join("");
+    }
 
     function syncEditorResolutionSelect(val) {
       const safe = val === "720p" || val === "uhd" ? val : "1080p";
@@ -16538,7 +17931,7 @@
       if (mobEl && mobEl.value !== safe) mobEl.value = safe;
     }
 
-    function openEditorDockTab(tabKey, keepCollapsed, fromDockClick) {
+    function openEditorDockTab(tabKey, keepCollapsed, fromDockClick, mobileOpts) {
       const validTabs = ["edit", "background", "audio", "text", "captions", "overlay", "effects", "adjust"];
       if (validTabs.indexOf(tabKey) === -1) tabKey = "captions";
       const wasSameTab = activeEditorDockTab === tabKey;
@@ -16562,7 +17955,7 @@
         }
       }
 
-      document.querySelectorAll("#videoEditorWorkspaceShell .capcut-dock-btn").forEach(function (btn) {
+      document.querySelectorAll("#editorDesktopRootTabs .capcut-dock-btn").forEach(function (btn) {
         btn.classList.toggle("active", btn.getAttribute("data-dock-tab") === tabKey);
       });
       validTabs.forEach(function (k) {
@@ -16575,7 +17968,7 @@
         headingEl.innerHTML = EDITOR_DOCK_HEADINGS[tabKey] || EDITOR_DOCK_HEADINGS.captions;
       }
       if (tabKey === "edit") {
-        switchEditSubTab("crop");
+        switchEditSubTab((mobileOpts && mobileOpts.editSubTab) ? mobileOpts.editSubTab : "crop");
       }
       if (tabKey === "background") {
         updateEditorCanvasBackgroundDOM();
@@ -16590,6 +17983,8 @@
 
     function closeEditorBottomDrawer() {
       isMobileEditorSheetOpen = false;
+      activeMobileToolPanel = null;
+      setMobileDrawerFocusClass("");
       const drawerEl = document.getElementById("editorBottomDrawer");
       if (drawerEl) {
         drawerEl.style.transition = "";
@@ -16598,6 +17993,7 @@
       }
       document.body.classList.remove("editor-mobile-sheet-open");
       updateCropGridOverlayVisibility();
+      renderMobileBottomDock();
     }
 
     function bindMobileSheetPullToClose(drawerId, handleId, closeFn) {
@@ -17448,13 +18844,20 @@
       editorRedoStack = [];
       updateUndoRedoButtons();
       toggleEditorSyncPopover(false);
+      activeMobileCategory = null;
+      activeMobileToolPanel = null;
+      setMobileDrawerFocusClass("");
       openEditorDockTab(selectedSubtitleId ? "captions" : "edit", true);
+      renderMobileBottomDock();
       syncAllEditorControlsFromActiveClip();
       if (typeof ensureVideoFilmstripThumbnails === "function") {
         ensureVideoFilmstripThumbnails(activeClip);
       }
       switchView("view-editor");
       syncStageAspectDimensions();
+      requestAnimationFrame(function () {
+        syncMobileTimelineScrollToTime(0);
+      });
     }
 
     function updatePresetButtonsUI(styleKey) {
@@ -17596,7 +18999,7 @@
       };
       activeClip.hookOverlays.push(newHook);
       activeClip.hookOverlays.sort(function (a, b) { return a.start - b.start; });
-      selectEditorTarget("hook", newHook.id);
+      selectEditorTarget("hook", newHook.id, arguments[0] === true);
       seekEditorTime(newHook.start);
       pushEditorHistorySnapshot();
       showToast("Teks baru ditambahkan di Track 3. Seret & ubah ukuran di kanvas!");
@@ -19409,7 +20812,7 @@
       }).catch(function () {});
     }
 
-    function selectEditorTarget(targetType, targetId) {
+    function selectEditorTarget(targetType, targetId, forceKeepDrawerCollapsed) {
       editorSelectedTarget = targetType;
       if (targetType === "subtitle" && targetId) selectedSubtitleId = targetId;
       if (targetType === "hook" && targetId) selectedHookId = targetId;
@@ -19430,7 +20833,25 @@
         vfx: "effects"
       };
       const dockTab = targetToDockMap[targetType] || "captions";
-      openEditorDockTab(dockTab, false);
+
+      if (window.innerWidth < 768) {
+        const targetToMobileCat = {
+          video: "edit",
+          voice: "audio",
+          music: "audio",
+          sfx: "audio",
+          hook: "teks",
+          subtitle: "teks",
+          broll: "overlay",
+          vfx: "efek"
+        };
+        activeMobileCategory = targetToMobileCat[targetType] || activeMobileCategory || "edit";
+        const keepClosed = Boolean(forceKeepDrawerCollapsed || !isMobileEditorSheetOpen);
+        openEditorDockTab(dockTab, keepClosed, false);
+        renderMobileBottomDock();
+      } else {
+        openEditorDockTab(dockTab, false);
+      }
 
       renderTimelineOverlays();
       renderTimelineSubtitles();
@@ -19586,8 +21007,11 @@
       if (kind === "hook") {
         patch.animationIn = tpl.animation || "none";
         patch.subLabel = tpl.hasSubLabel ? ((target && target.subLabel) ? target.subLabel : (tpl.defaultSubLabel || "")) : "";
-      } else if (kind === "subtitle" && activeClip && SUBTITLE_STYLE_META[tpl.id]) {
-        activeClip.style = tpl.id;
+      } else if (kind === "subtitle") {
+        patch.animationIn = tpl.animation || "none";
+        if (activeClip && SUBTITLE_STYLE_META[tpl.id]) {
+          activeClip.style = tpl.id;
+        }
       }
       applyTextStudioPatch(kind, patch, { renderTimeline: true, previewMotion: true, previewDir: "in" });
       if (kind === "hook" && target) {
@@ -19695,10 +21119,59 @@
     }
 
     function selectTextStudioAnimation(kind, animId) {
-      const patch = { animation: animId };
+      const patch = { animation: animId, animationIn: animId };
       if (animId === "kinetic_scale") patch.emphasisMode = "kinetic_scale";
       else if (animId === "word_highlight") patch.emphasisMode = "color_highlight";
       applyTextStudioPatch(kind, patch, { renderTimeline: true, previewMotion: true });
+    }
+
+    function buildSubtitleAnimCardPreviewHtml(animId) {
+      if (animId === "kolase_jadul") {
+        return '<div class="kl-anim-kolase"><span class="kl-anim-kolase-b c0">KLIP</span><span class="kl-anim-kolase-b c1">SERU</span><span class="kl-anim-kolase-b c2">INI</span></div>';
+      }
+      if (animId === "garis_bertumpuk") {
+        return '<div class="kl-anim-bertumpuk"><span class="kl-anim-bertumpuk-r1">HALO</span><span class="kl-anim-bertumpuk-r2">SEMUA</span><span class="kl-anim-bertumpuk-r3">VIRAL</span></div>';
+      }
+      if (animId === "kombo_multibaris") {
+        return '<div class="kl-anim-kombo"><div class="kl-anim-kombo-row"><span class="kl-anim-kombo-lg">BUAT</span><span class="kl-anim-kombo-sm">KONTEN</span></div><div class="kl-anim-kombo-row"><span class="kl-anim-kombo-sm">YANG</span><span class="kl-anim-kombo-lg">KEREN</span></div></div>';
+      }
+      if (animId === "pertumbuhan_dinamis") {
+        return '<div class="kl-anim-tumbuh"><span class="kl-anim-tumbuh-w1">IDE</span><span class="kl-anim-tumbuh-w2">GILA</span><span class="kl-anim-tumbuh-w3">INI</span></div>';
+      }
+      if (animId === "acak") {
+        return '<div class="kl-anim-acak"><span class="kl-anim-acak-a">ACAK RAPI</span><span class="kl-anim-acak-b">BERGERAK</span></div>';
+      }
+      if (animId === "multibaris") {
+        return '<div class="kl-anim-multi"><span class="kl-anim-multi-1">BARIS SATU</span><span class="kl-anim-multi-2">BARIS DUA</span></div>';
+      }
+      if (animId === "satu_baris") {
+        return '<div class="kl-anim-satubaris"><span class="kl-anim-sb1">SATU</span><span class="kl-anim-sb2">BARIS</span><span class="kl-anim-sb3">CEPAT</span></div>';
+      }
+      if (animId === "bounce_pop" || animId === "pop") {
+        return '<span class="kl-anim-generic-bounce">POP UP</span>';
+      }
+      if (animId === "kinetic_scale") {
+        return '<span class="kl-mozi-wrap" style="font-size:0.64rem;font-weight:900;color:#FFF;"><span class="kl-word kl-w1">SKALA</span> <span class="kl-word kl-w2">KATA</span></span>';
+      }
+      if (animId === "word_highlight") {
+        return '<span class="kl-cyan-wrap" style="font-size:0.62rem;font-weight:900;color:#FFF;"><span class="kl-word kl-cw1">SOROT</span> <span class="kl-word kl-cw2">KATA</span></span>';
+      }
+      if (animId === "zoom_out_pop") {
+        return '<span class="kl-anim-generic-zoomout">PERKECIL</span>';
+      }
+      if (animId === "zoom_in") {
+        return '<span class="kl-tpl-nook" style="font-size:0.66rem;font-weight:900;color:#38BDF8;">ZOOM IN</span>';
+      }
+      if (animId === "word_reveal") {
+        return '<span class="kl-gold-wrap" style="font-size:0.58rem;font-weight:900;color:#FFF;"><span class="kl-gw kl-gw1">SATU</span> <span class="kl-gw kl-gw2">PER</span> <span class="kl-gw kl-gw3">SATU</span></span>';
+      }
+      if (animId === "slide") {
+        return '<span class="kl-anim-generic-slide">GESER</span>';
+      }
+      if (animId === "fade") {
+        return '<span class="kl-anim-generic-fade">FADE</span>';
+      }
+      return '<i class="bi bi-slash-circle text-white-50"></i>';
     }
 
     function buildStudioTemplateCardPreviewHtml(tpl, kind) {
@@ -20142,8 +21615,8 @@
           bodyHtml = '<div class="text-studio-anim-grid">' +
             TEXT_ANIMATIONS_CATALOG.map(function (an) {
               const isSel = style.animation === an.id;
-              return '<button type="button" class="text-studio-anim-card ' + (isSel ? "active" : "") + '" onclick="selectTextStudioAnimation(\'' + kind + '\',\'' + an.id + '\')">' +
-                '<i class="bi ' + an.icon + '"></i>' +
+              return '<button type="button" class="text-studio-anim-card ' + (isSel ? "active" : "") + '" onclick="selectTextStudioAnimation(\'' + kind + '\',\'' + an.id + '\')" title="' + escapeHtml(an.label) + '">' +
+                '<div class="text-studio-anim-preview">' + buildSubtitleAnimCardPreviewHtml(an.id) + '</div>' +
                 '<span>' + escapeHtml(an.label) + '</span>' +
                 '</button>';
             }).join("") +
@@ -20915,6 +22388,46 @@
       rightHandle.addEventListener("pointerdown", function (ev) { startInteraction(ev, "trim-right"); });
       block.addEventListener("pointerdown", function (ev) {
         if (ev.target === leftHandle || ev.target === rightHandle) return;
+        if (window.innerWidth < 768 && ev.pointerType === "touch") {
+          // On mobile touch: single horizontal swipe scrolls the timeline smoothly under the center white playhead;
+          // tap selects the block, and long-press (~280ms hold) drags/repositions the block.
+          const startClientX = ev.clientX;
+          const startClientY = ev.clientY;
+          const downAt = performance.now();
+          let dragStarted = false;
+          let touchCancelled = false;
+          let holdTimer = setTimeout(function () {
+            if (!touchCancelled) {
+              dragStarted = true;
+              startInteraction(ev, "move");
+            }
+          }, 280);
+
+          function onTouchWatchMove(mEv) {
+            if (dragStarted) return;
+            if (Math.hypot(mEv.clientX - startClientX, mEv.clientY - startClientY) > 7) {
+              touchCancelled = true;
+              clearTimeout(holdTimer);
+              cleanupTouchWatch();
+            }
+          }
+          function onTouchWatchUp() {
+            clearTimeout(holdTimer);
+            cleanupTouchWatch();
+            if (!dragStarted && !touchCancelled && performance.now() - downAt < 300) {
+              if (opts.onSelect) opts.onSelect();
+            }
+          }
+          function cleanupTouchWatch() {
+            window.removeEventListener("pointermove", onTouchWatchMove);
+            window.removeEventListener("pointerup", onTouchWatchUp);
+            window.removeEventListener("pointercancel", onTouchWatchUp);
+          }
+          window.addEventListener("pointermove", onTouchWatchMove, { passive: true });
+          window.addEventListener("pointerup", onTouchWatchUp, { passive: true });
+          window.addEventListener("pointercancel", onTouchWatchUp, { passive: true });
+          return;
+        }
         startInteraction(ev, "move");
       });
     }
@@ -21794,7 +23307,7 @@
       const badge = document.getElementById("timelineZoomBadge");
       if (inner) {
         if (window.innerWidth < 768) {
-          const basePx = Math.max(680, Math.round((Number(activeSegmentDuration) || 30) * 26));
+          const basePx = Math.max(540, Math.round((Number(activeSegmentDuration) || 30) * 24));
           inner.style.width = Math.round(basePx * (editorTimelineZoom / 100)) + "px";
         } else {
           inner.style.width = editorTimelineZoom + "%";
@@ -21994,7 +23507,29 @@
       if (btn) btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Putar';
     }
 
-    function seekEditorTime(seconds) {
+    let programmaticTimelineScrollUntil = 0;
+    let isUserTouchScrollingTimeline = false;
+    let mobileTimelineUserScrollEndTimer = null;
+    let mobileScrubSeekRaf = null;
+    let pendingMobileScrubTime = null;
+
+    function syncMobileTimelineScrollToTime(tSec) {
+      if (window.innerWidth >= 768 || isUserTouchScrollingTimeline || !activeClip) return;
+      const scroller = document.getElementById("timelineTracksScroller");
+      const inner = document.getElementById("timelineZoomInner");
+      if (!scroller || !inner) return;
+      const trackW = inner.offsetWidth;
+      if (trackW <= 0) return;
+      const dur = Math.max(0.1, Number(activeSegmentDuration) || 1);
+      const frac = Math.max(0, Math.min(1, Number(tSec) / dur));
+      const targetLeft = Math.round(frac * trackW);
+      if (Math.abs(scroller.scrollLeft - targetLeft) >= 1) {
+        programmaticTimelineScrollUntil = performance.now() + 75;
+        scroller.scrollLeft = targetLeft;
+      }
+    }
+
+    function seekEditorTime(seconds, skipMobileScrollSync) {
       if (!activeClip) return;
       editorCurrentTime = Math.max(0, Math.min(activeSegmentDuration, seconds));
       editorTriggeredSfxIds = {};
@@ -22018,7 +23553,7 @@
       if (isEditorPlaying) {
         startLiveAudioMix(editorCurrentTime);
       }
-      updateEditorPreviewAtTime(editorCurrentTime);
+      updateEditorPreviewAtTime(editorCurrentTime, 0, skipMobileScrollSync);
     }
 
     function handleRulerClick(event) {
@@ -22027,6 +23562,99 @@
       const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
       seekEditorTime(ratio * activeSegmentDuration);
     }
+
+    // Mobile Timeline Scroll-Scrub + 2-Finger Pinch-to-Zoom Synced to Center White Playhead
+    (function initMobileTimelineScrollAndPinch() {
+      const scroller = document.getElementById("timelineTracksScroller");
+      const inner = document.getElementById("timelineZoomInner");
+      if (!scroller || !inner) return;
+
+      let isPinching = false;
+      let pinchStartDist = 0;
+      let pinchStartZoom = 100;
+      let pinchAnchorTime = 0;
+
+      scroller.addEventListener("touchstart", function (ev) {
+        if (window.innerWidth >= 768 || !activeClip) return;
+        if (ev.touches && ev.touches.length === 2) {
+          isPinching = true;
+          isUserTouchScrollingTimeline = true;
+          const dx = ev.touches[0].clientX - ev.touches[1].clientX;
+          const dy = ev.touches[0].clientY - ev.touches[1].clientY;
+          pinchStartDist = Math.max(12, Math.hypot(dx, dy));
+          pinchStartZoom = editorTimelineZoom || 100;
+          pinchAnchorTime = editorCurrentTime || 0;
+          if (isEditorPlaying) stopEditorPlayback();
+          return;
+        }
+        if (ev.touches && ev.touches.length === 1) {
+          isUserTouchScrollingTimeline = true;
+          if (mobileTimelineUserScrollEndTimer) clearTimeout(mobileTimelineUserScrollEndTimer);
+          if (isEditorPlaying) stopEditorPlayback();
+        }
+      }, { passive: true });
+
+      scroller.addEventListener("touchmove", function (ev) {
+        if (window.innerWidth >= 768 || !activeClip) return;
+        if (isPinching && ev.touches && ev.touches.length === 2) {
+          if (ev.cancelable) ev.preventDefault();
+          const dx = ev.touches[0].clientX - ev.touches[1].clientX;
+          const dy = ev.touches[0].clientY - ev.touches[1].clientY;
+          const dist = Math.hypot(dx, dy);
+          const nextZoom = Math.max(100, Math.min(300, Math.round(pinchStartZoom * (dist / pinchStartDist))));
+          if (nextZoom !== editorTimelineZoom) {
+            setTimelineZoom(nextZoom);
+            const zoomSlider = document.getElementById("timelineZoomSlider");
+            if (zoomSlider) zoomSlider.value = nextZoom;
+            const trackW = Math.max(1, inner.offsetWidth);
+            const dur = Math.max(0.1, Number(activeSegmentDuration) || 1);
+            programmaticTimelineScrollUntil = performance.now() + 90;
+            scroller.scrollLeft = Math.round((Math.max(0, Math.min(dur, pinchAnchorTime)) / dur) * trackW);
+          }
+        }
+      }, { passive: false });
+
+      function endMobileTimelineTouch(ev) {
+        if (ev.touches && ev.touches.length < 2) {
+          isPinching = false;
+        }
+        if (!ev.touches || ev.touches.length === 0) {
+          if (mobileTimelineUserScrollEndTimer) clearTimeout(mobileTimelineUserScrollEndTimer);
+          mobileTimelineUserScrollEndTimer = setTimeout(function () {
+            isUserTouchScrollingTimeline = false;
+          }, 220);
+        }
+      }
+
+      scroller.addEventListener("touchend", endMobileTimelineTouch, { passive: true });
+      scroller.addEventListener("touchcancel", endMobileTimelineTouch, { passive: true });
+
+      scroller.addEventListener("scroll", function () {
+        if (window.innerWidth >= 768 || !activeClip) return;
+        if (isPinching || performance.now() < programmaticTimelineScrollUntil) return;
+        isUserTouchScrollingTimeline = true;
+        if (mobileTimelineUserScrollEndTimer) clearTimeout(mobileTimelineUserScrollEndTimer);
+        mobileTimelineUserScrollEndTimer = setTimeout(function () {
+          isUserTouchScrollingTimeline = false;
+        }, 180);
+
+        const trackW = Math.max(1, inner.offsetWidth);
+        const dur = Math.max(0.1, Number(activeSegmentDuration) || 1);
+        const targetSec = Math.max(0, Math.min(dur, (scroller.scrollLeft / trackW) * dur));
+        pendingMobileScrubTime = targetSec;
+
+        if (!mobileScrubSeekRaf) {
+          mobileScrubSeekRaf = requestAnimationFrame(function () {
+            mobileScrubSeekRaf = null;
+            if (pendingMobileScrubTime !== null) {
+              const tToSeek = pendingMobileScrubTime;
+              pendingMobileScrubTime = null;
+              seekEditorTime(tToSeek, true);
+            }
+          });
+        }
+      }, { passive: true });
+    })();
 
     // Playhead Dragging + Full Interactive 9:16 Stage Dragging (Video Pan + Free X/Y Overlays with Snap Guides)
     (function initInteractiveDragHandlers() {
@@ -22479,10 +24107,13 @@
       });
     })();
 
-    function updateEditorPreviewAtTime(t, dtClipSec) {
+    function updateEditorPreviewAtTime(t, dtClipSec, skipMobileScrollSync) {
       const pct = Math.min(100, Math.max(0, (t / activeSegmentDuration) * 100)) + "%";
       const masterPh = document.getElementById("timelineMasterPlayhead");
       if (masterPh) masterPh.style.left = pct;
+      if (!skipMobileScrollSync) {
+        syncMobileTimelineScrollToTime(t);
+      }
 
       const formatT = function (val) {
         const m = Math.floor(val / 60).toString().padStart(2, "0");
@@ -22858,7 +24489,14 @@
           isSubPulsing ? (Number(activeSub.start_sec) + Math.min(sDur - 0.05, sRawElapsed * (sDur / 0.65))) : adjAbsTime
         );
         if (!isEditorPlaying && !isSubPulsing && sRawElapsed < 0.28) {
-          subMotion = { scale: 1, alpha: 1, slideYCanvas: 0, slideYDom: 0, isKineticScale: subMotion.isKineticScale, isWordHighlight: subMotion.isWordHighlight, isWordReveal: false };
+          subMotion = Object.assign({}, subMotion, {
+            scale: 1,
+            alpha: 1,
+            slideYCanvas: 0,
+            slideYDom: 0,
+            isWordReveal: false,
+            showAllWordsStatic: true
+          });
         }
         const subKey = [
           activeSub.id, activeWordIdx, activeSub.highlightWord || "", activeSub.text, subStyle.templateId, subStyle.accentType,
@@ -22866,7 +24504,7 @@
           subStyle.color, subStyle.highlightColor, subStyle.strokeColor, subStyle.strokeWidth,
           subStyle.glowColor, subStyle.glowBlur, subStyle.bgColor, subStyle.bgRadius,
           subStyle.bgPadding, subStyle.textEffect, subStyle.animation, subStyle.uppercase ? "U" : "n",
-          subMotion.isWordReveal ? "R" : "F"
+          subMotion.isWordReveal ? "R" : "F", subMotion.showAllWordsStatic ? "A" : "P"
         ].join("|");
         if (editorLastRenderedSubKey !== subKey) {
           const skipPop = editorLastRenderedSubId === activeSub.id;
