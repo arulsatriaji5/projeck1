@@ -4238,6 +4238,31 @@
       z-index: 1030;
     }
 
+    .global-mobile-menu-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 0.75rem;
+      background-color: #2563EB;
+      color: #FFFFFF;
+      border: 0;
+      box-shadow: none !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .global-mobile-menu-btn:hover,
+    .global-mobile-menu-btn:focus-visible {
+      background-color: #1D4ED8;
+      color: #FFFFFF;
+      box-shadow: none !important;
+      outline: none;
+    }
+
     .editor-mobile-res-select {
       background-color: #FFFFFF !important;
       color: #0A192F !important;
@@ -4652,6 +4677,15 @@
       }
       #editorBottomDrawer.mobile-tool-overlay-pixabay #editorOverlayUploadSection,
       #editorBottomDrawer.mobile-tool-overlay-pixabay #editorOverlayColProps {
+        display: none !important;
+      }
+
+      #editorBottomDrawer.mobile-tool-sub-studio #editorCaptionsTopSurface {
+        display: none !important;
+      }
+
+      #editorBottomDrawer.mobile-tool-sub-ai #subtitleRichStudioMount,
+      #editorBottomDrawer.mobile-tool-sub-edit #subtitleRichStudioMount {
         display: none !important;
       }
 
@@ -5174,8 +5208,12 @@
       <img src="/assets/aistudio/clipA_dae34944.png" alt="Logo ClipA Studio" width="34" height="34" class="flex-shrink-0" style="object-fit: contain;" />
       <span class="fs-5 text-nowrap" style="white-space: nowrap;">ClipA Studio</span>
     </a>
-    <button class="btn btn-sm btn-accent d-inline-flex align-items-center justify-content-center" style="border-radius: 0.65rem; width: 38px; height: 34px; padding: 0;" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
-      <i class="bi bi-list fs-5"></i>
+    <button class="global-mobile-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="6" x2="20" y2="6"></line>
+        <line x1="4" y1="12" x2="20" y2="12"></line>
+        <line x1="4" y1="18" x2="20" y2="18"></line>
+      </svg>
     </button>
   </header>
 
@@ -6700,7 +6738,7 @@
                   </button>
                 </div>
 
-                <!-- Mobile Level 1: Root Categories (Tapping Edit/Audio/Teks/Overlay switches dock to Level 2 without sheet popup) -->
+                <!-- Mobile Level 1: Root Categories (Dedicated Subtitle next to Teks) -->
                 <div id="editorMobileLevel1Dock" class="capcut-mobile-dock-level1">
                   <button type="button" class="capcut-dock-btn" data-mobile-root="edit" onclick="handleMobileDockRootTap('edit')">
                     <i class="bi bi-scissors"></i><span>Edit</span>
@@ -6710,6 +6748,9 @@
                   </button>
                   <button type="button" class="capcut-dock-btn" data-mobile-root="teks" onclick="handleMobileDockRootTap('teks')">
                     <i class="bi bi-fonts"></i><span>Teks</span>
+                  </button>
+                  <button type="button" class="capcut-dock-btn" data-mobile-root="subtitle" onclick="handleMobileDockRootTap('subtitle')">
+                    <i class="bi bi-chat-square-quote-fill"></i><span>Subtitle</span>
                   </button>
                   <button type="button" class="capcut-dock-btn" data-mobile-root="latar" onclick="handleMobileDockRootTap('latar')">
                     <i class="bi bi-card-image"></i><span>Latar</span>
@@ -7291,7 +7332,7 @@
 
                 <!-- Pane 4: Keterangan (Unified 5-Tab Styling Studio First + Collapsible Subtitle Text List) -->
                 <div id="editorDrawer-captions" class="editor-drawer-pane d-none">
-                  <div class="capcut-drawer-surface mb-2">
+                  <div id="editorCaptionsTopSurface" class="capcut-drawer-surface mb-2">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-1">
                       <div class="d-flex flex-wrap align-items-center gap-1">
                         <button type="button" class="btn btn-sm btn-capcut-cyan py-0 px-2" style="height: 24px; font-size: 0.67rem;" onclick="addNewSubtitleBlock()">
@@ -9002,8 +9043,7 @@
       { id: "semua", label: "Semua" },
       { id: "trending", label: "Sedang Tren" },
       { id: "classic", label: "Klasik" },
-      { id: "podcast", label: "Podcast Viral" },
-      { id: "title", label: "Judul & Lower Third" }
+      { id: "podcast", label: "Podcast" }
     ];
 
     const HOOK_TEMPLATE_CATEGORIES = [
@@ -9368,6 +9408,7 @@
       }
     ];
 
+    // Strictly 11 Kinetic Subtitle Templates (Never mixed with Title Card / Overlay templates)
     const TEXT_TEMPLATES_CATALOG = [
       {
         id: "mozi_pop",
@@ -9385,28 +9426,6 @@
         bgColor: "transparent",
         bgRadius: 8,
         bgPadding: 4,
-        textEffect: "none",
-        animation: "pop",
-        emphasisMode: "color_highlight",
-        uppercase: true,
-        accentType: "none"
-      },
-      {
-        id: "karaoke_pill",
-        label: "Karaoke Pill",
-        cat: "trending",
-        fontFamily: "'Montserrat', sans-serif",
-        fontSize: 19,
-        opacity: 100,
-        color: "#FFFFFF",
-        highlightColor: "#FACC15",
-        strokeColor: "#0A192F",
-        strokeWidth: 2,
-        glowColor: "#000000",
-        glowBlur: 0,
-        bgColor: "#0A192F",
-        bgRadius: 32,
-        bgPadding: 10,
         textEffect: "none",
         animation: "pop",
         emphasisMode: "color_highlight",
@@ -9437,7 +9456,7 @@
       },
       {
         id: "handwritten_glow",
-        label: "Handwritten Glow",
+        label: "Handwritten",
         cat: "podcast",
         fontFamily: "'Caveat', cursive",
         fontSize: 24,
@@ -9458,177 +9477,23 @@
         accentType: "handwritten_underline"
       },
       {
-        id: "the_quick",
-        label: "THE QUICK",
+        id: "karaoke_pill",
+        label: "Karaoke Pill",
         cat: "trending",
         fontFamily: "'Montserrat', sans-serif",
-        fontSize: 24,
-        opacity: 100,
-        color: "#FFFFFF",
-        highlightColor: "#FACC15",
-        strokeColor: "#000000",
-        strokeWidth: 4.5,
-        glowColor: "#FACC15",
-        glowBlur: 0,
-        bgColor: "transparent",
-        bgRadius: 8,
-        bgPadding: 4,
-        textEffect: "none",
-        animation: "word_highlight",
-        emphasisMode: "color_highlight",
-        uppercase: true,
-        accentType: "none"
-      },
-      {
-        id: "ryan_young",
-        label: "Ryan Young Presenter",
-        cat: "title",
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
         fontSize: 19,
         opacity: 100,
-        color: "#0A192F",
-        highlightColor: "#2563EB",
-        strokeColor: "#FFFFFF",
-        strokeWidth: 0,
-        glowColor: "#000000",
-        glowBlur: 0,
-        bgColor: "#FFFFFF",
-        bgRadius: 10,
-        bgPadding: 10,
-        textEffect: "none",
-        animation: "slide",
-        emphasisMode: "color_highlight",
-        uppercase: false,
-        accentType: "ryan_young"
-      },
-      {
-        id: "modern_titles",
-        label: "MODERN TITLES",
-        cat: "title",
-        fontFamily: "'Roboto Condensed', sans-serif",
-        fontSize: 23,
-        opacity: 100,
         color: "#FFFFFF",
         highlightColor: "#FACC15",
         strokeColor: "#0A192F",
-        strokeWidth: 1,
-        glowColor: "#000000",
-        glowBlur: 0,
-        bgColor: "#0A192F",
-        bgRadius: 8,
-        bgPadding: 10,
-        textEffect: "none",
-        animation: "slide",
-        emphasisMode: "color_highlight",
-        uppercase: true,
-        accentType: "modern_titles"
-      },
-      {
-        id: "simple_caption",
-        label: "Simple Caption",
-        cat: "classic",
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: 20,
-        opacity: 100,
-        color: "#0F172A",
-        highlightColor: "#2563EB",
-        strokeColor: "#FFFFFF",
-        strokeWidth: 0,
-        glowColor: "#000000",
-        glowBlur: 0,
-        bgColor: "#FFFFFF",
-        bgRadius: 10,
-        bgPadding: 10,
-        textEffect: "bw_contrast",
-        animation: "fade",
-        emphasisMode: "color_highlight",
-        uppercase: false,
-        accentType: "none"
-      },
-      {
-        id: "nook",
-        label: "NOOK",
-        cat: "trending",
-        fontFamily: "'Rubik', sans-serif",
-        fontSize: 26,
-        opacity: 100,
-        color: "#FFFFFF",
-        highlightColor: "#38BDF8",
-        strokeColor: "#0A192F",
-        strokeWidth: 5,
-        glowColor: "#0A192F",
-        glowBlur: 0,
-        bgColor: "transparent",
-        bgRadius: 8,
-        bgPadding: 4,
-        textEffect: "shadow_3d",
-        animation: "bounce_pop",
-        emphasisMode: "color_highlight",
-        uppercase: true,
-        accentType: "none"
-      },
-      {
-        id: "exclusive",
-        label: "EXCLUSIVE",
-        cat: "podcast",
-        fontFamily: "'Montserrat', sans-serif",
-        fontSize: 20,
-        opacity: 100,
-        color: "#FACC15",
-        highlightColor: "#FFFFFF",
-        strokeColor: "#0A192F",
         strokeWidth: 2,
-        glowColor: "#F59E0B",
-        glowBlur: 6,
-        bgColor: "#0A192F",
-        bgRadius: 32,
-        bgPadding: 12,
-        textEffect: "none",
-        animation: "pop",
-        emphasisMode: "color_highlight",
-        uppercase: true,
-        accentType: "exclusive"
-      },
-      {
-        id: "live_stream",
-        label: "Live Stream Moments",
-        cat: "podcast",
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
-        fontSize: 20,
-        opacity: 100,
-        color: "#0A192F",
-        highlightColor: "#DC2626",
-        strokeColor: "#FFFFFF",
-        strokeWidth: 0,
         glowColor: "#000000",
         glowBlur: 0,
-        bgColor: "#FFFFFF",
-        bgRadius: 24,
-        bgPadding: 10,
-        textEffect: "none",
-        animation: "pop",
-        emphasisMode: "color_highlight",
-        uppercase: false,
-        accentType: "live_stream"
-      },
-      {
-        id: "sorotan_ungu",
-        label: "Sorotan Ungu / Merah",
-        cat: "trending",
-        fontFamily: "'Montserrat', sans-serif",
-        fontSize: 21,
-        opacity: 100,
-        color: "#FFFFFF",
-        highlightColor: "#F43F5E",
-        strokeColor: "#0A192F",
-        strokeWidth: 2,
-        glowColor: "#EC4899",
-        glowBlur: 10,
         bgColor: "#0A192F",
         bgRadius: 32,
         bgPadding: 10,
         textEffect: "none",
-        animation: "word_highlight",
+        animation: "pop",
         emphasisMode: "color_highlight",
         uppercase: true,
         accentType: "none"
@@ -9894,11 +9759,9 @@
     function getTextTemplateById(tplId, kind) {
       if (kind === "hook") {
         return HOOK_TEXT_TEMPLATES_CATALOG.find(function (t) { return t.id === tplId; })
-          || TEXT_TEMPLATES_CATALOG.find(function (t) { return t.id === tplId; })
           || HOOK_TEXT_TEMPLATES_CATALOG[0];
       }
       return TEXT_TEMPLATES_CATALOG.find(function (t) { return t.id === tplId; })
-        || HOOK_TEXT_TEMPLATES_CATALOG.find(function (t) { return t.id === tplId; })
         || TEXT_TEMPLATES_CATALOG[0];
     }
 
@@ -18815,7 +18678,10 @@
       "mobile-tool-audio-sfx",
       "mobile-tool-audio-fade",
       "mobile-tool-overlay-upload",
-      "mobile-tool-overlay-pixabay"
+      "mobile-tool-overlay-pixabay",
+      "mobile-tool-sub-studio",
+      "mobile-tool-sub-edit",
+      "mobile-tool-sub-ai"
     ];
 
     function setMobileDrawerFocusClass(focusCls) {
@@ -18852,6 +18718,21 @@
 
     function handleMobileDockRootTap(rootKey) {
       activeMobileCategory = rootKey;
+      if (rootKey === "subtitle" && activeClip) {
+        editorSelectedTarget = "subtitle";
+        if (!selectedSubtitleId && Array.isArray(activeClip.subtitles) && activeClip.subtitles.length > 0) {
+          selectedSubtitleId = activeClip.subtitles[0].id;
+        }
+        renderTimelineSubtitles();
+        updateEditorPreviewAtTime(editorCurrentTime);
+      } else if (rootKey === "teks" && activeClip) {
+        editorSelectedTarget = "hook";
+        if (!selectedHookId && Array.isArray(activeClip.hookOverlays) && activeClip.hookOverlays.length > 0) {
+          selectedHookId = activeClip.hookOverlays[0].id;
+        }
+        renderTimelineSubtitles();
+        updateEditorPreviewAtTime(editorCurrentTime);
+      }
       if (rootKey === "latar") {
         openMobileToolSheet("background", "bg_" + (activeClip && isCanvasBlurActive(activeClip) ? "blur" : (activeClip && activeClip.canvasBg && activeClip.canvasBg.mode ? activeClip.canvasBg.mode : "none")));
         return;
@@ -19000,12 +18881,6 @@
           });
           return;
         }
-        if (subId === "auto_captions") {
-          openMobileToolSheet("captions", "auto_captions", {
-            headingHtml: '<i class="bi bi-chat-square-quote-fill me-1 text-primary"></i>Keterangan Otomatis'
-          });
-          return;
-        }
         if (subId === "text_templates") {
           if (!Array.isArray(activeClip.hookOverlays) || activeClip.hookOverlays.length === 0) {
             addHookBannerAction(true);
@@ -19014,6 +18889,87 @@
             textStudioKind: "hook",
             textStudioTab: "template",
             headingHtml: '<i class="bi bi-grid-1x2-fill me-1 text-primary"></i>Template Teks'
+          });
+          return;
+        }
+        if (subId === "text_font" || subId === "text_style" || subId === "text_anim") {
+          if (!Array.isArray(activeClip.hookOverlays) || activeClip.hookOverlays.length === 0) {
+            addHookBannerAction(true);
+          }
+          const tabMap = { text_font: "font", text_style: "gaya", text_anim: "animasi" };
+          const headMap = {
+            text_font: '<i class="bi bi-fonts me-1 text-primary"></i>Font Teks',
+            text_style: '<i class="bi bi-palette-fill me-1 text-primary"></i>Gaya Teks',
+            text_anim: '<i class="bi bi-play-circle-fill me-1 text-primary"></i>Animasi Teks'
+          };
+          openMobileToolSheet("text", subId, {
+            textStudioKind: "hook",
+            textStudioTab: tabMap[subId],
+            headingHtml: headMap[subId]
+          });
+          return;
+        }
+      }
+
+      if (catKey === "subtitle") {
+        editorSelectedTarget = "subtitle";
+        if (subId === "add_subtitle") {
+          addNewSubtitleBlock({ skipSelectPanel: true });
+          const accBody = document.getElementById("editorSubtitleAccordionBody");
+          const accIcon = document.getElementById("editorSubtitleAccordionIcon");
+          const accBtn = document.getElementById("btnToggleSubtitleListAccordion");
+          if (accBody) accBody.classList.remove("d-none");
+          if (accIcon) accIcon.className = "bi bi-chevron-up";
+          if (accBtn) accBtn.setAttribute("aria-expanded", "true");
+          openMobileToolSheet("captions", "add_subtitle", {
+            textStudioKind: "subtitle",
+            focusClass: "mobile-tool-sub-edit",
+            headingHtml: '<i class="bi bi-plus-square-fill me-1 text-primary"></i>Tambah &amp; Edit Subtitle'
+          });
+          return;
+        }
+        if (subId === "subtitle_templates") {
+          TEXT_STUDIO_UI_STATE.subtitle.cat = "semua";
+          openMobileToolSheet("captions", "subtitle_templates", {
+            textStudioKind: "subtitle",
+            textStudioTab: "template",
+            focusClass: "mobile-tool-sub-studio",
+            headingHtml: '<i class="bi bi-grid-1x2-fill me-1 text-primary"></i>Template Subtitle'
+          });
+          return;
+        }
+        if (subId === "subtitle_font") {
+          openMobileToolSheet("captions", "subtitle_font", {
+            textStudioKind: "subtitle",
+            textStudioTab: "font",
+            focusClass: "mobile-tool-sub-studio",
+            headingHtml: '<i class="bi bi-fonts me-1 text-primary"></i>Font Subtitle'
+          });
+          return;
+        }
+        if (subId === "subtitle_style") {
+          openMobileToolSheet("captions", "subtitle_style", {
+            textStudioKind: "subtitle",
+            textStudioTab: "gaya",
+            focusClass: "mobile-tool-sub-studio",
+            headingHtml: '<i class="bi bi-palette-fill me-1 text-primary"></i>Gaya Subtitle'
+          });
+          return;
+        }
+        if (subId === "subtitle_anim") {
+          openMobileToolSheet("captions", "subtitle_anim", {
+            textStudioKind: "subtitle",
+            textStudioTab: "animasi",
+            focusClass: "mobile-tool-sub-studio",
+            headingHtml: '<i class="bi bi-play-circle-fill me-1 text-primary"></i>Animasi Subtitle'
+          });
+          return;
+        }
+        if (subId === "subtitle_auto_ai") {
+          openMobileToolSheet("captions", "subtitle_auto_ai", {
+            textStudioKind: "subtitle",
+            focusClass: "mobile-tool-sub-ai",
+            headingHtml: '<i class="bi bi-stars me-1 text-primary"></i>Auto AI &amp; Daftar Subtitle'
           });
           return;
         }
@@ -19107,8 +19063,18 @@
         ],
         teks: [
           { id: "add_text", icon: "bi-plus-square-fill", label: "Tambahkan Teks" },
-          { id: "auto_captions", icon: "bi-chat-square-quote-fill", label: "Keterangan Otomatis" },
-          { id: "text_templates", icon: "bi-grid-1x2-fill", label: "Template Teks" }
+          { id: "text_templates", icon: "bi-grid-1x2-fill", label: "Template Teks" },
+          { id: "text_font", icon: "bi-fonts", label: "Font" },
+          { id: "text_style", icon: "bi-palette-fill", label: "Gaya" },
+          { id: "text_anim", icon: "bi-play-circle-fill", label: "Animasi" }
+        ],
+        subtitle: [
+          { id: "add_subtitle", icon: "bi-plus-square-fill", label: "+ Subtitle" },
+          { id: "subtitle_templates", icon: "bi-grid-1x2-fill", label: "Template Subtitle" },
+          { id: "subtitle_font", icon: "bi-fonts", label: "Font" },
+          { id: "subtitle_style", icon: "bi-palette-fill", label: "Gaya" },
+          { id: "subtitle_anim", icon: "bi-play-circle-fill", label: "Animasi" },
+          { id: "subtitle_auto_ai", icon: "bi-stars", label: "Auto AI" }
         ],
         latar: [
           { id: "bg_none", icon: "bi-slash-circle", label: "Tidak Ada" },
@@ -20079,6 +20045,10 @@
       toggleEditorSyncPopover(false);
       activeMobileCategory = null;
       activeMobileToolPanel = null;
+      TEXT_STUDIO_UI_STATE.subtitle.tab = "template";
+      TEXT_STUDIO_UI_STATE.subtitle.cat = "semua";
+      TEXT_STUDIO_UI_STATE.subtitle.applyAll = true;
+      editorBatchApplyStyle = true;
       setMobileDrawerFocusClass("");
       openEditorDockTab(selectedSubtitleId ? "captions" : "edit", true);
       renderMobileBottomDock();
@@ -22152,13 +22122,45 @@
           music: "audio",
           sfx: "audio",
           hook: "teks",
-          subtitle: "teks",
+          subtitle: "subtitle",
           broll: "overlay",
           vfx: "efek"
         };
         activeMobileCategory = targetToMobileCat[targetType] || activeMobileCategory || "edit";
         const keepClosed = Boolean(forceKeepDrawerCollapsed || !isMobileEditorSheetOpen);
-        openEditorDockTab(dockTab, keepClosed, false);
+        let sheetOpts;
+        if (!keepClosed && targetType === "subtitle") {
+          const validSubPanels = ["add_subtitle", "subtitle_templates", "subtitle_font", "subtitle_style", "subtitle_anim", "subtitle_auto_ai"];
+          if (validSubPanels.indexOf(activeMobileToolPanel) === -1) {
+            activeMobileToolPanel = "subtitle_templates";
+            TEXT_STUDIO_UI_STATE.subtitle.tab = "template";
+            TEXT_STUDIO_UI_STATE.subtitle.cat = "semua";
+            setMobileDrawerFocusClass("mobile-tool-sub-studio");
+            sheetOpts = {
+              textStudioKind: "subtitle",
+              textStudioTab: "template",
+              focusClass: "mobile-tool-sub-studio",
+              headingHtml: '<i class="bi bi-grid-1x2-fill me-1 text-primary"></i>Template Subtitle'
+            };
+          }
+        } else if (!keepClosed && targetType === "hook") {
+          const validHookPanels = ["add_text", "text_templates", "text_font", "text_style", "text_anim"];
+          if (validHookPanels.indexOf(activeMobileToolPanel) === -1) {
+            activeMobileToolPanel = "text_templates";
+            TEXT_STUDIO_UI_STATE.hook.tab = "template";
+            setMobileDrawerFocusClass("");
+            sheetOpts = {
+              textStudioKind: "hook",
+              textStudioTab: "template",
+              headingHtml: '<i class="bi bi-grid-1x2-fill me-1 text-primary"></i>Template Teks'
+            };
+          }
+        }
+        openEditorDockTab(dockTab, keepClosed, false, sheetOpts);
+        if (sheetOpts && sheetOpts.headingHtml) {
+          const headingEl = document.getElementById("editorDrawerHeading");
+          if (headingEl) headingEl.innerHTML = sheetOpts.headingHtml;
+        }
         renderMobileBottomDock();
       } else {
         openEditorDockTab(dockTab, false);
@@ -22631,7 +22633,9 @@
       if (!mountEl) return;
       const item = getTextStudioTargetItem(kind, false);
       if (!item) {
-        mountEl.innerHTML = '<div class="text-center text-secondary small py-3">Belum ada blok ' + (kind === "hook" ? "Teks Overlay" : "Subtitle") + '. Klik tombol tambah di atas untuk memulai.</div>';
+        const addFn = kind === "hook" ? "addHookBannerAction(true)" : "addNewSubtitleBlock()";
+        const addLbl = kind === "hook" ? "+ Tambah Teks" : "+ Tambah Subtitle";
+        mountEl.innerHTML = '<div class="text-center text-secondary small py-3"><div>Belum ada blok ' + (kind === "hook" ? "Teks Overlay" : "Subtitle") + '.</div><button type="button" class="btn btn-sm btn-capcut-cyan mt-2" onclick="' + addFn + '"><i class="bi bi-plus-circle-fill me-1"></i>' + addLbl + '</button></div>';
         return;
       }
 
@@ -23890,7 +23894,7 @@
             hook.end = e;
           },
           onSelect: function () {
-            if (editorSelectedTarget !== "hook" || selectedHookId !== hook.id) {
+            if (editorSelectedTarget !== "hook" || selectedHookId !== hook.id || (window.innerWidth < 768 && activeMobileCategory !== "teks")) {
               selectEditorTarget("hook", hook.id);
             }
           },
@@ -23935,7 +23939,7 @@
             sub.end_sec = Math.round((activeClip.start_sec + e) * 100) / 100;
           },
           onSelect: function () {
-            if (editorSelectedTarget !== "subtitle" || selectedSubtitleId !== sub.id) {
+            if (editorSelectedTarget !== "subtitle" || selectedSubtitleId !== sub.id || (window.innerWidth < 768 && activeMobileCategory !== "subtitle")) {
               selectEditorTarget("subtitle", sub.id);
             }
           },

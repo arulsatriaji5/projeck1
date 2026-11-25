@@ -352,10 +352,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="p-2 rounded-lg bg-[#112240] border border-white/10 text-white cursor-pointer"
+          className="w-9 h-9 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center justify-center shadow-none transition-colors cursor-pointer"
           aria-label="Buka navigasi"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-[18px] h-[18px]" />
         </button>
       </div>
 
