@@ -31,14 +31,7 @@ import {
   ProjectItem,
 } from './types';
 import { ArrowLeft, CheckCircle2, Sparkles, Flame, Youtube } from 'lucide-react';
-import { Type } from '@google/genai';
 import { extractLocalAudioWavBase64 } from './utils/audioExtractor';
-import {
-  createClientGenAI,
-  getGeminiApiKey,
-  isStaticHost,
-  MISSING_GEMINI_KEY_MESSAGE_ID,
-} from './utils/geminiKey';
 import { pickBestHighlightWordClient } from './utils/subtitleHelpers';
 
 type ActiveWorkspaceView =
@@ -188,98 +181,29 @@ export default function App() {
 
     try {
       const extractedAudio = uploadedFile ? await extractLocalAudioWavBase64(uploadedFile) : null;
-      const clientApiKey = getGeminiApiKey();
 
-      let payload: any = null;
+      const response = await fetch('/api/auto-clip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mode: uploadedFile ? 'local' : 'youtube',
+          sourceVideoUrl: uploadedFile ? '' : targetUrl,
+          fileName: uploadedFile?.name,
+          videoDuration: extractedAudio?.duration,
+          audioBase64: extractedAudio?.audioBase64,
+          audioMimeType: extractedAudio?.audioMimeType,
+          audioOffsetSeconds: extractedAudio?.audioOffsetSeconds ?? 0,
+          recipe,
+          referenceInstructions,
+        }),
+      });
 
-      if (uploadedFile && clientApiKey && extractedAudio?.hasAudioTrack && extractedAudio.audioBase64) {
-        const ai = createClientGenAI(clientApiKey);
-        const prompt = `Anda adalah editor video pendek viral. Dengarkan audio WAV ini (durasi ${extractedAudio.duration.toFixed(1)}s) dan pilih 1-6 segmen pemikiran utuh terbaik (minimal 12 detik). ${referenceInstructions ? `Gaya: ${referenceInstructions}` : ''} Kembalikan JSON sesuai schema.`;
-        const resp = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: [
-            {
-              inlineData: {
-                mimeType: extractedAudio.audioMimeType || 'audio/wav',
-                data: extractedAudio.audioBase64,
-              },
-            },
-            { text: prompt },
-          ],
-          config: {
-            temperature: 0.1,
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: Type.OBJECT,
-              properties: {
-                clips: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.OBJECT,
-                    properties: {
-                      title: { type: Type.STRING },
-                      hook_headline: { type: Type.STRING },
-                      start_sec: { type: Type.NUMBER },
-                      end_sec: { type: Type.NUMBER },
-                      viral_score: { type: Type.NUMBER },
-                      alasan_viral: { type: Type.STRING },
-                      subtitles: {
-                        type: Type.ARRAY,
-                        items: {
-                          type: Type.OBJECT,
-                          properties: {
-                            start_sec: { type: Type.NUMBER },
-                            end_sec: { type: Type.NUMBER },
-                            text: { type: Type.STRING },
-                          },
-                          required: ['start_sec', 'end_sec', 'text'],
-                        },
-                      },
-                    },
-                    required: ['title', 'hook_headline', 'start_sec', 'end_sec', 'subtitles'],
-                  },
-                },
-              },
-              required: ['clips'],
-            },
-          },
-        });
-        const parsed = JSON.parse((resp.text || '{}').trim());
-        payload = {
-          success: true,
-          videoTitle: uploadedFile.name.replace(/\.[^/.]+$/, ''),
-          videoDurationSec: extractedAudio.duration,
-          clips: Array.isArray(parsed.clips) ? parsed.clips : [],
-        };
-      } else {
-        if (isStaticHost() && !clientApiKey) {
-          throw new Error(MISSING_GEMINI_KEY_MESSAGE_ID);
-        }
-        const response = await fetch('/api/auto-clip', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(clientApiKey ? { 'x-gemini-api-key': clientApiKey } : {}),
-          },
-          body: JSON.stringify({
-            mode: uploadedFile ? 'local' : 'youtube',
-            sourceVideoUrl: uploadedFile ? '' : targetUrl,
-            fileName: uploadedFile?.name,
-            videoDuration: extractedAudio?.duration,
-            audioBase64: extractedAudio?.audioBase64,
-            audioMimeType: extractedAudio?.audioMimeType,
-            audioOffsetSeconds: extractedAudio?.audioOffsetSeconds ?? 0,
-            apiKey: clientApiKey || undefined,
-            recipe,
-            referenceInstructions,
-          }),
-        });
+      const payload: any = await response.json().catch(() => null);
 
-        payload = await response.json().catch(() => null);
-
-        if (!response.ok || !payload?.success) {
-          throw new Error(payload?.error || (isStaticHost() && !clientApiKey ? MISSING_GEMINI_KEY_MESSAGE_ID : 'Gagal memproses klip otomatis.'));
-        }
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || 'Gagal memproses klip otomatis.');
       }
 
       let resolvedVideoData: VideoData;

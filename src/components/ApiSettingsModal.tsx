@@ -22,7 +22,6 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [geminiModel, setGeminiModel] = useState('gemini-2.5-flash');
   const [youtubeApiKey, setYoutubeApiKey] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -30,10 +29,8 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
   useEffect(() => {
     try {
-      const savedGemini = localStorage.getItem('clipa_gemini_api_key') || '';
       const savedModel = localStorage.getItem('clipa_gemini_model') || 'gemini-2.5-flash';
       const savedYoutube = localStorage.getItem('clipa_youtube_api_key') || '';
-      setGeminiApiKey(savedGemini);
       setGeminiModel(savedModel);
       setYoutubeApiKey(savedYoutube);
     } catch {
@@ -46,7 +43,6 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      localStorage.setItem('clipa_gemini_api_key', geminiApiKey);
       localStorage.setItem('clipa_gemini_model', geminiModel);
       localStorage.setItem('clipa_youtube_api_key', youtubeApiKey);
       setSavedSuccess(true);
@@ -79,7 +75,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
             </div>
             <div>
               <h3 className="text-lg font-bold text-[#0B1F3A]">Pengaturan API</h3>
-              <p className="text-xs text-slate-500">Konfigurasi kunci API AI &amp; Layanan Eksternal</p>
+              <p className="text-xs text-slate-500">Konfigurasi model AI &amp; Layanan Eksternal</p>
             </div>
           </div>
 
@@ -94,27 +90,13 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSave} className="space-y-4">
-          
-          {/* Gemini API Key */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-[#0B1F3A] uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#1D4ED8]" /> Google Gemini API Key
-              </label>
-              <span className="text-[11px] font-semibold text-emerald-700">
-                Aktif (Built-in Server)
-              </span>
-            </div>
-            <input
-              type="password"
-              value={geminiApiKey}
-              onChange={(e) => setGeminiApiKey(e.target.value)}
-              placeholder="AIzaSy... (Opsional jika memakai proxy server bawaan)"
-              className="w-full bg-[#F8F9FA] border border-slate-200 focus:border-[#1D4ED8] rounded-xl px-3.5 py-2.5 text-xs text-[#0B1F3A] placeholder-slate-400 focus:outline-none font-mono"
-            />
-            <p className="text-[11px] text-slate-500">
-              ClipA Studio menggunakan server proxy bawaan untuk analisis momen viral otomatis. Anda juga dapat memasukkan kunci pribadi jika ingin kuota khusus.
-            </p>
+          <div className="p-3.5 bg-[#F8F9FA] rounded-xl flex items-center justify-between text-xs">
+            <span className="font-bold text-[#0B1F3A] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#1D4ED8]" /> Layanan Gemini AI
+            </span>
+            <span className="text-[11px] font-semibold text-emerald-700">
+              Aktif (Server)
+            </span>
           </div>
 
           {/* Model AI */}

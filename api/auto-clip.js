@@ -1,3 +1,5 @@
+import { GoogleGenAI } from "@google/genai";
+
 async function fetchYouTubeTimedTextHints(videoId) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 4000);
@@ -53,7 +55,7 @@ async function fetchYouTubeTimedTextHints(videoId) {
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-gemini-api-key");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method tidak diizinkan" });
@@ -78,20 +80,15 @@ export default async function handler(req, res) {
       momentPrompt = "",
     } = body;
 
-    const headerKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"].trim() : "";
-    const bodyKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
     const apiKey =
-      bodyKey ||
-      headerKey ||
-      process.env.GEMINI_API_KEY ||
-      process.env.GEMINI_API ||
-      process.env.VITE_GEMINI_API_KEY ||
+      (typeof process.env.GEMINI_API_KEY === "string" && process.env.GEMINI_API_KEY.trim()) ||
+      (typeof process.env.GEMINI_API === "string" && process.env.GEMINI_API.trim()) ||
       "";
 
     if (!apiKey) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "Gemini API Key belum ditemukan. Silakan buka menu Settings dan masukkan Gemini API Key Anda terlebih dahulu.",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
 
@@ -217,28 +214,17 @@ Kembalikan JSON murni:
 
     parts.push({ text: pass1Prompt });
 
-    const pass1Res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: { responseMimeType: "application/json" },
-        }),
-      }
-    );
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: { headers: { "User-Agent": "aistudio-build" } },
+    });
+    const pass1Resp = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ parts }],
+      config: { responseMimeType: "application/json" },
+    });
 
-    if (!pass1Res.ok) {
-      const errText = await pass1Res.text();
-      return res.status(pass1Res.status).json({
-        success: false,
-        error: `Gemini API Error (${pass1Res.status}): ${errText}`,
-      });
-    }
-
-    const pass1Data = await pass1Res.json();
-    const rawPass1 = pass1Data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const rawPass1 = (pass1Resp.text || "{}").trim();
     const parsedPass1 = JSON.parse(rawPass1);
     const candidates = (Array.isArray(parsedPass1.clips) ? parsedPass1.clips : []).map((c, idx) => ({
       ...c,

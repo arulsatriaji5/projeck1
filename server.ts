@@ -12,12 +12,11 @@ const PORT = 3000;
 
 app.use(express.json({ limit: "50mb" }));
 
-// Lazy Google GenAI Client (GEMINI_API -> GEMINI_API_KEY -> Settings fallback)
-function getGenAI(overrideApiKey?: string) {
+// Lazy Google GenAI Client (Server-only: GEMINI_API -> GEMINI_API_KEY)
+function getGenAI() {
   const apiKey =
     (typeof process.env.GEMINI_API === "string" && process.env.GEMINI_API.trim()) ||
     (typeof process.env.GEMINI_API_KEY === "string" && process.env.GEMINI_API_KEY.trim()) ||
-    (typeof overrideApiKey === "string" && overrideApiKey.trim()) ||
     "";
   if (!apiKey) return null;
   return new GoogleGenAI({
@@ -449,13 +448,12 @@ app.get("/api/media-proxy", async (req, res) => {
 // Analyze 3 frames of a reference video via Gemini 2.5 Flash to extract editing style recipe
 app.post("/api/analyze-reference-style", async (req, res) => {
   try {
-    const { name = "Gaya Kustom", frames = [], apiKey: bodyApiKey } = req.body || {};
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const { name = "Gaya Kustom", frames = [] } = req.body || {};
+    const ai = getGenAI();
     if (!ai) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "GEMINI_API key belum tersedia di server maupun Settings.",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
     if (!Array.isArray(frames) || frames.length === 0) {
@@ -614,14 +612,12 @@ app.post("/api/analyze-video", async (req, res) => {
       }
     }
 
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const ai = getGenAI();
 
     if (!ai) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "GEMINI_API key belum tersedia di server (Settings > Secrets).",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
 
@@ -766,13 +762,11 @@ app.post("/api/auto-clip", async (req, res) => {
       authorName: clientAuthorName,
     } = req.body || {};
 
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const ai = getGenAI();
     if (!ai) {
       return res.status(500).json({
         success: false,
-        error: "GEMINI_API maupun GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets). Harap tambahkan API key terlebih dahulu.",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets). Harap tambahkan API key terlebih dahulu.",
       });
     }
 
@@ -1682,14 +1676,12 @@ app.post("/api/analyze-url", async (req, res) => {
   const videoId = extractVideoId(url);
 
   try {
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const bodyApiKey = typeof req.body?.apiKey === "string" ? req.body.apiKey : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const ai = getGenAI();
     
     if (!ai) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "GEMINI_API key belum tersedia di server (Settings > Secrets).",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
 
@@ -1764,15 +1756,13 @@ app.post("/api/transcribe-script", async (req, res) => {
       language = "auto",
       customVocab = "",
       fileName = "Video",
-      apiKey: bodyApiKey,
     } = req.body || {};
 
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const ai = getGenAI();
     if (!ai) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "GEMINI_API key belum tersedia di server maupun Settings.",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
 
@@ -1938,15 +1928,13 @@ app.post("/api/generate-subtitles", async (req, res) => {
       startSec = 0,
       endSec = 30,
       fileName = "Clip Video",
-      apiKey: bodyApiKey,
     } = req.body || {};
 
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const ai = getGenAI();
     if (!ai) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "GEMINI_API key belum tersedia di server maupun Settings.",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
 
@@ -2021,7 +2009,7 @@ Tugas Anda:
           required: ["subtitles"],
         },
       },
-    });
+    }, { maxRetries: 0 });
 
     const rawJson = (resp.text || "").trim();
     const parsed = JSON.parse(rawJson.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim());
@@ -2032,11 +2020,118 @@ Tugas Anda:
       subtitles,
     });
   } catch (err: any) {
+    const meta = extractGeminiErrorMeta(err);
     const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal membuat subtitle otomatis.");
-    console.error("[Generate Subtitles API] Error:", friendly.status, friendly.message);
-    return res.status(friendly.status).json({
+    const cleanError = meta.isRateLimit || friendly.status === 429
+      ? "Kuota API Gemini habis. Silakan coba lagi nanti."
+      : friendly.message;
+    console.error("[Generate Subtitles API] Error:", friendly.status, cleanError);
+    return res.status(meta.isRateLimit ? 429 : friendly.status).json({
       success: false,
-      error: friendly.message,
+      error: cleanError,
+    });
+  }
+});
+
+// Endpoint Segmentasi Subjek & Analisis Latar Foto untuk "Hapus Latar Foto" (Gemini 2.5 Flash Vision)
+app.post("/api/photo-cutout", async (req, res) => {
+  try {
+    const { imageBase64, mimeType = "image/jpeg" } = req.body || {};
+    const ai = getGenAI();
+    if (!ai) {
+      return res.status(500).json({
+        success: false,
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
+      });
+    }
+
+    const cleanB64 = typeof imageBase64 === "string"
+      ? (imageBase64.includes(",") ? imageBase64.split(",")[1] : imageBase64).trim()
+      : "";
+    if (!cleanB64 || cleanB64.length < 50) {
+      return res.status(400).json({
+        success: false,
+        error: "Data gambar tidak valid untuk pemotongan latar.",
+      });
+    }
+
+    const prompt = `Analyze this image to isolate the main foreground subject (person, product, or central object) from its background.
+Return pure JSON with:
+1. "subjectBox": normalized coordinates (0 to 1000) tightly enclosing the primary foreground subject: { "ymin": number, "xmin": number, "ymax": number, "xmax": number }.
+2. "bgColors": array of 1 to 3 dominant background hex colors sampled near the outer edges (e.g. ["#E5E7EB"]).
+3. "isUniformBg": boolean indicating whether the background is relatively clean/solid/studio or complex.
+4. "subjectType": short label ("person", "product", or "object").`;
+
+    const resp = await generateContentWithRetry(
+      ai,
+      {
+        model: "gemini-2.5-flash",
+        contents: [
+          {
+            inlineData: {
+              mimeType: mimeType || "image/jpeg",
+              data: cleanB64,
+            },
+          },
+          { text: prompt },
+        ],
+        config: {
+          temperature: 0.0,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              subjectBox: {
+                type: Type.OBJECT,
+                properties: {
+                  ymin: { type: Type.NUMBER },
+                  xmin: { type: Type.NUMBER },
+                  ymax: { type: Type.NUMBER },
+                  xmax: { type: Type.NUMBER },
+                },
+                required: ["ymin", "xmin", "ymax", "xmax"],
+              },
+              bgColors: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+              },
+              isUniformBg: { type: Type.BOOLEAN },
+              subjectType: { type: Type.STRING },
+            },
+            required: ["subjectBox", "bgColors", "isUniformBg", "subjectType"],
+          },
+        },
+      },
+      { maxRetries: 0 }
+    );
+
+    const rawJson = (resp.text || "{}").trim();
+    const parsed = JSON.parse(rawJson.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim());
+    const box = parsed?.subjectBox || {};
+    const safeBox = {
+      ymin: Math.max(0, Math.min(950, Number(box.ymin) || 80)),
+      xmin: Math.max(0, Math.min(950, Number(box.xmin) || 120)),
+      ymax: Math.max(50, Math.min(1000, Number(box.ymax) || 940)),
+      xmax: Math.max(50, Math.min(1000, Number(box.xmax) || 880)),
+    };
+
+    return res.json({
+      success: true,
+      subjectBox: safeBox,
+      bgColors: Array.isArray(parsed?.bgColors) ? parsed.bgColors.slice(0, 3) : [],
+      isUniformBg: Boolean(parsed?.isUniformBg),
+      subjectType: String(parsed?.subjectType || "object"),
+    });
+  } catch (err: any) {
+    const meta = extractGeminiErrorMeta(err);
+    const friendly = buildFriendlyGeminiErrorMessage(err, "Gagal menganalisis subjek foto.");
+    const cleanError = meta.isRateLimit || friendly.status === 429
+      ? "Kuota API Gemini habis. Silakan coba lagi nanti."
+      : friendly.message;
+    console.error("[Photo Cutout API] Error:", friendly.status, cleanError);
+    return res.status(meta.isRateLimit ? 429 : friendly.status).json({
+      success: false,
+      error: cleanError,
     });
   }
 });
@@ -2050,15 +2145,13 @@ app.post("/api/generate-publish-copy", async (req, res) => {
       topicHint = "",
       language = "id",
       platforms = ["tiktok", "youtube_shorts", "instagram_reels", "facebook_reels"],
-      apiKey: bodyApiKey,
     } = req.body || {};
 
-    const headerApiKey = typeof req.headers["x-gemini-api-key"] === "string" ? req.headers["x-gemini-api-key"] : "";
-    const ai = getGenAI(bodyApiKey || headerApiKey);
+    const ai = getGenAI();
     if (!ai) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
-        error: "GEMINI_API key belum tersedia di server maupun Settings.",
+        error: "GEMINI_API_KEY belum dikonfigurasi di server (Settings > Secrets).",
       });
     }
 

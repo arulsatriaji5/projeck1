@@ -25,31 +25,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [defaultAutoHook, setDefaultAutoHook] = useState<boolean>(recipe.autoHook);
   const [subtitleLang, setSubtitleLang] = useState<'id' | 'en'>('id');
   const [exportQuality, setExportQuality] = useState<'1080p' | '4k'>('1080p');
-  const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
-    try {
-      return localStorage.getItem('clipa_gemini_api_key') || '';
-    } catch {
-      return '';
-    }
-  });
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (geminiApiKey.trim()) {
-        localStorage.setItem('clipa_gemini_api_key', geminiApiKey.trim());
-      } else {
-        localStorage.removeItem('clipa_gemini_api_key');
-      }
-    } catch {
-      // ignore storage errors
-    }
     onUpdateRecipe({
       ...recipe,
       layout: defaultLayout,
       autoHook: defaultAutoHook,
     });
-    onSavedToast('Pengaturan studio & Gemini API Key berhasil disimpan.');
+    onSavedToast('Pengaturan studio berhasil disimpan.');
   };
 
   return (
@@ -63,34 +47,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             Settings
           </h1>
           <p className="text-xs sm:text-sm text-gray-400 mt-1">
-            Atur Gemini API Key, preferensi pemotongan klip, subtitle, dan kualitas ekspor MP4 Anda.
+            Atur preferensi pemotongan klip, subtitle, dan kualitas ekspor MP4 Anda.
           </p>
         </header>
 
         <form onSubmit={handleSave} className="space-y-5">
-          {/* Gemini API Key (LocalStorage Override for Static Hosts / Vercel) */}
-          <div className="bg-gray-950 border border-gray-800 rounded-2xl p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5 text-sm font-bold text-white">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Gemini API Key (Opsional / Vercel)</span>
-              </div>
-              <span className="text-[11px] font-semibold text-emerald-400">
-                {geminiApiKey.trim() ? 'Tersimpan di Browser' : 'Default Env'}
-              </span>
-            </div>
-            <input
-              type="password"
-              value={geminiApiKey}
-              onChange={(e) => setGeminiApiKey(e.target.value)}
-              placeholder="AIzaSy... (disimpan di localStorage browser)"
-              autoComplete="off"
-              className="w-full bg-gray-900 border border-gray-800 focus:border-emerald-400 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none font-mono"
-            />
-            <p className="text-[11px] text-gray-400">
-              Diprioritaskan jika diisi; jika kosong otomatis membaca environment variable server / Vercel.
-            </p>
-          </div>
 
           {/* Default Layout & Auto-Hook */}
           <div className="bg-gray-950 border border-gray-800 rounded-2xl p-6 space-y-5">
